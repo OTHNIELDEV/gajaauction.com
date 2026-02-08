@@ -34,8 +34,12 @@ const DigitalCEO = () => {
         setSessionId(sid);
     }, []);
 
-    const handleSend = async (textOverride = null) => {
-        const messageText = textOverride || input;
+    const handleSend = async (arg?: string | React.MouseEvent | KeyboardEvent | null) => {
+        let messageText = input;
+        if (typeof arg === 'string') {
+            messageText = arg;
+        }
+
         if (!messageText.trim()) return;
 
         // Optimistic UI Update
