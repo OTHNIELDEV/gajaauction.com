@@ -22,17 +22,8 @@ const DigitalCEO = () => {
         setMousePosition({ x, y });
     };
 
-    const speak = (text: string) => {
-        if (!window.speechSynthesis) return;
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ko-KR';
-        utterance.rate = 1.0;
-        utterance.pitch = 0.9;
-        window.speechSynthesis.speak(utterance);
-    };
-
     // Session Management
-    const [sessionId, setSessionId] = useState(null);
+    const [sessionId, setSessionId] = useState<string | null>(null);
 
     useEffect(() => {
         let sid = localStorage.getItem('chat_session_id');
@@ -48,7 +39,7 @@ const DigitalCEO = () => {
         if (!messageText.trim()) return;
 
         // Optimistic UI Update
-        const userMsg = { role: 'user', text: messageText };
+        const userMsg: { role: 'user' | 'ai', text: string } = { role: 'user', text: messageText };
         setMessages(prev => [...prev, userMsg]);
         setInput("");
         setIsTyping(true);
@@ -65,6 +56,7 @@ const DigitalCEO = () => {
 
             if (!response.ok) throw new Error('Network error');
 
+            if (!response.body) throw new Error('Response body is null');
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let aiResponse = '';
