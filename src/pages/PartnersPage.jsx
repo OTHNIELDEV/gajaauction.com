@@ -96,7 +96,6 @@ const PartnersPage = () => {
                                 alignItems: 'center',
                                 gap: '20px',
                                 textDecoration: 'none',
-                                display: 'block', // Ensure it behaves like a card
                                 cursor: 'pointer'
                             }}
                         >
