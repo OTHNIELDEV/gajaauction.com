@@ -4,7 +4,7 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import ConsultingWizard from './wizard/ConsultingWizard';
 
-import AIConcierge from './concierge/AIConcierge';
+
 import ChatWidget from './ChatWidget';
 
 const Layout = () => {
@@ -30,7 +30,7 @@ const Layout = () => {
 
             <Footer />
 
-            <AIConcierge />
+
             <ConsultingWizard
                 isOpen={isConsultingOpen}
                 onClose={() => setIsConsultingOpen(false)}
