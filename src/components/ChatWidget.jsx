@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import './ChatWidget.css';
 
 const ChatWidget = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -102,8 +103,6 @@ const ChatWidget = () => {
             setIsTyping(false);
         }
     };
-
-    import './ChatWidget.css';
 
     return (
         <>
