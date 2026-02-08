@@ -12,13 +12,25 @@ const ChatWidget = () => {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
-        // Generate or retrieve session ID
-        let sid = localStorage.getItem('chat_session_id');
-        if (!sid) {
-            sid = crypto.randomUUID();
-            localStorage.setItem('chat_session_id', sid);
+        console.log('ChatWidget mounted');
+        try {
+            // Generate or retrieve session ID
+            let sid = localStorage.getItem('chat_session_id');
+            if (!sid) {
+                // Robust UUID generation
+                if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                    sid = crypto.randomUUID();
+                } else {
+                    sid = 'session-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+                }
+                localStorage.setItem('chat_session_id', sid);
+            }
+            setSessionId(sid);
+        } catch (error) {
+            console.error('Error initializing chat session:', error);
+            // Fallback for session ID if localStorage fails
+            setSessionId('fallback-' + Date.now());
         }
-        setSessionId(sid);
     }, []);
 
     const scrollToBottom = () => {
@@ -91,24 +103,26 @@ const ChatWidget = () => {
         }
     };
 
+    import './ChatWidget.css';
+
     return (
         <>
             {/* Floating Action Button */}
             <motion.button
-                className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-500 shadow-lg flex items-center justify-center cursor-pointer border-2 border-yellow-200 hover:scale-110 transition-transform duration-300"
+                className="chat-widget-button"
                 onClick={() => setIsOpen(!isOpen)}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 aria-label="Chat with CEO"
             >
                 {isOpen ? (
-                    <i className="fas fa-times text-2xl text-white"></i>
+                    <i className="fas fa-times" style={{ fontSize: '24px', color: 'white' }}></i>
                 ) : (
-                    <div className="relative">
-                        <i className="fas fa-user-tie text-3xl text-white"></i>
-                        <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    <div style={{ position: 'relative' }}>
+                        <i className="fas fa-user-tie" style={{ fontSize: '30px', color: 'white' }}></i>
+                        <span style={{ position: 'absolute', top: '-4px', right: '-4px', display: 'flex', height: '12px', width: '12px' }}>
+                            <span className="animate-ping" style={{ position: 'absolute', display: 'inline-flex', height: '100%', width: '100%', borderRadius: '50%', backgroundColor: '#4ade80', opacity: 0.75 }}></span>
+                            <span style={{ position: 'relative', display: 'inline-flex', borderRadius: '50%', height: '12px', width: '12px', backgroundColor: '#22c55e' }}></span>
                         </span>
                     </div>
                 )}
@@ -121,47 +135,44 @@ const ChatWidget = () => {
                         initial={{ opacity: 0, y: 50, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 50, scale: 0.9 }}
-                        className="fixed bottom-24 right-6 z-50 w-[90vw] md:w-[380px] h-[600px] max-h-[80vh] flex flex-col rounded-2xl overflow-hidden backdrop-blur-xl bg-gray-900/90 border border-yellow-500/30 shadow-2xl font-sans"
+                        className="chat-window"
                     >
                         {/* Header */}
-                        <div className="p-4 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-yellow-500/20 flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center border border-yellow-500/50">
-                                <i className="fas fa-user-tie text-yellow-500"></i>
+                        <div className="chat-header">
+                            <div className="chat-avatar">
+                                <i className="fas fa-user-tie" style={{ color: '#eab308' }}></i>
                             </div>
                             <div>
-                                <h3 className="font-bold text-white text-lg">Lee Sang-soo</h3>
-                                <p className="text-xs text-yellow-500 font-medium">CEO • NPL Expert</p>
+                                <h3 style={{ fontWeight: 'bold', color: 'white', fontSize: '18px' }}>Lee Sang-soo</h3>
+                                <p style={{ fontSize: '12px', color: '#eab308', fontWeight: 500 }}>CEO • NPL Expert</p>
                             </div>
-                            <div className="ml-auto flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                <span className="text-xs text-gray-400">Online</span>
+                            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' }}></span>
+                                <span style={{ fontSize: '12px', color: '#9ca3af' }}>Online</span>
                             </div>
                         </div>
 
                         {/* Messages Area */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-yellow-600/50 scrollbar-track-transparent">
+                        <div className="chat-messages">
                             {messages.map((msg, index) => (
                                 <div
                                     key={index}
-                                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                                    className={`message-row ${msg.role === 'user' ? 'user' : 'assistant'}`}
                                 >
                                     <div
-                                        className={`max-w-[85%] p-3 rounded-2xl ${msg.role === 'user'
-                                            ? 'bg-yellow-600 text-white rounded-tr-none'
-                                            : 'bg-white/10 text-gray-100 rounded-tl-none border border-white/5'
-                                            }`}
+                                        className={`message-bubble ${msg.role === 'user' ? 'user' : 'assistant'}`}
                                     >
-                                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                                        <p className="text-[10px] mt-1 opacity-50 text-right">{formatTime()}</p>
+                                        <p style={{ fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{msg.content}</p>
+                                        <p style={{ fontSize: '10px', marginTop: '4px', opacity: 0.5, textAlign: 'right' }}>{formatTime()}</p>
                                     </div>
                                 </div>
                             ))}
                             {isTyping && (
-                                <div className="flex justify-start">
-                                    <div className="bg-white/10 p-3 rounded-2xl rounded-tl-none border border-white/5 flex gap-1 items-center">
-                                        <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-bounce"></span>
-                                        <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-bounce delay-100"></span>
-                                        <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-bounce delay-200"></span>
+                                <div className="message-row assistant">
+                                    <div className="message-bubble assistant typing-indicator">
+                                        <span className="typing-dot"></span>
+                                        <span className="typing-dot"></span>
+                                        <span className="typing-dot"></span>
                                     </div>
                                 </div>
                             )}
@@ -169,24 +180,24 @@ const ChatWidget = () => {
                         </div>
 
                         {/* Input Area */}
-                        <div className="p-4 bg-black/20 border-t border-white/5">
-                            <form onSubmit={handleSendMessage} className="flex gap-2">
+                        <div className="chat-input-area">
+                            <form onSubmit={handleSendMessage} className="chat-form">
                                 <input
                                     type="text"
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     placeholder="NPL 투자에 대해 물어보세요..."
-                                    className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white focus:outline-none focus:border-yellow-500/50 placeholder-gray-500"
+                                    className="chat-input"
                                 />
                                 <button
                                     type="submit"
                                     disabled={!inputValue.trim() || isTyping}
-                                    className="w-10 h-10 rounded-full bg-yellow-600 flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-yellow-500 transition-colors"
+                                    className="chat-send-btn"
                                 >
                                     <i className="fas fa-paper-plane"></i>
                                 </button>
                             </form>
-                            <p className="text-[10px] text-center text-gray-500 mt-2">
+                            <p style={{ fontSize: '10px', textAlign: 'center', color: '#6b7280', marginTop: '8px' }}>
                                 투자의 최종 책임은 투자자 본인에게 있습니다.
                             </p>
                         </div>
