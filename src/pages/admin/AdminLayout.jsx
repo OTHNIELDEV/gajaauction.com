@@ -25,6 +25,7 @@ const AdminLayout = () => {
         { path: '/admin/inquiries', icon: 'fas fa-envelope-open-text', label: 'Inquiries' },
         { path: '/admin/partners', icon: 'fas fa-handshake', label: 'Partners' },
         { path: '/admin/vips', icon: 'fas fa-crown', label: 'VIP Lounge' },
+        { path: '/admin/leads', icon: 'fas fa-user-clock', label: 'Leads' },
         { path: '/admin/settings', icon: 'fas fa-cog', label: 'Settings' },
     ];
 

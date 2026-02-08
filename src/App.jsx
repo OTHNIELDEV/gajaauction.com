@@ -30,6 +30,7 @@ import AdminListings from './pages/admin/AdminListings';
 import AdminInquiries from './pages/admin/AdminInquiries';
 import AdminPartners from './pages/admin/AdminPartners';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminLeads from './pages/admin/AdminLeads';
 import AdminVIPs from './pages/admin/AdminVIPs';
 import './index.css';
 
@@ -86,6 +87,7 @@ function App() {
               <Route path="listings" element={<AdminListings />} />
               <Route path="inquiries" element={<AdminInquiries />} />
               <Route path="partners" element={<AdminPartners />} />
+              <Route path="leads" element={<AdminLeads />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="vips" element={<AdminVIPs />} />
             </Route>

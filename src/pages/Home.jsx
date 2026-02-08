@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import Hero from '../components/Hero';
+import MarketTicker from '../components/common/MarketTicker';
 import Stats from '../components/Stats';
 import AITech from '../components/AITech';
 import Process from '../components/Process';
@@ -24,6 +25,7 @@ const Home = () => {
     return (
         <div className="home-page">
             <Hero onConsultingClick={openConsulting} />
+            <MarketTicker />
             <Stats />
             <AITech onSearch={handleGrasSearch} />
             <Process />

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import ConsultingWizard from './wizard/ConsultingWizard';
-import MarketTicker from './common/MarketTicker';
+
 import AIConcierge from './concierge/AIConcierge';
+import ChatWidget from './ChatWidget';
 
 const Layout = () => {
     const [isConsultingOpen, setIsConsultingOpen] = useState(false);
-    const location = useLocation();
 
     // Helper to determine if we should show the layout
     // (In case we later have pages without navbar/footer, e.g. landing pages or admin login)
@@ -21,7 +21,7 @@ const Layout = () => {
 
     return (
         <div className="app-layout">
-            <MarketTicker />
+
             <Navbar onConsultingClick={openConsulting} />
 
             <main style={{ minHeight: 'calc(100vh - 350px)' }}>
@@ -35,6 +35,7 @@ const Layout = () => {
                 isOpen={isConsultingOpen}
                 onClose={() => setIsConsultingOpen(false)}
             />
+            <ChatWidget />
         </div>
     );
 };

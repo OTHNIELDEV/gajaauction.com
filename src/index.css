@@ -442,6 +442,28 @@ h2 {
     -webkit-text-fill-color: transparent;
 }
 
+.footer p {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    line-height: 1.6;
+}
+
+.footer-info p {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.footer-bottom {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-bottom p {
+    font-size: 0.8rem;
+    margin-bottom: 0;
+}
+
 /* Animations */
 .fade-in-up {
     opacity: 0;
