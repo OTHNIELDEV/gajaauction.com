@@ -2,25 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ceoImg from '../assets/images/ceo_final.jpg';
 
-// Mock AI Knowledge Base
-const AI_KNOWLEDGE = [
-    {
-        keywords: ['NPL', '장점', '경매', '차이'],
-        answer: "일반 경매는 권리 분석이 까다롭고 경쟁이 치열합니다. 반면, NPL 투자는 채권자 지위에서 입찰하므로 낙찰 확률이 월등히 높고, 세금 혜택까지 누릴 수 있는 금융 공학의 결정체입니다.",
-    },
-    {
-        keywords: ['수익률', '얼마', '투자', '돈'],
-        answer: "평균적으로 NPL 투자는 일반 부동산 투자 대비 2배 이상의 수익률을 기대할 수 있습니다. 특히 가자경매의 특수 물건 분석을 통하면 연 20% 이상의 안정적인 수익 모델을 설계할 수 있습니다.",
-    },
-    {
-        keywords: ['위험', '안전', '리스크'],
-        answer: "모든 투자에는 리스크가 있지만, NPL은 담보(부동산)가 확실하기 때문에 원금 손실 위험이 극히 낮습니다. 저희는 3단계 권리 분석 시스템으로 리스크를 0에 수렴하게 만듭니다.",
-    },
-    {
-        keywords: ['시작', '방법', '초보'],
-        answer: "어렵지 않습니다. 저희의 '시크릿 컨설팅'을 통해 1:1 맞춤형 포트폴리오를 제안받으세요. 소액으로도 시작할 수 있는 우량 채권부터 안내해 드립니다.",
-    }
-];
+
 
 const DigitalCEO = () => {
     const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
@@ -49,26 +31,65 @@ const DigitalCEO = () => {
         window.speechSynthesis.speak(utterance);
     };
 
-    const handleSend = () => {
-        if (!input.trim()) return;
+    // Session Management
+    const [sessionId, setSessionId] = useState(null);
 
-        const userMsg = input;
-        setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    useEffect(() => {
+        let sid = localStorage.getItem('chat_session_id');
+        if (!sid) {
+            sid = crypto.randomUUID();
+            localStorage.setItem('chat_session_id', sid);
+        }
+        setSessionId(sid);
+    }, []);
+
+    const handleSend = async (textOverride = null) => {
+        const messageText = textOverride || input;
+        if (!messageText.trim()) return;
+
+        // Optimistic UI Update
+        const userMsg = { role: 'user', text: messageText };
+        setMessages(prev => [...prev, userMsg]);
         setInput("");
         setIsTyping(true);
 
-        // AI Logic
-        setTimeout(() => {
-            let response = "흥미로운 질문이군요. 상세한 내용은 전문가와의 상담을 추천드리지만, 간략히 말씀드리자면...";
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: userMsg.text,
+                    sessionId: sessionId
+                }),
+            });
 
-            const found = AI_KNOWLEDGE.find(k => k.keywords.some(word => userMsg.includes(word)));
-            if (found) response = found.answer;
-            else if (userMsg.includes('안녕')) response = "반갑습니다. 가자경매NPL 대표 이상수입니다. 무엇을 도와드릴까요?";
+            if (!response.ok) throw new Error('Network error');
 
-            setMessages(prev => [...prev, { role: 'ai', text: response }]);
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let aiResponse = '';
+
+            setMessages(prev => [...prev, { role: 'ai', text: '' }]);
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                aiResponse += chunk;
+
+                setMessages(prev => {
+                    const newMsgs = [...prev];
+                    newMsgs[newMsgs.length - 1].text = aiResponse;
+                    return newMsgs;
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            setMessages(prev => [...prev, { role: 'ai', text: "죄송합니다. 연결 상태가 좋지 않습니다. 잠시 후 다시 시도해주세요." }]);
+        } finally {
             setIsTyping(false);
-            speak(response);
-        }, 1500);
+        }
     };
 
     useEffect(() => {
@@ -230,7 +251,7 @@ const DigitalCEO = () => {
                                         {['NPL이 뭔가요?', '수익률은 어느정도?', '초보다도 가능한가요?'].map((q, i) => (
                                             <button
                                                 key={i}
-                                                onClick={() => setInput(q)}
+                                                onClick={() => handleSend(q)}
                                                 style={{ whiteSpace: 'nowrap', padding: '8px 15px', borderRadius: '20px', border: '1px solid #444', background: 'transparent', color: '#ccc', cursor: 'pointer', fontSize: '0.8rem' }}
                                             >
                                                 {q}
