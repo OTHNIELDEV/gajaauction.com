@@ -107,9 +107,9 @@
       transition: opacity 1.2s ease;
     }
     .hero-bg-slide.active { opacity: 1; }
-    .hero-bg-slide:nth-child(1) { background-image: url('gallery/photo_001.jpeg'); }
-    .hero-bg-slide:nth-child(2) { background-image: url('gallery/photo_002.jpeg'); }
-    .hero-bg-slide:nth-child(3) { background-image: url('gallery/photo_003.jpeg'); }
+    .hero-bg-slide:nth-child(1) { background-image: url('/sales/gallery/photo_001.jpeg'); }
+    .hero-bg-slide:nth-child(2) { background-image: url('/sales/gallery/photo_002.jpeg'); }
+    .hero-bg-slide:nth-child(3) { background-image: url('/sales/gallery/photo_003.jpeg'); }
     .hero-bg-overlay {
       position: absolute; inset: 0;
       background: linear-gradient(
@@ -795,7 +795,7 @@
     <li><a href="#video">소개 영상</a></li>
   </ul>
   <div class="nav-right">
-    <a class="lang-btn" href="index.html">🇺🇸 English</a>
+    <a class="lang-btn" href="/sales/index.html">🇺🇸 English</a>
     <button class="nav-cta" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">상담 신청</button>
   </div>
 </nav>
@@ -905,7 +905,7 @@
       <!-- 담당자 사진 -->
       <div class="persona-photo-wrap">
         <div class="persona-photo-frame">
-          <img src="ceo/ceo_photo.jpeg" alt="이상수 대표" style="display:block; object-position: center top;" />
+          <img src="/sales/ceo/ceo_photo.jpeg" alt="이상수 대표" style="display:block; object-position: center top;" />
         </div>
         <div style="text-align:center; margin-top:14px;">
           <p style="font-family:'Noto Serif KR',serif; font-size:16px; font-weight:600; color:var(--white); letter-spacing:0.04em;">이상수 대표</p>
@@ -946,47 +946,47 @@
 
     <div class="gallery-grid">
       <div class="gallery-item g1" onclick="openLb(0)">
-        <img src="gallery/photo_002.jpeg" alt="야경 외관" loading="lazy" />
+        <img src="/sales/gallery/photo_002.jpeg" alt="야경 외관" loading="lazy" />
         <span class="gallery-item-label">야경 외관</span>
       </div>
       <div class="gallery-item g2" onclick="openLb(1)">
-        <img src="gallery/photo_017.jpeg" alt="거실" loading="lazy" />
+        <img src="/sales/gallery/photo_017.jpeg" alt="거실" loading="lazy" />
         <span class="gallery-item-label">거실</span>
       </div>
       <div class="gallery-item g3" onclick="openLb(2)">
-        <img src="gallery/photo_019.jpeg" alt="TV월" loading="lazy" />
+        <img src="/sales/gallery/photo_019.jpeg" alt="TV월" loading="lazy" />
         <span class="gallery-item-label">TV 월</span>
       </div>
       <div class="gallery-item g4" onclick="openLb(3)">
-        <img src="gallery/photo_007.jpeg" alt="침실" loading="lazy" />
+        <img src="/sales/gallery/photo_007.jpeg" alt="침실" loading="lazy" />
         <span class="gallery-item-label">침실</span>
       </div>
       <div class="gallery-item g5" onclick="openLb(4)">
-        <img src="gallery/photo_010.jpeg" alt="드레스룸" loading="lazy" />
+        <img src="/sales/gallery/photo_010.jpeg" alt="드레스룸" loading="lazy" />
         <span class="gallery-item-label">드레스룸</span>
       </div>
       <div class="gallery-item g6" onclick="openLb(5)">
-        <img src="gallery/photo_015.jpeg" alt="주방·다이닝" loading="lazy" />
+        <img src="/sales/gallery/photo_015.jpeg" alt="주방·다이닝" loading="lazy" />
         <span class="gallery-item-label">주방 · 다이닝</span>
       </div>
       <div class="gallery-item g7" onclick="openLb(6)">
-        <img src="gallery/photo_004.jpeg" alt="욕실" loading="lazy" />
+        <img src="/sales/gallery/photo_004.jpeg" alt="욕실" loading="lazy" />
         <span class="gallery-item-label">욕실</span>
       </div>
       <div class="gallery-item g8" onclick="openLb(7)">
-        <img src="gallery/photo_005.jpeg" alt="욕실" loading="lazy" />
+        <img src="/sales/gallery/photo_005.jpeg" alt="욕실" loading="lazy" />
         <span class="gallery-item-label">욕실</span>
       </div>
       <div class="gallery-item g9" onclick="openLb(8)">
-        <img src="gallery/photo_006.jpeg" alt="샤워룸" loading="lazy" />
+        <img src="/sales/gallery/photo_006.jpeg" alt="샤워룸" loading="lazy" />
         <span class="gallery-item-label">샤워룸</span>
       </div>
       <div class="gallery-item g10" onclick="openLb(9)">
-        <img src="gallery/photo_009.jpeg" alt="복도" loading="lazy" />
+        <img src="/sales/gallery/photo_009.jpeg" alt="복도" loading="lazy" />
         <span class="gallery-item-label">복도</span>
       </div>
       <div class="gallery-item g11" onclick="openLb(10)">
-        <img src="gallery/photo_003.jpeg" alt="전경" loading="lazy" />
+        <img src="/sales/gallery/photo_003.jpeg" alt="전경" loading="lazy" />
         <span class="gallery-item-label">전경</span>
       </div>
     </div>
@@ -1111,7 +1111,7 @@
         </div>
       </div>
       <div class="pdf-modal-actions">
-        <a class="pdf-dl-btn" href="appraisal/hana_appraisal.pdf" download>
+        <a class="pdf-dl-btn" href="/sales/appraisal/hana_appraisal.pdf" download>
           <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5v-2z"/></svg>
           다운로드
         </a>
@@ -1124,7 +1124,7 @@
         <div style="font-size:32px; margin-bottom:8px;">📄</div>
         <p style="color:rgba(255,255,255,0.7); font-size:15px; font-weight:500; margin-bottom:4px;">(주)하나감정평가법인 감정평가서</p>
         <p style="color:rgba(255,255,255,0.35); font-size:13px; margin-bottom:24px;">PDF를 불러오는 중입니다...</p>
-        <a class="pdf-dl-btn" href="appraisal/hana_appraisal.pdf" target="_blank" style="font-size:13px; padding:10px 22px;">
+        <a class="pdf-dl-btn" href="/sales/appraisal/hana_appraisal.pdf" target="_blank" style="font-size:13px; padding:10px 22px;">
           <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 19H5v-2h14v2zm-7-4l-6-6 1.41-1.41L11 11.17V3h2v8.17l3.59-3.58L18 9l-6 6z"/></svg>
           새 탭에서 열기 (권장)
         </a>
