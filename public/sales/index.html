@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>과천 디아크카운티 — 특별 매각 안내</title>
+  <title>Gwacheon D'ARC COUNTY — Exclusive Property Disposal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -69,6 +69,20 @@
       transition: all 0.2s;
     }
     .nav-cta:hover { background: var(--gold-light); transform: scale(1.04); }
+    .lang-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 16px;
+      background: transparent;
+      color: rgba(255,255,255,0.85);
+      font-size: 12px; font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 100px;
+      cursor: pointer; letter-spacing: 0.06em;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .lang-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,169,110,0.08); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
 
     /* ────────────── HERO ────────────── */
     .hero {
@@ -80,7 +94,7 @@
       overflow: hidden;
     }
 
-    /* 배경 사진 슬라이드쇼 */
+    /* Background photo slideshow */
     .hero-bg {
       position: absolute; inset: 0;
       z-index: 0;
@@ -93,9 +107,9 @@
       transition: opacity 1.2s ease;
     }
     .hero-bg-slide.active { opacity: 1; }
-    .hero-bg-slide:nth-child(1) { background-image: url('실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 001.jpeg'); }
-    .hero-bg-slide:nth-child(2) { background-image: url('실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 002.jpeg'); }
-    .hero-bg-slide:nth-child(3) { background-image: url('실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 003.jpeg'); }
+    .hero-bg-slide:nth-child(1) { background-image: url('gallery/photo_001.jpeg'); }
+    .hero-bg-slide:nth-child(2) { background-image: url('gallery/photo_002.jpeg'); }
+    .hero-bg-slide:nth-child(3) { background-image: url('gallery/photo_003.jpeg'); }
     .hero-bg-overlay {
       position: absolute; inset: 0;
       background: linear-gradient(
@@ -343,7 +357,7 @@
       pointer-events: none;
     }
 
-    /* ── PDF 모달 ── */
+    /* ── PDF Modal ── */
     .pdf-modal-overlay {
       display: none; position: fixed; inset: 0; z-index: 10000;
       background: rgba(0,0,0,0.88);
@@ -755,6 +769,7 @@
     @media (max-width: 900px) {
       nav { padding: 0 20px; }
       .nav-menu { display: none; }
+      .lang-btn { font-size: 11px; padding: 6px 12px; }
       .section-wrap { padding: 0 20px; }
       .intent-cards { grid-template-columns: 1fr; }
       .intent-highlight { flex-direction: column; gap: 32px; }
@@ -772,14 +787,17 @@
 
 <!-- ── NAV ── -->
 <nav>
-  <div class="nav-brand">가자<span>에셋</span></div>
+  <div class="nav-brand">Gaja<span>Asset</span></div>
   <ul class="nav-menu">
-    <li><a href="#intent">매각 취지</a></li>
-    <li><a href="#gallery">사진 갤러리</a></li>
-    <li><a href="#info">매물 정보</a></li>
-    <li><a href="#video">소개 영상</a></li>
+    <li><a href="#intent">Sale Purpose</a></li>
+    <li><a href="#gallery">Photo Gallery</a></li>
+    <li><a href="#info">Property Info</a></li>
+    <li><a href="#video">Intro Video</a></li>
   </ul>
-  <button class="nav-cta" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">상담 신청</button>
+  <div class="nav-right">
+    <a class="lang-btn" href="index_kr.html">🇰🇷 한국어</a>
+    <button class="nav-cta" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Inquire Now</button>
+  </div>
 </nav>
 
 <!-- ── HERO ── -->
@@ -792,14 +810,14 @@
   <div class="hero-bg-overlay"></div>
 
   <div class="hero-content">
-    <div class="hero-tag"><span>경기도 과천시 문원동 · 디아크카운티</span></div>
+    <div class="hero-tag"><span>Munwon-dong, Gwacheon-si, Gyeonggi-do · D'ARC COUNTY</span></div>
     <h1 class="hero-title">
-      과천 최고급 타운하우스<br />
-      <strong>전체 5호 중 4개 호수 특별 매각</strong>
+      Gwacheon's Finest Luxury Townhouse<br />
+      <strong>4 of 5 Units — Exclusive Private Sale</strong>
     </h1>
     <p class="hero-sub">
-      감정가 148억 · 법적 하자 없는 클린 매물<br />
-      (주)부림저축은행 지정 매수 의뢰인 한정 · 70억 매각
+      Appraised at KRW 14.8B · Clean title, zero legal encumbrances<br />
+      Authorized by Burim Savings Bank · Offered at KRW 7.0B
     </p>
   </div>
 
@@ -809,69 +827,69 @@
   </div>
 </section>
 
-<!-- ── 매각 취지 ── -->
+<!-- ── Sale Purpose ── -->
 <section class="intent-section" id="intent">
   <div class="section-wrap">
-    <p class="intent-label">매각 취지</p>
+    <p class="intent-label">Sale Purpose</p>
     <h2 class="intent-heading">
-      감정가 <em>148억</em>의 건물을<br />
-      <em>70억</em>에 매각합니다
+      A Building Appraised at <em>KRW 14.8B</em><br />
+      Now Offered at <em>KRW 7.0B</em>
     </h2>
 
     <div class="intent-cards">
       <div class="intent-card">
         <div class="intent-card-num">01</div>
-        <div class="intent-card-title">매각 주체 및 권한</div>
+        <div class="intent-card-title">Selling Authority</div>
         <div class="intent-card-body">
-          매각 권한자인 <strong>(주)부림저축은행</strong>으로부터 공식 위임된 매각입니다. 법적 권리 관계가 명확하며, 은행 승인 하에 진행되는 정식 매각입니다.
+          This sale is officially authorized by <strong>Burim Savings Bank Co., Ltd.</strong>, the legal rights holder. All ownership claims are clear and the disposal proceeds under full bank approval.
         </div>
       </div>
       <div class="intent-card">
         <div class="intent-card-num">02</div>
-        <div class="intent-card-title">매각 대상 및 감정가</div>
+        <div class="intent-card-title">Subject Property &amp; Appraisal</div>
         <div class="intent-card-body">
-          (주)하나감정평가법인의 공식 감정가액 <strong>147억 9천만 원</strong> (4세대 구분건물 합산) 기준입니다.
+          The official appraisal by <strong>Hana Appraisal Corporation</strong> values the 4 individually registered units at a combined <strong>KRW 14.79 billion</strong>.
         </div>
       </div>
       <div class="intent-card">
         <div class="intent-card-num">03</div>
-        <div class="intent-card-title">특별 매각 조건</div>
+        <div class="intent-card-title">Exclusive Sale Terms</div>
         <div class="intent-card-body">
-          법적 하자 <strong>전혀 없음</strong>을 확인하였으며, 지정 매수 의뢰인에게만 <strong>4개 호수를 70억 원</strong>에 매각하기로 합의된 특별 조건입니다.
+          The property carries <strong>zero legal encumbrances</strong>. All 4 units are offered exclusively to designated buyers at the agreed price of <strong>KRW 7.0 billion</strong>.
         </div>
       </div>
     </div>
 
-    <!-- 핵심 강조 박스 -->
+    <!-- Key Highlight Box -->
     <div class="intent-highlight">
       <div class="intent-hl-left">
-        <div class="intent-hl-badge"><span>특별 매각 안내</span></div>
+        <div class="intent-hl-badge"><span>Exclusive Sale Notice</span></div>
         <h3 class="intent-hl-title">
-          <strong>(주)부림저축은행</strong>의<br />
-          공식 매각 결정 사항
+          Official Disposal Decision by<br />
+          <strong>Burim Savings Bank Co., Ltd.</strong>
         </h3>
         <p class="intent-hl-body">
-          본 매물은 (주)부림저축은행이 보유한 경기도 과천시 문원동 소재 「디아크카운티」 전체 <strong style="color:var(--white)">5개 호수 중 4개 호수</strong>(건물 부분)를 매각하는 건입니다.<br /><br />
-          <strong style="color:var(--white)">(주)하나감정평가법인</strong>의 공식 감정가액 기준 <strong style="color:var(--gold)">총 147억 9천만 원</strong> 상당의 매물을, 은행으로부터 법적 하자 전혀 없음을 확인하고 지정 매수 의뢰인에게 한정하여 <strong style="color:var(--gold)">70억 원</strong>에 매각하기로 공식 합의하였습니다.
+          This offering covers <strong style="color:var(--white)">4 out of 5 units</strong> (building portion only) at 「D'ARC COUNTY」, Munwon-dong, Gwacheon-si, Gyeonggi-do, held by Burim Savings Bank Co., Ltd.<br /><br />
+          Based on the official appraisal by <strong style="color:var(--white)">Hana Appraisal Corporation</strong> at a combined value of <strong style="color:var(--gold)">KRW 14.79 billion</strong>, the bank has confirmed zero legal encumbrances and officially agreed to offer all 4 units exclusively to designated buyers at <strong style="color:var(--gold)">KRW 7.0 billion</strong>.
         </p>
         <div style="margin-top: 24px;">
           <button class="pdf-link-btn" onclick="openPdf()">
             <svg viewBox="0 0 24 24"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/></svg>
-            (주)하나감정평가법인 감정평가서 열람
+            View Official Appraisal Report — Hana Appraisal Corp.
           </button>
         </div>
       </div>
       <div class="intent-hl-right">
         <div class="price-chip">
-          <div class="pc-label">공식 감정가 (4세대 합산)</div>
-          <div class="pc-val">148억 원</div>
-          <div class="pc-sub">하나감정평가법인 공식 평가</div>
+          <div class="pc-label">Official Appraised Value (4 units combined)</div>
+          <div class="pc-val">KRW 14.8B</div>
+          <div class="pc-sub">Certified by Hana Appraisal Corp.</div>
         </div>
         <div class="price-chip featured">
-          <div class="pc-label">특별 매각가</div>
-          <div class="pc-val">70억 원</div>
-          <div class="pc-sub">5개 호수 중 4개 일괄 매각</div>
-          <div class="pc-discount">▼ 53% 할인</div>
+          <div class="pc-label">Exclusive Sale Price</div>
+          <div class="pc-val">KRW 7.0B</div>
+          <div class="pc-sub">4 of 5 units — bulk sale</div>
+          <div class="pc-discount">▼ 53% Below Appraisal</div>
         </div>
       </div>
     </div>
@@ -880,37 +898,37 @@
 
 <div class="divider"></div>
 
-<!-- ── 인물 소개 ── -->
+<!-- ── Representative Introduction ── -->
 <section class="persona-section">
   <div class="section-wrap">
     <div class="persona-inner">
-      <!-- 담당자 사진 -->
+      <!-- Contact person photo -->
       <div class="persona-photo-wrap">
         <div class="persona-photo-frame">
-          <img src="담당자/이상수_사진1.jpeg" alt="이상수 대표" style="display:block; object-position: center top;" />
+          <img src="ceo/ceo_photo.jpeg" alt="Lee Sang-su, CEO" style="display:block; object-position: center top;" />
         </div>
         <div style="text-align:center; margin-top:14px;">
-          <p style="font-family:'Noto Serif KR',serif; font-size:16px; font-weight:600; color:var(--white); letter-spacing:0.04em;">이상수 대표</p>
-          <p style="font-size:12px; color:var(--gold); font-weight:400; letter-spacing:0.08em; margin-top:4px;">가자에셋</p>
+          <p style="font-family:'Noto Serif KR',serif; font-size:16px; font-weight:600; color:var(--white); letter-spacing:0.04em;">Lee Sang-su, CEO</p>
+          <p style="font-size:12px; color:var(--gold); font-weight:400; letter-spacing:0.08em; margin-top:4px;">Gaja Asset</p>
         </div>
       </div>
 
       <div class="persona-text">
-        <div class="persona-badge"><span>대표 직접 추천</span></div>
+        <div class="persona-badge"><span>CEO's Personal Recommendation</span></div>
         <h2 class="persona-heading">
-          <em>이상수 대표</em>가<br />
-          직접 보시면 좋겠다고<br />
-          말씀드리는 매물입니다.
+          <em>CEO Lee Sang-su</em><br />
+          personally recommends<br />
+          you see this property yourself.
         </h2>
         <p class="persona-desc">
-          과천 최고급 타운하우스 단지로, 단순한 투자를 넘어<br />
-          삶의 품격이 달라지는 공간입니다. 감정가 대비 53% 수준의<br />
-          이번 기회는 지정 의뢰인에게만 열려 있습니다.
+          This is Gwacheon's finest luxury townhouse — a space that<br />
+          elevates not just your portfolio, but your way of life.<br />
+          At 53% below appraisal, this opportunity is for designated buyers only.
         </p>
         <div style="margin-top: 28px;">
           <button class="pdf-link-btn" onclick="openPdf()">
             <svg viewBox="0 0 24 24"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/></svg>
-            (주)하나감정평가법인 감정평가서 보기
+            View Official Appraisal Report — Hana Appraisal Corp.
           </button>
         </div>
       </div>
@@ -920,56 +938,56 @@
 
 <div class="divider"></div>
 
-<!-- ── 갤러리 ── -->
+<!-- ── Gallery ── -->
 <section class="gallery-section" id="gallery">
   <div class="section-wrap">
-    <p class="gallery-label">사진 갤러리</p>
-    <h2 class="gallery-title">공간을 직접 느껴보세요</h2>
+    <p class="gallery-label">Photo Gallery</p>
+    <h2 class="gallery-title">Experience the Space Yourself</h2>
 
     <div class="gallery-grid">
       <div class="gallery-item g1" onclick="openLb(0)">
-        <img src="실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 002.jpeg" alt="야경 외관" loading="lazy" />
-        <span class="gallery-item-label">야경 외관</span>
+        <img src="gallery/photo_002.jpeg" alt="Night Exterior" loading="lazy" />
+        <span class="gallery-item-label">Night Exterior</span>
       </div>
       <div class="gallery-item g2" onclick="openLb(1)">
-        <img src="실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 017.jpeg" alt="거실" loading="lazy" />
-        <span class="gallery-item-label">거실</span>
+        <img src="gallery/photo_017.jpeg" alt="Living Room" loading="lazy" />
+        <span class="gallery-item-label">Living Room</span>
       </div>
       <div class="gallery-item g3" onclick="openLb(2)">
-        <img src="실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 019.jpeg" alt="TV월" loading="lazy" />
-        <span class="gallery-item-label">TV 월</span>
+        <img src="gallery/photo_019.jpeg" alt="TV Wall" loading="lazy" />
+        <span class="gallery-item-label">TV Wall</span>
       </div>
       <div class="gallery-item g4" onclick="openLb(3)">
-        <img src="실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 007.jpeg" alt="침실" loading="lazy" />
-        <span class="gallery-item-label">침실</span>
+        <img src="gallery/photo_007.jpeg" alt="Bedroom" loading="lazy" />
+        <span class="gallery-item-label">Bedroom</span>
       </div>
       <div class="gallery-item g5" onclick="openLb(4)">
-        <img src="실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 010.jpeg" alt="드레스룸" loading="lazy" />
-        <span class="gallery-item-label">드레스룸</span>
+        <img src="gallery/photo_010.jpeg" alt="Dressing Room" loading="lazy" />
+        <span class="gallery-item-label">Dressing Room</span>
       </div>
       <div class="gallery-item g6" onclick="openLb(5)">
-        <img src="실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 015.jpeg" alt="주방·다이닝" loading="lazy" />
-        <span class="gallery-item-label">주방 · 다이닝</span>
+        <img src="gallery/photo_015.jpeg" alt="Kitchen · Dining" loading="lazy" />
+        <span class="gallery-item-label">Kitchen · Dining</span>
       </div>
       <div class="gallery-item g7" onclick="openLb(6)">
-        <img src="실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 004.jpeg" alt="욕실" loading="lazy" />
-        <span class="gallery-item-label">욕실</span>
+        <img src="gallery/photo_004.jpeg" alt="Bathroom" loading="lazy" />
+        <span class="gallery-item-label">Bathroom</span>
       </div>
       <div class="gallery-item g8" onclick="openLb(7)">
-        <img src="실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 005.jpeg" alt="욕실" loading="lazy" />
-        <span class="gallery-item-label">욕실</span>
+        <img src="gallery/photo_005.jpeg" alt="Bathroom" loading="lazy" />
+        <span class="gallery-item-label">Bathroom</span>
       </div>
       <div class="gallery-item g9" onclick="openLb(8)">
-        <img src="실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 006.jpeg" alt="샤워룸" loading="lazy" />
-        <span class="gallery-item-label">샤워룸</span>
+        <img src="gallery/photo_006.jpeg" alt="Shower Room" loading="lazy" />
+        <span class="gallery-item-label">Shower Room</span>
       </div>
       <div class="gallery-item g10" onclick="openLb(9)">
-        <img src="실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 009.jpeg" alt="복도" loading="lazy" />
-        <span class="gallery-item-label">복도</span>
+        <img src="gallery/photo_009.jpeg" alt="Hallway" loading="lazy" />
+        <span class="gallery-item-label">Hallway</span>
       </div>
       <div class="gallery-item g11" onclick="openLb(10)">
-        <img src="실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 003.jpeg" alt="전경" loading="lazy" />
-        <span class="gallery-item-label">전경</span>
+        <img src="gallery/photo_003.jpeg" alt="Panoramic View" loading="lazy" />
+        <span class="gallery-item-label">Panoramic View</span>
       </div>
     </div>
   </div>
@@ -977,53 +995,53 @@
 
 <div class="divider"></div>
 
-<!-- ── 매물 정보 ── -->
+<!-- ── Property Info ── -->
 <section class="info-section" id="info">
   <div class="section-wrap">
-    <p class="info-label">매물 정보</p>
-    <h2 class="info-title">항목을 눌러 확인하세요</h2>
-    <p class="info-sub">각 항목을 클릭하시면 상세 내용이 펼쳐집니다</p>
+    <p class="info-label">Property Information</p>
+    <h2 class="info-title">Tap Each Category to Expand</h2>
+    <p class="info-sub">Click any item below to view detailed information</p>
 
     <div class="info-grid" id="infoGrid">
       <button class="info-btn" data-key="location">
         <div class="info-btn-icon">📍</div>
-        <div class="info-btn-name">소재지</div>
-        <div class="info-btn-hint">과천시 문원동</div>
+        <div class="info-btn-name">Location</div>
+        <div class="info-btn-hint">Munwon-dong, Gwacheon</div>
       </button>
       <button class="info-btn" data-key="building">
         <div class="info-btn-icon">🏛️</div>
-        <div class="info-btn-name">건물 개요</div>
-        <div class="info-btn-hint">디아크카운티 · 4세대</div>
+        <div class="info-btn-name">Building Overview</div>
+        <div class="info-btn-hint">D'ARC COUNTY · 4 Units</div>
       </button>
       <button class="info-btn" data-key="price">
         <div class="info-btn-icon">💰</div>
-        <div class="info-btn-name">가격 정보</div>
-        <div class="info-btn-hint">감정가 148억 · 매각가 70억</div>
+        <div class="info-btn-name">Pricing</div>
+        <div class="info-btn-hint">Appraised KRW 14.8B · Offered KRW 7.0B</div>
       </button>
       <button class="info-btn" data-key="legal">
         <div class="info-btn-icon">📋</div>
-        <div class="info-btn-name">법적 현황</div>
-        <div class="info-btn-hint">하자 없음 · 은행 공식 매각</div>
+        <div class="info-btn-name">Legal Status</div>
+        <div class="info-btn-hint">Clean Title · Bank-Authorized</div>
       </button>
       <button class="info-btn" data-key="size">
         <div class="info-btn-icon">📐</div>
-        <div class="info-btn-name">면적 정보</div>
-        <div class="info-btn-hint">4세대 구분건물</div>
+        <div class="info-btn-name">Unit Details</div>
+        <div class="info-btn-hint">4 Registered Units (Building)</div>
       </button>
       <button class="info-btn" data-key="access">
         <div class="info-btn-icon">🚇</div>
-        <div class="info-btn-name">교통 · 입지</div>
-        <div class="info-btn-hint">과천 중심부</div>
+        <div class="info-btn-name">Access &amp; Location</div>
+        <div class="info-btn-hint">Central Gwacheon</div>
       </button>
       <button class="info-btn" data-key="spec">
         <div class="info-btn-icon">✨</div>
-        <div class="info-btn-name">마감 · 특징</div>
-        <div class="info-btn-hint">최고급 자재 · 스마트홈</div>
+        <div class="info-btn-name">Finishes &amp; Features</div>
+        <div class="info-btn-hint">Premium Materials · Smart Home</div>
       </button>
       <button class="info-btn" data-key="appraise">
         <div class="info-btn-icon">📄</div>
-        <div class="info-btn-name">감정평가 정보</div>
-        <div class="info-btn-hint">하나감정평가법인</div>
+        <div class="info-btn-name">Appraisal Info</div>
+        <div class="info-btn-hint">Hana Appraisal Corp.</div>
       </button>
     </div>
 
@@ -1036,21 +1054,21 @@
 
 <div class="divider"></div>
 
-<!-- ── 소개 영상 ── -->
+<!-- ── Intro Video ── -->
 <section class="video-section" id="video">
   <div class="section-wrap">
-    <p class="video-label">소개 영상</p>
-    <h2 class="video-title">과천 타운하우스의 품격</h2>
+    <p class="video-label">Introduction Video</p>
+    <h2 class="video-title">The Distinction of Gwacheon Townhouse Living</h2>
     <div class="video-wrap" id="videoWrap">
-      <!-- 클릭 전: 썸네일 + 재생 버튼 -->
+      <!-- Before click: thumbnail + play button -->
       <div class="video-facade" id="videoFacade" onclick="loadYouTube()">
-        <img src="https://img.youtube.com/vi/I4bY_kxBdH8/maxresdefault.jpg" alt="소개영상 썸네일"
+        <img src="https://img.youtube.com/vi/I4bY_kxBdH8/maxresdefault.jpg" alt="Video Thumbnail"
              onerror="this.src='https://img.youtube.com/vi/I4bY_kxBdH8/hqdefault.jpg'" />
         <div class="video-play-btn">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><polygon points="6,3 20,12 6,21"/></svg>
         </div>
         <a class="video-open-link" href="https://youtu.be/I4bY_kxBdH8" target="_blank" onclick="event.stopPropagation()">
-          YouTube에서 보기 ↗
+          Watch on YouTube ↗
         </a>
       </div>
     </div>
@@ -1062,55 +1080,55 @@
 <!-- ── CTA ── -->
 <section class="cta-section" id="cta">
   <div class="section-wrap">
-    <p class="cta-eyebrow">지정 매수 의뢰인 한정</p>
-    <h2 class="cta-title">지금 바로 확인하십시오</h2>
+    <p class="cta-eyebrow">For Designated Buyers Only</p>
+    <h2 class="cta-title">Secure Your Opportunity Now</h2>
     <p class="cta-sub">
-      이 기회는 지정된 매수 의뢰인에게만 열려 있습니다.<br />
-      현장 방문 또는 상담을 통해 직접 확인하시기 바랍니다.
+      This offering is open exclusively to designated buyers.<br />
+      Please arrange a site visit or consultation to confirm your interest.
     </p>
     <div class="cta-btns">
-      <button class="btn-gold">📞 상담 신청하기</button>
-      <button class="btn-outline">현장 방문 예약</button>
+      <button class="btn-gold">📞 Request a Consultation</button>
+      <button class="btn-outline">Schedule a Site Visit</button>
     </div>
   </div>
 </section>
 
 <!-- ── FOOTER ── -->
 <footer>
-  <div class="footer-brand">가자<span>에셋</span></div>
-  <p>© 2026 가자에셋 · 본 자료는 지정 의뢰인 참고용이며 외부 유출을 금합니다.</p>
+  <div class="footer-brand">Gaja<span>Asset</span></div>
+  <p>© 2026 Gaja Asset · For designated buyer reference only. Unauthorized distribution is strictly prohibited.</p>
 </footer>
 
-<!-- ── PDF 모달 ── -->
+<!-- ── PDF Modal ── -->
 <div class="pdf-modal-overlay" id="pdfModal">
   <div class="pdf-modal">
     <div class="pdf-modal-header">
       <div class="pdf-modal-title">
         <div class="pdf-modal-title-icon">📄</div>
         <div>
-          <h3>(주)하나감정평가법인 감정평가서</h3>
-          <p>경기도 과천시 문원동 소재 디아크카운티 · 하나 250320-00-033</p>
+          <h3>Official Appraisal Report — Hana Appraisal Corp.</h3>
+          <p>D'ARC COUNTY, Munwon-dong, Gwacheon-si · Ref. Hana 250320-00-033</p>
         </div>
       </div>
       <div class="pdf-modal-actions">
-        <a class="pdf-dl-btn" href="감정평가서/하나감정평가법인_감정평가서.pdf" download>
+        <a class="pdf-dl-btn" href="appraisal/hana_appraisal.pdf" download>
           <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5v-2z"/></svg>
-          다운로드
+          Download
         </a>
         <button class="pdf-modal-close" onclick="closePdf()">✕</button>
       </div>
     </div>
     <div class="pdf-modal-body" id="pdfBody">
-      <!-- iframe이 JS로 동적 삽입됨 -->
+      <!-- iframe dynamically inserted via JS -->
       <div class="pdf-fallback" id="pdfFallback">
         <div style="font-size:32px; margin-bottom:8px;">📄</div>
-        <p style="color:rgba(255,255,255,0.7); font-size:15px; font-weight:500; margin-bottom:4px;">(주)하나감정평가법인 감정평가서</p>
-        <p style="color:rgba(255,255,255,0.35); font-size:13px; margin-bottom:24px;">PDF를 불러오는 중입니다...</p>
-        <a class="pdf-dl-btn" href="감정평가서/하나감정평가법인_감정평가서.pdf" target="_blank" style="font-size:13px; padding:10px 22px;">
+        <p style="color:rgba(255,255,255,0.7); font-size:15px; font-weight:500; margin-bottom:4px;">Hana Appraisal Corp. — Official Appraisal Report</p>
+        <p style="color:rgba(255,255,255,0.35); font-size:13px; margin-bottom:24px;">Loading PDF...</p>
+        <a class="pdf-dl-btn" href="appraisal/hana_appraisal.pdf" target="_blank" style="font-size:13px; padding:10px 22px;">
           <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 19H5v-2h14v2zm-7-4l-6-6 1.41-1.41L11 11.17V3h2v8.17l3.59-3.58L18 9l-6 6z"/></svg>
-          새 탭에서 열기 (권장)
+          Open in New Tab (Recommended)
         </a>
-        <p style="color:rgba(255,255,255,0.2); font-size:11px; margin-top:12px; letter-spacing:0.04em;">또는 아래에서 직접 확인하세요</p>
+        <p style="color:rgba(255,255,255,0.2); font-size:11px; margin-top:12px; letter-spacing:0.04em;">Or view directly below</p>
       </div>
     </div>
   </div>
@@ -1125,7 +1143,7 @@
 </div>
 
 <script>
-/* ── 히어로 슬라이드쇼 ── */
+/* ── Hero Slideshow ── */
 const slides = document.querySelectorAll('.hero-bg-slide');
 let slideIdx = 0;
 setInterval(() => {
@@ -1134,78 +1152,78 @@ setInterval(() => {
   slides[slideIdx].classList.add('active');
 }, 4000);
 
-/* ── 매물 정보 데이터 ── */
+/* ── Property Info Data ── */
 const INFO = {
   location: {
-    title: '📍 소재지',
+    title: '📍 Location',
     rows: [
-      { k: '주소', v: '경기도 과천시 문원동 359의 1 외 14필지' },
-      { k: '단지명', v: '디아크카운티 (D\'ARC COUNTY)' },
-      { k: '행정구역', v: '경기도 과천시' },
-      { k: '인근 환경', v: '자연녹지·시가지·도로 인접' },
+      { k: 'Address', v: '359-1 & 14 parcels, Munwon-dong, Gwacheon-si, Gyeonggi-do' },
+      { k: 'Complex Name', v: "D'ARC COUNTY" },
+      { k: 'Administrative District', v: 'Gwacheon-si, Gyeonggi-do' },
+      { k: 'Surroundings', v: 'Natural greenery, urban district & road access' },
     ]
   },
   building: {
-    title: '🏛️ 건물 개요',
+    title: '🏛️ Building Overview',
     rows: [
-      { k: '건물 구분', v: '4세대 구분건물 (집합건물)' },
-      { k: '용도', v: '주택 (타운하우스)' },
-      { k: '구조', v: '철근콘크리트 구조' },
-      { k: '층수', v: '지상 복층 구조' },
+      { k: 'Building Type', v: '4 individually registered units (condominium building)' },
+      { k: 'Use', v: 'Residential (Townhouse)' },
+      { k: 'Structure', v: 'Reinforced concrete' },
+      { k: 'Floors', v: 'Above-ground duplex structure' },
     ]
   },
   price: {
-    title: '💰 가격 정보',
+    title: '💰 Pricing',
     rows: [
-      { k: '공식 감정가 (4세대 합산)', v: '147억 9,000만 원', hl: true },
-      { k: '특별 매각가', v: '70억 원', hl: true },
-      { k: '감정 대비 매각률', v: '약 47% 수준 (53% 할인)' },
-      { k: '매각 형태', v: '전체 5개 호수 중 4개 일괄 매각' },
+      { k: 'Official Appraised Value (4 units combined)', v: 'KRW 14,790,000,000', hl: true },
+      { k: 'Exclusive Sale Price', v: 'KRW 7,000,000,000', hl: true },
+      { k: 'Sale-to-Appraisal Ratio', v: 'Approx. 47% of appraisal (53% discount)' },
+      { k: 'Sale Format', v: '4 of 5 total units — bulk sale' },
     ]
   },
   legal: {
-    title: '📋 법적 현황',
+    title: '📋 Legal Status',
     rows: [
-      { k: '매각 권한자', v: '(주)부림저축은행' },
-      { k: '법적 하자', v: '전혀 없음 (클린 매물)' },
-      { k: '감정평가 번호', v: '하나 250320-00-033' },
-      { k: '매각 방식', v: '지정 매수 의뢰인 한정 특별 매각' },
+      { k: 'Authorized Seller', v: 'Burim Savings Bank Co., Ltd.' },
+      { k: 'Legal Encumbrances', v: 'None (Clean title)' },
+      { k: 'Appraisal Reference No.', v: 'Hana 250320-00-033' },
+      { k: 'Sale Method', v: 'Exclusive private sale for designated buyers only' },
     ]
   },
   size: {
-    title: '📐 면적 정보',
+    title: '📐 Unit Details',
     rows: [
-      { k: '매각 대상', v: '4세대 구분건물 (건물 부분)' },
-      { k: '호수 수', v: '전체 5개 호수 중 4개 호수 매각' },
-      { k: '구분', v: '집합건물 각 세대 구분소유권' },
-      { k: '토지', v: '해당 없음 (건물 부분만 매각)' },
+      { k: 'Subject of Sale', v: '4 registered units (building portion)' },
+      { k: 'Number of Units', v: '4 of 5 total units offered for sale' },
+      { k: 'Ownership Type', v: 'Sectional ownership — each unit individually registered' },
+      { k: 'Land', v: 'Not included (building portion only)' },
     ]
   },
   access: {
-    title: '🚇 교통 · 입지',
+    title: '🚇 Access & Location',
     rows: [
-      { k: '소재지', v: '경기도 과천시 문원동' },
-      { k: '도로 접면', v: '소로한면 접함' },
-      { k: '교통 접근성', v: '과천 시내 중심부 인접' },
-      { k: '주변 환경', v: '청계산·관악산 인접 자연환경 우수' },
+      { k: 'Location', v: 'Munwon-dong, Gwacheon-si, Gyeonggi-do' },
+      { k: 'Road Access', v: 'Fronting a local road (single side)' },
+      { k: 'Transportation', v: 'Adjacent to central Gwacheon district' },
+      { k: 'Natural Environment', v: 'Excellent scenery near Cheonggyesan & Gwanaksan mountains' },
     ]
   },
   spec: {
-    title: '✨ 마감 · 특징',
+    title: '✨ Finishes & Features',
     rows: [
-      { k: '욕실 마감', v: '이탈리아산 대리석 전면 시공' },
-      { k: '드레스룸', v: '대형 워크인 클로젯 (LED 조명)' },
-      { k: '주방', v: '빌트인 풀 시스템 키친' },
-      { k: '스마트홈', v: '월패드 통합 제어 시스템' },
+      { k: 'Bathroom Finish', v: 'Full Italian marble installation' },
+      { k: 'Dressing Room', v: 'Spacious walk-in closet with LED lighting' },
+      { k: 'Kitchen', v: 'Built-in full system kitchen' },
+      { k: 'Smart Home', v: 'Integrated wall-pad control system' },
     ]
   },
   appraise: {
-    title: '📄 (주)하나감정평가법인 감정평가서',
+    title: '📄 Hana Appraisal Corporation — Official Report',
     rows: [
-      { k: '감정평가법인', v: '(주)하나감정평가법인' },
-      { k: '감정 의뢰인', v: '(주)부림저축은행' },
-      { k: '감정평가 번호', v: '하나 250320-00-033-01 / 02' },
-      { k: '기준시점', v: '2025년 3월 24일' },
+      { k: 'Appraisal Firm', v: 'Hana Appraisal Corporation Co., Ltd.' },
+      { k: 'Client', v: 'Burim Savings Bank Co., Ltd.' },
+      { k: 'Appraisal Reference No.', v: 'Hana 250320-00-033-01 / 02' },
+      { k: 'Appraisal Date', v: 'March 24, 2025' },
     ],
     pdfBtn: true
   },
@@ -1234,7 +1252,7 @@ document.querySelectorAll('.info-btn').forEach(btn => {
       ? `<div style="grid-column:1/-1; padding-top:8px;">
            <button class="pdf-link-btn" onclick="openPdf()">
              <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;flex-shrink:0"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/></svg>
-             (주)하나감정평가법인 감정평가서 열기
+             View Appraisal Report — Hana Appraisal Corp.
            </button>
          </div>`
       : '';
@@ -1253,27 +1271,27 @@ document.querySelectorAll('.info-btn').forEach(btn => {
   });
 });
 
-/* ── PDF 모달 ── */
-const PDF_SRC = '감정평가서/하나감정평가법인_감정평가서.pdf';
+/* ── PDF Modal ── */
+const PDF_SRC = 'appraisal/hana_appraisal.pdf';
 let pdfLoaded = false;
 
 function openPdf() {
   const modal = document.getElementById('pdfModal');
   const body  = document.getElementById('pdfBody');
 
-  // iframe을 처음 열 때 한 번만 생성·삽입
+  // Create and insert iframe only once on first open
   if (!pdfLoaded) {
     pdfLoaded = true;
     const iframe = document.createElement('iframe');
     iframe.src  = PDF_SRC;
     iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
-    iframe.title = '(주)하나감정평가법인 감정평가서';
-    // iframe 로드 성공 시 fallback 숨김
+    iframe.title = 'Hana Appraisal Corp. — Official Appraisal Report';
+    // Hide fallback on successful load
     iframe.onload = () => {
       const fb = document.getElementById('pdfFallback');
       if (fb) fb.style.display = 'none';
     };
-    // iframe 로드 실패 시 fallback 유지
+    // Keep fallback visible on error
     iframe.onerror = () => { pdfLoaded = false; };
     body.appendChild(iframe);
   }
@@ -1296,19 +1314,19 @@ document.addEventListener('keydown', e => {
   }
 });
 
-/* ── 라이트박스 ── */
+/* ── Lightbox ── */
 const LB_IMGS = [
-  '실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 002.jpeg',
-  '실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 017.jpeg',
-  '실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 019.jpeg',
-  '실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 007.jpeg',
-  '실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 010.jpeg',
-  '실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 015.jpeg',
-  '실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 004.jpeg',
-  '실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 005.jpeg',
-  '실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 006.jpeg',
-  '실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 009.jpeg',
-  '실내사진모음/KakaoTalk_Photo_2026-02-20-15-19-25 003.jpeg',
+  'gallery/photo_002.jpeg',
+  'gallery/photo_017.jpeg',
+  'gallery/photo_019.jpeg',
+  'gallery/photo_007.jpeg',
+  'gallery/photo_010.jpeg',
+  'gallery/photo_015.jpeg',
+  'gallery/photo_004.jpeg',
+  'gallery/photo_005.jpeg',
+  'gallery/photo_006.jpeg',
+  'gallery/photo_009.jpeg',
+  'gallery/photo_003.jpeg',
 ];
 let lbIdx = 0;
 
@@ -1334,12 +1352,12 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') moveLb(1);
 });
 
-/* ── YouTube 로드 ── */
+/* ── YouTube Loader ── */
 function loadYouTube() {
   const wrap = document.getElementById('videoWrap');
   const iframe = document.createElement('iframe');
   iframe.src = 'https://www.youtube.com/embed/I4bY_kxBdH8?autoplay=1&rel=0';
-  iframe.title = '과천 타운하우스 소개 영상';
+  iframe.title = 'Gwacheon Townhouse Introduction Video';
   iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
   iframe.allowFullscreen = true;
   iframe.style.cssText = 'width:100%;height:100%;display:block;border:none;';
