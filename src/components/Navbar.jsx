@@ -16,7 +16,7 @@ const Navbar = ({ onConsultingClick }) => {
                     <img src={logoImg} alt="GAJA Logo" style={{ height: '75px', objectFit: 'contain' }} />
                     <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1', gap: '5px' }}>
                         <span style={{ fontSize: '1.8rem', fontWeight: '800', letterSpacing: '1px', fontFamily: '"Playfair Display", serif' }}>
-                            GAJA
+                            GajaAsset
                         </span>
                         <span style={{ fontSize: '0.9rem', color: 'var(--accent-gold)', letterSpacing: '3px', fontWeight: '500' }}>
                             AUCTION & NPL
