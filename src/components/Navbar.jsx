@@ -28,7 +28,17 @@ const Navbar = ({ onConsultingClick }) => {
                     <li><Link to="/map" onClick={() => setIsMenuOpen(false)}>Map Search</Link></li>
                     <li><Link to="/listings" onClick={() => setIsMenuOpen(false)}>Listings</Link></li>
                     <li><Link to="/partners" onClick={() => setIsMenuOpen(false)}>Partners</Link></li>
-
+                    <li>
+                        <a 
+                            href="https://im.gajaasset.com" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="btn-glass"
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            IM Manager
+                        </a>
+                    </li>
                     <li><a href="#contact" className="btn-primary" onClick={() => { onConsultingClick(); setIsMenuOpen(false); }}>Consulting</a></li>
                 </ul>
                 <div className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
