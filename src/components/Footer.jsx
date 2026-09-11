@@ -44,7 +44,7 @@ const Footer = () => {
                         </Link>
                     </div>
                     <div className="footer-info">
-                        <p><strong style={{ color: 'var(--text-white)', marginRight: '10px' }}>대표</strong> 이상수 (Sang Soo Lee)</p>
+                        <p><strong style={{ color: 'var(--text-white)', marginRight: '10px' }}>대표</strong> 이상수</p>
                         <p><strong style={{ color: 'var(--text-white)', marginRight: '10px' }}>상호</strong> (주)가자에셋파트너스, 가자공인중개사사무소</p>
                         <p><strong style={{ color: 'var(--text-white)', marginRight: '10px' }}>업무</strong> 경매, NPL, 투자, 대출, 중개, 매매, 컨설팅</p>
                         <p><strong style={{ color: 'var(--text-white)', marginRight: '10px' }}>영업</strong> 서울특별시 서초구 서초중앙로22길 109, 스톤캐슬2층 (서초동, 유니온 법률사무소)</p>
