@@ -8,15 +8,21 @@ const PartnersBanner = () => {
     const marqueePartners = [...partners, ...partners, ...partners];
 
     return (
-        <section className="partners-banner" style={{ padding: '60px 0', borderTop: '1px solid rgba(255,255,255,0.05)', background: '#02060b', overflow: 'hidden' }}>
+        <section className="partners-banner" style={{ 
+            padding: '60px 0', 
+            borderTop: '1px solid var(--glass-border)', 
+            borderBottom: '1px solid var(--glass-border)', 
+            background: 'var(--section-alt-bg)', 
+            overflow: 'hidden' 
+        }}>
             <div className="container" style={{ marginBottom: '30px', textAlign: 'center' }}>
                 <h3 style={{ fontSize: '1.2rem', color: 'var(--accent-gold)', letterSpacing: '2px', textTransform: 'uppercase' }}>Trusted Partners</h3>
             </div>
 
             <div className="marquee-container" style={{ display: 'flex', width: '100%', overflow: 'hidden', position: 'relative' }}>
                 {/* Gradient masks for fading edges */}
-                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(to right, #02060b, transparent)', zIndex: 2 }}></div>
-                <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(to left, #02060b, transparent)', zIndex: 2 }}></div>
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(to right, var(--section-alt-bg), transparent)', zIndex: 2, pointerEvents: 'none' }}></div>
+                <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(to left, var(--section-alt-bg), transparent)', zIndex: 2, pointerEvents: 'none' }}></div>
 
                 <motion.div
                     className="marquee-track"
@@ -35,7 +41,7 @@ const PartnersBanner = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             minWidth: '200px',
-                            opacity: 0.6,
+                            opacity: 0.85,
                             filter: 'grayscale(100%)',
                             transition: 'all 0.3s ease'
                         }}
@@ -44,7 +50,7 @@ const PartnersBanner = () => {
                                 e.currentTarget.style.filter = 'grayscale(0%)';
                             }}
                             onMouseLeave={(e) => {
-                                e.currentTarget.style.opacity = '0.6';
+                                e.currentTarget.style.opacity = '0.85';
                                 e.currentTarget.style.filter = 'grayscale(100%)';
                             }}
                         >

@@ -24,6 +24,7 @@ const Home = () => {
 
     return (
         <div className="home-page">
+            <SEO />
             <Hero onConsultingClick={openConsulting} />
             <MarketTicker />
             <Stats />

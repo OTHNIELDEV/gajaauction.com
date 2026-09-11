@@ -178,7 +178,7 @@ const DigitalCEO = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'var(--modal-overlay)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}
                             onClick={() => setIsOpen(false)}
                         >
                             <motion.div
@@ -187,26 +187,26 @@ const DigitalCEO = () => {
                                 animate={{ scale: 1, y: 0 }}
                                 exit={{ scale: 0.9, y: 50 }}
                                 onClick={(e) => e.stopPropagation()}
-                                style={{ width: '90%', maxWidth: '500px', height: '600px', background: 'var(--primary-navy)', border: '1px solid var(--accent-gold)', borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 0 50px rgba(212,175,55,0.3)' }}
+                                style={{ width: '90%', maxWidth: '500px', height: '600px', background: 'var(--modal-bg)', border: '1px solid var(--accent-gold)', borderRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 0 50px var(--card-shadow)' }}
                             >
                                 {/* Chat Header */}
-                                <div style={{ padding: '20px', background: 'rgba(212,175,55,0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ padding: '20px', background: 'var(--navbar-bg)', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                                         <div style={{ padding: '2px', border: '2px solid var(--accent-gold)', borderRadius: '50%' }}>
                                             <img src={ceoImg} alt="CEO" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
                                         </div>
                                         <div>
-                                            <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Digital CEO</div>
+                                            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-white)' }}>Digital CEO</div>
                                             <div style={{ fontSize: '0.8rem', color: '#4ade80' }}>● Online (AI-Powered)</div>
                                         </div>
                                     </div>
-                                    <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}><i className="fas fa-times"></i></button>
+                                    <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-white)', fontSize: '1.5rem', cursor: 'pointer' }}><i className="fas fa-times"></i></button>
                                 </div>
 
                                 {/* Chat Messages */}
-                                <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', background: 'var(--primary-navy)' }}>
                                     <div className="msg-ai" style={{ alignSelf: 'flex-start', maxWidth: '80%' }}>
-                                        <div style={{ background: 'rgba(255,255,255,0.1)', padding: '15px', borderRadius: '0 15px 15px 15px', color: '#eee', lineHeight: '1.5' }}>
+                                        <div style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', padding: '15px', borderRadius: '0 15px 15px 15px', color: 'var(--text-off-white)', lineHeight: '1.5', boxShadow: '0 2px 8px var(--card-shadow)' }}>
                                             반갑습니다. 가자경매NPL의 디지털 CEO입니다. <br />
                                             NPL 투자에 대해 무엇이든 물어보세요.
                                         </div>
@@ -215,12 +215,14 @@ const DigitalCEO = () => {
                                     {messages.map((msg, idx) => (
                                         <div key={idx} style={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
                                             <div style={{
-                                                background: msg.role === 'user' ? 'var(--accent-gold)' : 'rgba(255,255,255,0.1)',
-                                                color: msg.role === 'user' ? '#000' : '#eee',
+                                                background: msg.role === 'user' ? 'var(--accent-gold-gradient)' : 'var(--glass-bg)',
+                                                color: msg.role === 'user' ? '#000' : 'var(--text-off-white)',
+                                                border: msg.role === 'user' ? 'none' : '1px solid var(--glass-border)',
                                                 padding: '15px',
                                                 borderRadius: msg.role === 'user' ? '15px 15px 0 15px' : '0 15px 15px 15px',
                                                 lineHeight: '1.5',
-                                                fontWeight: msg.role === 'user' ? 'bold' : 'normal'
+                                                fontWeight: msg.role === 'user' ? 'bold' : 'normal',
+                                                boxShadow: '0 2px 8px var(--card-shadow)'
                                             }}>
                                                 {msg.text}
                                             </div>
@@ -229,10 +231,10 @@ const DigitalCEO = () => {
 
                                     {isTyping && (
                                         <div className="msg-ai" style={{ alignSelf: 'flex-start', maxWidth: '80%' }}>
-                                            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '15px', borderRadius: '0 15px 15px 15px', display: 'flex', gap: '5px' }}>
-                                                <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6 }} style={{ width: '8px', height: '8px', background: '#aaa', borderRadius: '50%' }} />
-                                                <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} style={{ width: '8px', height: '8px', background: '#aaa', borderRadius: '50%' }} />
-                                                <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} style={{ width: '8px', height: '8px', background: '#aaa', borderRadius: '50%' }} />
+                                            <div style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', padding: '15px', borderRadius: '0 15px 15px 15px', display: 'flex', gap: '5px' }}>
+                                                <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6 }} style={{ width: '8px', height: '8px', background: 'var(--accent-gold)', borderRadius: '50%' }} />
+                                                <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} style={{ width: '8px', height: '8px', background: 'var(--accent-gold)', borderRadius: '50%' }} />
+                                                <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} style={{ width: '8px', height: '8px', background: 'var(--accent-gold)', borderRadius: '50%' }} />
                                             </div>
                                         </div>
                                     )}
@@ -240,7 +242,7 @@ const DigitalCEO = () => {
                                 </div>
 
                                 {/* Input Area */}
-                                <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)' }}>
+                                <div style={{ padding: '20px', borderTop: '1px solid var(--glass-border)', background: 'var(--secondary-navy)' }}>
 
                                     {/* Quick Suggestions */}
                                     <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', marginBottom: '15px', paddingBottom: '5px' }}>
@@ -248,7 +250,7 @@ const DigitalCEO = () => {
                                             <button
                                                 key={i}
                                                 onClick={() => handleSend(q)}
-                                                style={{ whiteSpace: 'nowrap', padding: '8px 15px', borderRadius: '20px', border: '1px solid #444', background: 'transparent', color: '#ccc', cursor: 'pointer', fontSize: '0.8rem' }}
+                                                style={{ whiteSpace: 'nowrap', padding: '8px 15px', borderRadius: '20px', border: '1px solid var(--glass-border)', background: 'var(--glass-bg)', color: 'var(--text-off-white)', cursor: 'pointer', fontSize: '0.8rem' }}
                                             >
                                                 {q}
                                             </button>
@@ -262,7 +264,7 @@ const DigitalCEO = () => {
                                             onChange={(e) => setInput(e.target.value)}
                                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                                             placeholder="질문을 입력하세요..."
-                                            style={{ flex: 1, padding: '15px', borderRadius: '10px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white' }}
+                                            style={{ flex: 1, padding: '15px', borderRadius: '10px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--input-text)' }}
                                         />
                                         <button
                                             onClick={handleSend}

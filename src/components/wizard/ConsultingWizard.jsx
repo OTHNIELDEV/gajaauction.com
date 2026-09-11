@@ -88,7 +88,7 @@ const ConsultingWizard = ({ isOpen, onClose }) => {
                 <span className="close-modal" onClick={resetWizard}>&times;</span>
 
                 {/* Progress Bar */}
-                <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', marginBottom: '30px', borderRadius: '2px' }}>
+                <div style={{ width: '100%', height: '4px', background: 'var(--glass-border)', marginBottom: '30px', borderRadius: '2px' }}>
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${(step / totalSteps) * 100}%` }}
@@ -125,11 +125,11 @@ const ConsultingWizard = ({ isOpen, onClose }) => {
                                         value={formData.name}
                                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                                         style={{
-                                            background: 'rgba(255,255,255,0.05)',
-                                            border: '1px solid var(--glass-border)',
+                                            background: 'var(--input-bg)',
+                                            border: '1px solid var(--input-border)',
                                             padding: '15px',
                                             borderRadius: '8px',
-                                            color: 'white',
+                                            color: 'var(--input-text)',
                                             fontSize: '1.1rem'
                                         }}
                                         disabled={isSending}
@@ -143,11 +143,11 @@ const ConsultingWizard = ({ isOpen, onClose }) => {
                                             onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                                             style={{
                                                 flex: 1,
-                                                background: 'rgba(255,255,255,0.05)',
-                                                border: '1px solid var(--glass-border)',
+                                                background: 'var(--input-bg)',
+                                                border: '1px solid var(--input-border)',
                                                 padding: '15px',
                                                 borderRadius: '8px',
-                                                color: 'white',
+                                                color: 'var(--input-text)',
                                                 fontSize: '1.1rem'
                                             }}
                                             disabled={isSending}
@@ -178,7 +178,7 @@ const ConsultingWizard = ({ isOpen, onClose }) => {
                                 </motion.div>
                                 <p style={{ color: 'var(--text-gray)', fontSize: '1.1rem', marginBottom: '30px' }}>
                                     담당 파트너가 분석 후 24시간 이내에<br />
-                                    <strong style={{ color: 'white' }}>VIP 시크릿 리포트</strong>를 보내드리겠습니다.
+                                    <strong style={{ color: 'var(--text-white)' }}>VIP 시크릿 리포트</strong>를 보내드리겠습니다.
                                 </p>
                                 <button className="btn-outline" onClick={resetWizard}>닫기</button>
                             </WizardStep>
@@ -210,7 +210,7 @@ const OptionButton = ({ label, onClick }) => (
         onClick={onClick}
         className="btn-option"
         style={{
-            background: 'rgba(255,255,255,0.03)',
+            background: 'var(--input-bg)',
             border: '1px solid var(--glass-border)',
             padding: '18px',
             borderRadius: '12px',
@@ -224,12 +224,12 @@ const OptionButton = ({ label, onClick }) => (
             alignItems: 'center'
         }}
         onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(212, 175, 55, 0.1)';
+            e.currentTarget.style.background = 'rgba(212, 175, 55, 0.15)';
             e.currentTarget.style.borderColor = 'var(--accent-gold)';
         }}
         onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+            e.currentTarget.style.background = 'var(--input-bg)';
+            e.currentTarget.style.borderColor = 'var(--glass-border)';
         }}
     >
         {label} <i className="fas fa-chevron-right" style={{ fontSize: '0.8rem', opacity: 0.5 }}></i>

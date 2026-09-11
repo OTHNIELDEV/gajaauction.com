@@ -1,0 +1,108 @@
+/* ThemeToggle.css - Premium Luxury Glassmorphism Switch */
+.theme-toggle-btn {
+    position: relative;
+    width: 66px;
+    height: 32px;
+    border-radius: 50px;
+    background: var(--toggle-bg, rgba(255, 255, 255, 0.08));
+    border: 1px solid var(--toggle-border, rgba(212, 175, 55, 0.35));
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    outline: none;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.theme-toggle-btn:hover {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.35), inset 0 1px 3px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.theme-toggle-btn:active {
+    transform: scale(0.96);
+}
+
+/* Background Icons */
+.toggle-icon-bg {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.toggle-icon-sun {
+    color: #eab308;
+    opacity: 0.7;
+}
+
+.toggle-icon-moon {
+    color: #cbd5e1;
+    opacity: 0.7;
+}
+
+[data-theme="light"] .toggle-icon-sun {
+    opacity: 1;
+    color: #d97706;
+}
+
+[data-theme="light"] .toggle-icon-moon {
+    opacity: 0.4;
+}
+
+[data-theme="dark"] .toggle-icon-moon {
+    opacity: 1;
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .toggle-icon-sun {
+    opacity: 0.3;
+}
+
+/* Sliding Thumb */
+.toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent-gold-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
+    z-index: 2;
+    color: #000;
+}
+
+/* Dark mode position (right) */
+[data-theme="dark"] .toggle-thumb {
+    transform: translateX(34px);
+}
+
+/* Light mode position (left) */
+[data-theme="light"] .toggle-thumb {
+    transform: translateX(0px);
+}
+
+.thumb-inner-icon {
+    font-size: 0.75rem;
+    transition: transform 0.4s ease, opacity 0.3s ease;
+}
+
+[data-theme="dark"] .thumb-inner-icon {
+    transform: rotate(0deg);
+}
+
+[data-theme="light"] .thumb-inner-icon {
+    transform: rotate(360deg);
+}

@@ -1,13 +1,27 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko" data-theme="dark">
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('gaja_theme');
+        document.documentElement.setAttribute('data-theme', saved || 'dark');
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
-  <title>가자경매 NPL 컨설팅</title>
+  <title>(주)가자에셋파트너스</title>
   <script async src="https://ghostlink-dev.vercel.app/api/bridge/efe79ce6-c7b6-4a2c-a611-3b636f7303fb.js"></script>
 </head>
 

@@ -13,13 +13,13 @@ const MarketTicker = () => {
 
     return (
         <div style={{
-            background: '#0a0a0a',
-            color: '#D4AF37',
+            background: 'var(--secondary-navy)',
+            color: 'var(--accent-gold)',
             height: '40px',
             display: 'flex',
             alignItems: 'center',
             overflow: 'hidden',
-            borderBottom: '1px solid #333',
+            borderBottom: '1px solid var(--glass-border)',
             fontSize: '0.9rem',
             position: 'relative',
             zIndex: 2000 // Above navbar
@@ -29,9 +29,9 @@ const MarketTicker = () => {
                     fontWeight: 'bold',
                     paddingRight: '20px',
                     marginRight: '20px',
-                    borderRight: '1px solid #333',
+                    borderRight: '1px solid var(--glass-border)',
                     whiteSpace: 'nowrap',
-                    color: '#fff'
+                    color: 'var(--text-white)'
                 }}>
                     LIVE NPL MARKET
                 </span>

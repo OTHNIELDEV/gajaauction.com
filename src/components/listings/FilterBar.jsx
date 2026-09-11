@@ -9,7 +9,7 @@ const FilterBar = ({ categories, selectedFilter, onSelect }) => {
                     onClick={() => onSelect(category)}
                     className={`btn-filter ${selectedFilter === category ? 'active' : ''}`}
                     style={{
-                        background: selectedFilter === category ? 'var(--accent-gold)' : 'rgba(255,255,255,0.05)',
+                        background: selectedFilter === category ? 'var(--accent-gold)' : 'var(--card-bg)',
                         color: selectedFilter === category ? '#000' : 'var(--text-gray)',
                         border: '1px solid var(--glass-border)',
                         padding: '10px 25px',

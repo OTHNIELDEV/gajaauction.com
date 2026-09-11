@@ -76,12 +76,12 @@ const ServicesPage = () => {
                         </motion.span>
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                            style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontFamily: '"Playfair Display", serif', marginBottom: '20px', color: 'white' }}>
+                            style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontFamily: '"Playfair Display", serif', marginBottom: '20px', color: 'var(--text-white)' }}>
                             World Class Financial Solutions
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-                            style={{ maxWidth: '600px', margin: '0 auto', color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem' }}>
+                            style={{ maxWidth: '600px', margin: '0 auto', color: 'var(--text-gray)', fontSize: '1.1rem' }}>
                             가자경매NPL컨설팅은 데이터와 경험이 결합된<br />최상의 솔루션을 제공합니다.
                         </motion.p>
                     </div>
@@ -119,18 +119,18 @@ const ServicesPage = () => {
                                     }}>
                                         <i className={`fas ${service.icon}`}></i>
                                     </div>
-                                    <h3 style={{ fontSize: '1.8rem', marginBottom: '10px', color: 'white' }}>{service.title}</h3>
+                                    <h3 style={{ fontSize: '1.8rem', marginBottom: '10px', color: 'var(--text-white)' }}>{service.title}</h3>
                                     <span style={{ color: 'var(--accent-gold)', letterSpacing: '1px', textTransform: 'uppercase', fontSize: '0.9rem' }}>{service.en}</span>
                                 </div>
 
                                 <div className="service-info-side">
-                                    <p style={{ fontSize: '1.2rem', lineHeight: '1.6', marginBottom: '30px', color: 'white' }}>{service.desc}</p>
-                                    <h4 style={{ marginBottom: '20px', fontSize: '1.1rem', borderLeft: '3px solid var(--accent-gold)', paddingLeft: '15px', color: 'white' }}>Key Deliverables</h4>
+                                    <p style={{ fontSize: '1.2rem', lineHeight: '1.6', marginBottom: '30px', color: 'var(--text-off-white)' }}>{service.desc}</p>
+                                    <h4 style={{ marginBottom: '20px', fontSize: '1.1rem', borderLeft: '3px solid var(--accent-gold)', paddingLeft: '15px', color: 'var(--text-white)' }}>Key Deliverables</h4>
                                     <ul style={{ listStyle: 'none', padding: 0 }}>
                                         {service.details.map((detail, idx) => (
-                                            <li key={idx} style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center' }}>
+                                            <li key={idx} style={{ padding: '10px 0', borderBottom: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center' }}>
                                                 <i className="fas fa-check" style={{ color: 'var(--accent-gold)', marginRight: '15px', fontSize: '0.8rem' }}></i>
-                                                <span style={{ color: 'rgba(255,255,255,0.9)' }}>{detail}</span>
+                                                <span style={{ color: 'var(--text-off-white)' }}>{detail}</span>
                                             </li>
                                         ))}
                                     </ul>

@@ -61,7 +61,7 @@ const AboutPage = ({ onConsultingClick }) => {
                                 margin: '0 auto',
                                 fontSize: '1.1rem',
                                 lineHeight: '1.8',
-                                color: 'rgba(255,255,255,0.8)'
+                                color: 'var(--text-off-white)'
                             }}>
                                 단순히 싸게 사는 것이 투자의 전부는 아닙니다.<br />
                                 리스크를 해지하고, 가치를 재창조하는 것.<br />
@@ -89,15 +89,15 @@ const AboutPage = ({ onConsultingClick }) => {
                             </h3>
                             <ul style={{ listStyle: 'none', padding: 0 }}>
                                 <li style={{ marginBottom: '20px' }}>
-                                    <strong style={{ display: 'block', fontSize: '1.2rem', color: '#fff' }}>Seoul National University</strong>
+                                    <strong style={{ display: 'block', fontSize: '1.2rem', color: 'var(--text-white)' }}>Seoul National University</strong>
                                     <span style={{ color: 'var(--text-gray)' }}>Graduated (1998)</span>
                                 </li>
                                 <li style={{ marginBottom: '20px' }}>
-                                    <strong style={{ display: 'block', fontSize: '1.2rem', color: '#fff' }}>Konkuk University Graduate School</strong>
+                                    <strong style={{ display: 'block', fontSize: '1.2rem', color: 'var(--text-white)' }}>Konkuk University Graduate School</strong>
                                     <span style={{ color: 'var(--text-gray)' }}>Master's Degree in Real Estate Management</span>
                                 </li>
                                 <li>
-                                    <strong style={{ display: 'block', fontSize: '1.2rem', color: '#fff' }}>Korea Creative Content Agency (KOCCA)</strong>
+                                    <strong style={{ display: 'block', fontSize: '1.2rem', color: 'var(--text-white)' }}>Korea Creative Content Agency (KOCCA)</strong>
                                     <span style={{ color: 'var(--text-gray)' }}>Global Marketing & Advanced CEO Program Completed</span>
                                 </li>
                             </ul>
@@ -115,7 +115,7 @@ const AboutPage = ({ onConsultingClick }) => {
                                 Professional Career
                             </h3>
                             <ul style={{ listStyle: 'none', padding: 0 }}>
-                                <li style={{ marginBottom: '15px', color: '#fff' }}>
+                                <li style={{ marginBottom: '15px', color: 'var(--text-white)' }}>
                                     <span style={{ color: 'var(--accent-gold)', marginRight: '10px' }}>Present</span>
                                     CEO, NBit Korea Co., Ltd. (2018 – Present)
                                 </li>
@@ -137,7 +137,7 @@ const AboutPage = ({ onConsultingClick }) => {
                 </section>
 
                 {/* History & Milestones */}
-                <section style={{ padding: '100px 0', background: 'linear-gradient(to bottom, var(--bg-dark), #0a1120)' }}>
+                <section style={{ padding: '100px 0', background: 'var(--section-alt-bg)' }}>
                     <div className="container">
                         <motion.div
                             initial="hidden"
@@ -177,8 +177,8 @@ const AboutPage = ({ onConsultingClick }) => {
                                         borderRadius: '50%', border: '4px solid var(--bg-dark)',
                                         boxShadow: '0 0 10px var(--accent-gold)'
                                     }}></div>
-                                    <span style={{ fontSize: '2rem', fontWeight: '800', color: 'rgba(255,255,255,0.1)', display: 'block', lineHeight: '1' }}>{item.year}</span>
-                                    <h3 style={{ fontSize: '1.5rem', color: '#fff', margin: '5px 0' }}>{item.title}</h3>
+                                    <span style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--glass-border)', display: 'block', lineHeight: '1' }}>{item.year}</span>
+                                    <h3 style={{ fontSize: '1.5rem', color: 'var(--text-white)', margin: '5px 0' }}>{item.title}</h3>
                                     <p style={{ color: 'var(--text-gray)' }}>{item.desc}</p>
                                 </motion.div>
                             ))}
@@ -187,7 +187,7 @@ const AboutPage = ({ onConsultingClick }) => {
                 </section>
 
                 {/* Certifications & Patents */}
-                <section style={{ padding: '100px 0', background: '#050b14' }}>
+                <section style={{ padding: '100px 0', background: 'var(--primary-navy)' }}>
                     <div className="container">
                         <motion.div
                             initial="hidden"
@@ -219,13 +219,14 @@ const AboutPage = ({ onConsultingClick }) => {
                                     viewport={{ once: true }}
                                     whileHover={{ y: -10 }}
                                     style={{
-                                        background: 'rgba(255,255,255,0.03)',
+                                        background: 'var(--glass-bg)',
                                         border: '1px solid rgba(212, 175, 55, 0.3)',
                                         padding: '40px',
                                         textAlign: 'center',
-                                        borderRadius: '4px',
+                                        borderRadius: '8px',
                                         position: 'relative',
-                                        overflow: 'hidden'
+                                        overflow: 'hidden',
+                                        boxShadow: '0 10px 25px var(--card-shadow)'
                                     }}
                                 >
                                     <div style={{
@@ -237,7 +238,7 @@ const AboutPage = ({ onConsultingClick }) => {
                                     <i className="fas fa-certificate" style={{ fontSize: '3rem', color: 'var(--accent-gold)', marginBottom: '20px' }}></i>
                                     <h3 style={{ fontSize: '1.5rem', marginBottom: '5px' }}>{lic.title}</h3>
                                     <p style={{ color: 'var(--text-gray)', fontSize: '0.9rem' }}>{lic.sub}</p>
-                                    <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px', fontSize: '0.9rem' }}>
+                                    <div style={{ marginTop: '20px', borderTop: '1px solid var(--glass-border)', paddingTop: '20px', fontSize: '0.9rem' }}>
                                         {lic.org}
                                     </div>
                                 </motion.div>
@@ -245,7 +246,7 @@ const AboutPage = ({ onConsultingClick }) => {
                         </div>
 
                         {/* Patents Grid */}
-                        <h3 style={{ textAlign: 'center', marginBottom: '40px', color: 'var(--text-light)' }}>
+                        <h3 style={{ textAlign: 'center', marginBottom: '40px', color: 'var(--text-white)' }}>
                             <i className="fas fa-shield-alt" style={{ marginRight: '10px', color: 'var(--accent-gold)' }}></i>
                             Global Patents Portfolio (KR & US)
                         </h3>
@@ -267,24 +268,25 @@ const AboutPage = ({ onConsultingClick }) => {
                                     viewport={{ once: true }}
                                     transition={{ delay: 0.1 * idx }}
                                     style={{
-                                        background: '#0a1120',
+                                        background: 'var(--card-bg)',
                                         borderRadius: '8px',
                                         padding: '25px',
-                                        border: '1px solid rgba(255,255,255,0.05)',
+                                        border: '1px solid var(--glass-border)',
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        gap: '10px'
+                                        gap: '10px',
+                                        boxShadow: '0 4px 15px var(--card-shadow)'
                                     }}
                                 >
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                                         <i className="fas fa-file-contract" style={{ color: 'var(--accent-gold)', fontSize: '1.2rem' }}></i>
-                                        <span style={{ fontSize: '0.8rem', color: '#666', border: '1px solid #333', padding: '2px 8px', borderRadius: '4px' }}>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-gray)', border: '1px solid var(--glass-border)', padding: '2px 8px', borderRadius: '4px' }}>
                                             {patent.id.startsWith('US') ? 'US Patent' : 'KR Patent'}
                                         </span>
                                     </div>
-                                    <h4 style={{ fontSize: '1rem', color: '#e2e8f0', lineHeight: '1.4' }}>{patent.title}</h4>
-                                    <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: '1.5' }}>{patent.desc}</p>
-                                    <div style={{ marginTop: 'auto', paddingTop: '15px', borderTop: '1px solid rgba(255,255,255,0.05)', fontSize: '0.8rem', color: 'var(--accent-gold)' }}>
+                                    <h4 style={{ fontSize: '1rem', color: 'var(--text-white)', lineHeight: '1.4' }}>{patent.title}</h4>
+                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-gray)', lineHeight: '1.5' }}>{patent.desc}</p>
+                                    <div style={{ marginTop: 'auto', paddingTop: '15px', borderTop: '1px solid var(--glass-border)', fontSize: '0.8rem', color: 'var(--accent-gold)' }}>
                                         {patent.id}
                                     </div>
                                 </motion.div>

@@ -3,15 +3,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import * as L from 'leaflet';
 import { mockListings } from '../data/mockListings';
+import { useTheme } from '../context/ThemeContext';
 
 // No assets for now
 
 const MapSearchPage = () => {
+    const { theme, toggleTheme } = useTheme();
     const mapRef = useRef<L.Map | null>(null);
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const [selectedListing, setSelectedListing] = useState<any>(null);
-    const [mapStyle, setMapStyle] = useState<'dark' | 'light'>('dark');
+    const [mapStyle, setMapStyle] = useState<'dark' | 'light'>(theme);
     const tileLayerRef = useRef<L.TileLayer | null>(null);
+
+    // Sync with Global Theme
+    useEffect(() => {
+        setMapStyle(theme);
+    }, [theme]);
 
     // Toggle Map Style
     useEffect(() => {
@@ -120,7 +127,7 @@ const MapSearchPage = () => {
                         <i className="fas fa-map-marked-alt text-gold" style={{ marginRight: '10px' }}></i>
                         NPL Map Search
                     </h2>
-                    <p style={{ color: '#aaa', fontSize: '0.9rem' }}>
+                    <p style={{ color: 'var(--text-gray)', fontSize: '0.9rem' }}>
                         붉은색 영역은 최근 경매 낙찰가율이 급상승 중인 <strong>Hot Investment Zone</strong>입니다.
                     </p>
                 </div>
@@ -148,14 +155,14 @@ const MapSearchPage = () => {
                                 </button>
                             </div>
                             <div style={{ padding: '20px' }}>
-                                <h3 style={{ fontSize: '1.2rem', marginBottom: '5px' }}>{selectedListing.title}</h3>
-                                <div style={{ color: '#aaa', fontSize: '0.9rem', marginBottom: '15px' }}>{selectedListing.location}</div>
+                                <h3 style={{ fontSize: '1.2rem', marginBottom: '5px', color: 'var(--text-white)' }}>{selectedListing.title}</h3>
+                                <div style={{ color: 'var(--text-gray)', fontSize: '0.9rem', marginBottom: '15px' }}>{selectedListing.location}</div>
 
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', color: 'var(--text-off-white)' }}>
                                     <span>감정가</span>
-                                    <span style={{ textDecoration: 'line-through', color: '#888' }}>{selectedListing.appraisal}</span>
+                                    <span style={{ textDecoration: 'line-through', color: 'var(--text-gray)' }}>{selectedListing.appraisal}</span>
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', color: 'var(--text-off-white)' }}>
                                     <span>최저가</span>
                                     <span className="text-gold" style={{ fontWeight: 'bold' }}>{selectedListing.minPrice}</span>
                                 </div>
@@ -169,30 +176,35 @@ const MapSearchPage = () => {
                 </AnimatePresence>
             </div>
 
-            {/* Map Style Toggle */}
+            {/* Map Style Toggle synced with Global Theme */}
             <button
-                onClick={() => setMapStyle(prev => prev === 'dark' ? 'light' : 'dark')}
+                onClick={toggleTheme}
                 style={{
                     position: 'absolute',
                     top: '20px',
                     right: '20px',
                     zIndex: 1000,
-                    padding: '10px 15px',
-                    borderRadius: '20px',
-                    border: 'none',
-                    background: mapStyle === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)',
-                    color: mapStyle === 'dark' ? '#000' : '#fff',
+                    padding: '10px 18px',
+                    borderRadius: '25px',
+                    border: '1px solid var(--accent-gold)',
+                    background: 'var(--btn-glass-bg)',
+                    backdropFilter: 'blur(10px)',
+                    color: 'var(--text-white)',
                     cursor: 'pointer',
-                    fontWeight: 'bold',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-                    transition: 'all 0.3s ease'
+                    fontWeight: '600',
+                    fontSize: '0.85rem',
+                    boxShadow: '0 4px 15px var(--card-shadow)',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
                 }}
             >
-                {mapStyle === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+                {theme === 'dark' ? <><i className="fas fa-sun" style={{ color: '#eab308' }}></i> Light Map</> : <><i className="fas fa-moon" style={{ color: 'var(--accent-gold)' }}></i> Dark Map</>}
             </button>
 
             {/* Map Container */}
-            <div ref={mapContainerRef} style={{ width: '100%', height: '100%', background: '#0a192f' }} />
+            <div ref={mapContainerRef} style={{ width: '100%', height: '100%', background: 'var(--primary-navy)' }} />
         </div>
     );
 };

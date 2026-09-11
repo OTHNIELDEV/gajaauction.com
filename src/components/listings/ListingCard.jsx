@@ -20,7 +20,7 @@ const ListingCard = ({ item }) => {
                     <div className="tags">
                         <span className="badge">{item.location}</span>
                         {item.tags && item.tags.slice(0, 1).map((tag, i) => (
-                            <span key={i} className="badge badge-outline" style={{ marginLeft: '5px', borderColor: 'rgba(255,255,255,0.3)', color: '#ccc' }}>{tag}</span>
+                            <span key={i} className="badge badge-outline" style={{ marginLeft: '5px', borderColor: 'var(--glass-border)', color: 'var(--text-gray)' }}>{tag}</span>
                         ))}
                     </div>
                     <h3>{item.title}</h3>

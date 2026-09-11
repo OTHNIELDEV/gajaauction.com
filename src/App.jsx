@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import Layout from './components/Layout';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Lazy Load Pages
 const Home = lazy(() => import('./pages/Home'));
@@ -11,10 +12,11 @@ const ListingsPage = lazy(() => import('./pages/ListingsPage'));
 const ListingDetailPage = lazy(() => import('./pages/ListingDetailPage'));
 const PartnersPage = lazy(() => import('./pages/PartnersPage'));
 const MapSearchPage = lazy(() => import('./pages/MapSearchPage'));
+const BusinessCardPage = lazy(() => import('./pages/BusinessCardPage'));
 
 // Loading Component
 const Loading = () => (
-  <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#050b14', color: '#D4AF37' }}>
+  <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--primary-navy)', color: 'var(--accent-gold)' }}>
     <div style={{ textAlign: 'center' }}>
       <i className="fas fa-circle-notch fa-spin" style={{ fontSize: '3rem', marginBottom: '20px' }}></i>
       <p>Loading Hyper-Intelligent Platform...</p>
@@ -36,9 +38,10 @@ import './index.css';
 
 function App() {
   return (
-    <HelmetProvider>
-      <Router>
-        <div className="app">
+    <ThemeProvider>
+      <HelmetProvider>
+        <Router>
+          <div className="app">
           <Routes>
             {/* Public Routes */}
             <Route element={<Layout />}>
@@ -77,6 +80,16 @@ function App() {
                   <PartnersPage />
                 </Suspense>
               } />
+              <Route path="/business-card" element={
+                <Suspense fallback={<Loading />}>
+                  <BusinessCardPage />
+                </Suspense>
+              } />
+              <Route path="/cards" element={
+                <Suspense fallback={<Loading />}>
+                  <BusinessCardPage />
+                </Suspense>
+              } />
             </Route>
 
             {/* Admin Routes */}
@@ -95,6 +108,7 @@ function App() {
         </div>
       </Router>
     </HelmetProvider>
+  </ThemeProvider>
   );
 }
 
