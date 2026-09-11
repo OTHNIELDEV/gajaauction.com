@@ -9,14 +9,14 @@ const PEOPLE_DATA = {
         nameEn: 'SANG SOO LEE',
         title: '대표이사',
         cert: '공인중개사 · 투자자산운용사',
-        company: '(주)가자에셋파트너스',
+        company: '(주)가자에셋파트너스 · 가자공인중개사사무소',
         phone: '010-5439-5353',
         secondLabel: 'F.',
         secondContact: '0504-331-5353',
         email: 'wise@exitwise.io',
         address: '경기도 성남시 분당구 수내로 54, 삼성보보스쉐르빌 2707호',
         website: 'www.gajaasset.com',
-        services: '경매 · NPL · 투자 · 대출 · 중개 · 매매 · 컨설팅'
+        services: '경매 · NPL · 투자 · 중개 · 매매 · 컨설팅'
     },
     jeongjaewon: {
         id: 'jeongjaewon',
@@ -31,7 +31,7 @@ const PEOPLE_DATA = {
         email: 'ickra345@gmail.com',
         address: '경기도 성남시 분당구 수내로 54, 삼성보보스쉐르빌 2707호',
         website: 'www.gajaasset.com',
-        services: '경매 · NPL · 투자 · 대출 · 중개 · 매매 · 컨설팅'
+        services: '부동산 컨설팅 · 시장조사 및 분석 · 자산관리 · 사업성 검토'
     }
 };
 
@@ -92,13 +92,24 @@ const THEMES_CONFIG = {
 const BusinessCardPage = () => {
     const [selectedPerson, setSelectedPerson] = useState('leesangsoo');
     const [selectedTheme, setSelectedTheme] = useState('navy');
+    const [headerStyle, setHeaderStyle] = useState('horizontal');
     const [showBleedGuide, setShowBleedGuide] = useState(false);
 
     const person = PEOPLE_DATA[selectedPerson];
     const theme = THEMES_CONFIG[selectedTheme];
 
     const frontImgUrl = `/cards/card_front_${selectedTheme}.png`;
-    const backImgUrl = `/cards/card_back_${selectedPerson}_${selectedTheme}.png`;
+    const backImgUrl = selectedPerson === 'leesangsoo' && headerStyle === 'vertical'
+        ? `/cards/card_back_${selectedPerson}_${selectedTheme}_vertical.png`
+        : `/cards/card_back_${selectedPerson}_${selectedTheme}.png`;
+
+    const pdfUrl = selectedPerson === 'leesangsoo'
+        ? (headerStyle === 'vertical' ? '/cards/card_print_leesangsoo_navy_vertical.pdf' : '/cards/card_print_leesangsoo_navy_horizontal.pdf')
+        : '/cards/card_print_jeongjaewon_navy.pdf';
+
+    const zipUrl = selectedPerson === 'leesangsoo'
+        ? '/cards/gaja_card_leesangsoo_navy_print_package.zip'
+        : '/cards/gaja_card_jeongjaewon_navy_print_package.zip';
 
     const handlePrint = () => {
         window.print();
@@ -195,8 +206,49 @@ const BusinessCardPage = () => {
                             </div>
                         </div>
 
+                        {/* Header Style Toggle for Lee Sang Soo */}
+                        {selectedPerson === 'leesangsoo' && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-gold)' }}>상호 배열:</span>
+                                <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: '4px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                    <button
+                                        onClick={() => setHeaderStyle('horizontal')}
+                                        style={{
+                                            padding: '8px 14px',
+                                            borderRadius: '8px',
+                                            border: 'none',
+                                            background: headerStyle === 'horizontal' ? 'var(--accent-gold)' : 'transparent',
+                                            color: headerStyle === 'horizontal' ? '#000' : 'var(--text-white)',
+                                            fontWeight: 700,
+                                            fontSize: '0.85rem',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                    >
+                                        가로 나란히
+                                    </button>
+                                    <button
+                                        onClick={() => setHeaderStyle('vertical')}
+                                        style={{
+                                            padding: '8px 14px',
+                                            borderRadius: '8px',
+                                            border: 'none',
+                                            background: headerStyle === 'vertical' ? 'var(--accent-gold)' : 'transparent',
+                                            color: headerStyle === 'vertical' ? '#000' : 'var(--text-white)',
+                                            fontWeight: 700,
+                                            fontSize: '0.85rem',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                    >
+                                        위아래 2단
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Action Buttons */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                             <button
                                 onClick={() => setShowBleedGuide(!showBleedGuide)}
                                 style={{
@@ -232,8 +284,77 @@ const BusinessCardPage = () => {
                                 }}
                             >
                                 <i className="fas fa-file-image"></i>
-                                3색 시안 시트 다운로드
+                                3색 시안 시트
                             </a>
+                            {selectedPerson === 'leesangsoo' && (
+                                <>
+                                    <a
+                                        href="/cards/showcase_leesangsoo_compare.png"
+                                        download="gaja_showcase_leesangsoo_compare.png"
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            padding: '8px 14px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #D4AF37',
+                                            background: 'rgba(212, 175, 55, 0.2)',
+                                            color: 'var(--accent-gold)',
+                                            fontSize: '0.85rem',
+                                            fontWeight: 700,
+                                            textDecoration: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <i className="fas fa-columns"></i>
+                                        배열 비교 시안
+                                    </a>
+                                    <a
+                                        href="/cards/showcase_leesangsoo_navy.png"
+                                        download="gaja_showcase_leesangsoo_navy.png"
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            padding: '8px 14px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #D4AF37',
+                                            background: 'rgba(212, 175, 55, 0.15)',
+                                            color: 'var(--accent-gold)',
+                                            fontSize: '0.85rem',
+                                            fontWeight: 700,
+                                            textDecoration: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <i className="fas fa-award"></i>
+                                        네이비 인쇄본
+                                    </a>
+                                </>
+                            )}
+                            {selectedPerson === 'jeongjaewon' && (
+                                <a
+                                    href="/cards/showcase_jeongjaewon_navy.png"
+                                    download="gaja_showcase_jeongjaewon_navy.png"
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        padding: '8px 14px',
+                                        borderRadius: '8px',
+                                        border: '1px solid #D4AF37',
+                                        background: 'rgba(212, 175, 55, 0.15)',
+                                        color: 'var(--accent-gold)',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 700,
+                                        textDecoration: 'none',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <i className="fas fa-award"></i>
+                                    네이비 균형 인쇄본 다운로드
+                                </a>
+                            )}
                             <button
                                 onClick={handlePrint}
                                 style={{
@@ -256,6 +377,140 @@ const BusinessCardPage = () => {
                             </button>
                         </div>
 
+                    </div>
+                </div>
+
+                {/* 300 DPI Print Download Center (Screen Only) */}
+                <div className="no-print" style={{ 
+                    background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(10, 24, 38, 0.6) 100%)', 
+                    border: '1px solid rgba(212, 175, 55, 0.35)', 
+                    borderRadius: '16px', 
+                    padding: '24px 28px', 
+                    marginBottom: '40px',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', marginBottom: '20px' }}>
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                                <span style={{ background: 'var(--accent-gold)', color: '#000', padding: '3px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 800 }}>인쇄소 접수 규격</span>
+                                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent-gold)', margin: 0 }}>
+                                    300 DPI 고해상도 인쇄 파일 다운로드 센터
+                                </h2>
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-gray)' }}>
+                                작업 사이즈 <strong>96 × 56mm</strong> (상하좌우 3mm 도련 여백 포함) · 완성 사이즈 <strong>90 × 50mm</strong> · 해상도 <strong>300 DPI</strong> (1134 × 661 px)
+                            </p>
+                        </div>
+                        <span style={{ fontSize: '0.8rem', color: '#10B981', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '4px 10px', borderRadius: '20px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <i className="fas fa-check-circle"></i>성원애드피아 / 오프린트미 즉시 접수 가능
+                        </span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
+                        {/* 1. ZIP Package */}
+                        <a
+                            href={zipUrl}
+                            download={selectedPerson === 'leesangsoo' ? 'gaja_card_leesangsoo_navy_print_package.zip' : 'gaja_card_jeongjaewon_navy_print_package.zip'}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                padding: '16px',
+                                borderRadius: '12px',
+                                background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0.1) 100%)',
+                                border: '1.5px solid var(--accent-gold)',
+                                textDecoration: 'none',
+                                color: 'var(--text-white)',
+                                transition: 'all 0.2s ease',
+                                boxShadow: '0 4px 15px rgba(212, 175, 55, 0.15)'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ fontSize: '1.4rem', color: 'var(--accent-gold)' }}><i className="fas fa-file-archive"></i></span>
+                                <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'var(--accent-gold)', color: '#000', borderRadius: '4px', fontWeight: 800 }}>추천 풀세트</span>
+                            </div>
+                            <strong style={{ fontSize: '0.95rem', color: 'var(--accent-gold)', marginBottom: '4px' }}>인쇄 접수용 ZIP 패키지</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-gray)', lineHeight: '1.4' }}>
+                                앞/뒤 PNG(300DPI) + 인쇄용 PDF 2종 + 발주가이드 텍스트
+                            </span>
+                        </a>
+
+                        {/* 2. PDF Document */}
+                        <a
+                            href={pdfUrl}
+                            download={selectedPerson === 'leesangsoo' && headerStyle === 'vertical' ? 'gaja_card_leesangsoo_navy_vertical_print.pdf' : (selectedPerson === 'leesangsoo' ? 'gaja_card_leesangsoo_navy_print.pdf' : 'gaja_card_jeongjaewon_navy_print.pdf')}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                padding: '16px',
+                                borderRadius: '12px',
+                                background: 'rgba(0, 0, 0, 0.3)',
+                                border: '1px solid rgba(255, 255, 255, 0.12)',
+                                textDecoration: 'none',
+                                color: 'var(--text-white)',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ fontSize: '1.4rem', color: '#EF4444' }}><i className="fas fa-file-pdf"></i></span>
+                                <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'rgba(239, 68, 68, 0.2)', color: '#F87171', borderRadius: '4px', fontWeight: 600 }}>2페이지 PDF</span>
+                            </div>
+                            <strong style={{ fontSize: '0.95rem', color: 'var(--text-white)', marginBottom: '4px' }}>인쇄용 고해상도 PDF</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-gray)', lineHeight: '1.4' }}>
+                                앞면+뒷면 통합 300 DPI 실물 규격 인쇄용 PDF
+                            </span>
+                        </a>
+
+                        {/* 3. Front PNG */}
+                        <a
+                            href={frontImgUrl}
+                            download={`gaja_card_front_${selectedTheme}_300dpi.png`}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                padding: '16px',
+                                borderRadius: '12px',
+                                background: 'rgba(0, 0, 0, 0.3)',
+                                border: '1px solid rgba(255, 255, 255, 0.12)',
+                                textDecoration: 'none',
+                                color: 'var(--text-white)',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ fontSize: '1.4rem', color: 'var(--accent-gold)' }}><i className="fas fa-image"></i></span>
+                                <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'rgba(212, 175, 55, 0.15)', color: 'var(--accent-gold)', borderRadius: '4px', fontWeight: 600 }}>1134×661 px</span>
+                            </div>
+                            <strong style={{ fontSize: '0.95rem', color: 'var(--text-white)', marginBottom: '4px' }}>앞면 300 DPI (PNG)</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-gray)', lineHeight: '1.4' }}>
+                                골드 엠블럼 + 한글/영문 상호 미드나이트 네이비
+                            </span>
+                        </a>
+
+                        {/* 4. Back PNG */}
+                        <a
+                            href={backImgUrl}
+                            download={selectedPerson === 'leesangsoo' && headerStyle === 'vertical' ? `gaja_card_back_${selectedPerson}_${selectedTheme}_vertical_300dpi.png` : `gaja_card_back_${selectedPerson}_${selectedTheme}_300dpi.png`}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                padding: '16px',
+                                borderRadius: '12px',
+                                background: 'rgba(0, 0, 0, 0.3)',
+                                border: '1px solid rgba(255, 255, 255, 0.12)',
+                                textDecoration: 'none',
+                                color: 'var(--text-white)',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ fontSize: '1.4rem', color: 'var(--accent-gold)' }}><i className="fas fa-id-card-alt"></i></span>
+                                <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'rgba(212, 175, 55, 0.15)', color: 'var(--accent-gold)', borderRadius: '4px', fontWeight: 600 }}>1134×661 px</span>
+                            </div>
+                            <strong style={{ fontSize: '0.95rem', color: 'var(--text-white)', marginBottom: '4px' }}>뒷면 300 DPI (PNG)</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-gray)', lineHeight: '1.4' }}>
+                                {selectedPerson === 'leesangsoo' ? (headerStyle === 'vertical' ? '위아래 2단 배열 인쇄본' : '가로 나란히 배열 인쇄본') : '정재원 팀장 인쇄본'}
+                            </span>
+                        </a>
                     </div>
                 </div>
 
@@ -313,7 +568,7 @@ const BusinessCardPage = () => {
                             </span>
                             <a
                                 href={backImgUrl}
-                                download={`gaja_card_back_${selectedPerson}_${selectedTheme}.png`}
+                                download={selectedPerson === 'leesangsoo' && headerStyle === 'vertical' ? `gaja_card_back_${selectedPerson}_${selectedTheme}_vertical.png` : `gaja_card_back_${selectedPerson}_${selectedTheme}.png`}
                                 style={{ fontSize: '0.8rem', color: 'var(--accent-gold)', textDecoration: 'none', background: 'rgba(212,175,55,0.1)', padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(212,175,55,0.3)' }}
                             >
                                 <i className="fas fa-download" style={{ marginRight: '5px' }}></i>300 DPI 다운로드

@@ -5,16 +5,16 @@ const Stats = () => {
         <section className="stats">
             <div className="container grid-3">
                 <div className="stat-item">
-                    <h3>10+</h3>
+                    <h3>17+</h3>
                     <p>Years Experience</p>
                 </div>
                 <div className="stat-item">
-                    <h3>98%</h3>
+                    <h3>95%</h3>
                     <p>Auction Success Rate</p>
                 </div>
                 <div className="stat-item">
-                    <h3>1,000억+</h3>
-                    <p>누적 투자 유치액</p>
+                    <h3>100%</h3>
+                    <p>Field Due Diligence</p>
                 </div>
             </div>
         </section>
