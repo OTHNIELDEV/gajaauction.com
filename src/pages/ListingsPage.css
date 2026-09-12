@@ -1,0 +1,289 @@
+/* ==========================================================================
+   ListingsPage Styles
+   Theme Support: Dark (Default) / Light Mode
+   ========================================================================== */
+
+.listings-page {
+    position: relative;
+    min-height: 100vh;
+}
+
+/* Header Section */
+.listings-header {
+    padding-top: 125px;
+    padding-bottom: 24px;
+    text-align: center;
+}
+
+.listings-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    letter-spacing: 0.3px;
+    transition: all 0.25s ease;
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    color: var(--accent-gold);
+}
+
+[data-theme="light"] .listings-badge {
+    background: rgba(197, 155, 39, 0.12);
+    border: 1px solid rgba(197, 155, 39, 0.35);
+    color: #9e7514;
+}
+
+.listings-title {
+    font-size: clamp(2.1rem, 3.8vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0;
+    line-height: 1.25;
+    background: linear-gradient(135deg, #ffffff 0%, #D4AF37 60%, #aa8528 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+[data-theme="light"] .listings-title {
+    background: linear-gradient(135deg, #0f172a 0%, #b8860b 60%, #8c6507 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.listings-subtitle {
+    margin-top: 12px;
+    font-size: 1.02rem;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+    letter-spacing: -0.2px;
+    color: var(--text-gray);
+}
+
+[data-theme="light"] .listings-subtitle {
+    color: #475569;
+}
+
+/* --------------------------------------------------------------------------
+   ExitWise AI Slim Capsule Banner
+   -------------------------------------------------------------------------- */
+.exitwise-slim-capsule {
+    margin: 22px auto 0;
+    max-width: 840px;
+    width: 95%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 8px 16px 8px 12px;
+    border-radius: 50px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(90deg, rgba(14, 165, 233, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
+    border: 1px solid rgba(14, 165, 233, 0.28);
+    box-shadow: 0 4px 20px rgba(14, 165, 233, 0.1);
+}
+
+[data-theme="light"] .exitwise-slim-capsule {
+    background: linear-gradient(90deg, rgba(14, 165, 233, 0.08) 0%, rgba(99, 102, 241, 0.06) 100%);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    box-shadow: 0 4px 16px rgba(14, 165, 233, 0.08);
+}
+
+.capsule-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    text-align: left;
+}
+
+.capsule-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
+}
+
+.capsule-text {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-off-white);
+}
+
+.capsule-text strong {
+    color: #38bdf8;
+    font-weight: 600;
+}
+
+[data-theme="light"] .capsule-text {
+    color: #0f172a;
+}
+
+[data-theme="light"] .capsule-text strong {
+    color: #0369a1;
+    font-weight: 600;
+}
+
+.capsule-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.capsule-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 4px 12px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    background: rgba(14, 165, 233, 0.2);
+    color: #38bdf8;
+    border: 1px solid rgba(14, 165, 233, 0.4);
+}
+
+.capsule-link:hover {
+    background: #0ea5e9;
+    color: #ffffff;
+    border-color: #0ea5e9;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4);
+}
+
+[data-theme="light"] .capsule-link {
+    background: #e0f2fe;
+    color: #0284c7;
+    border: 1px solid #bae6fd;
+}
+
+[data-theme="light"] .capsule-link:hover {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0284c7;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+}
+
+.capsule-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.72rem;
+    transition: all 0.2s ease;
+    color: #8892b0;
+}
+
+.capsule-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+[data-theme="light"] .capsule-close-btn {
+    color: #64748b;
+}
+
+[data-theme="light"] .capsule-close-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: #0f172a;
+}
+
+/* --------------------------------------------------------------------------
+   Empty State Card
+   -------------------------------------------------------------------------- */
+.listings-empty-state {
+    text-align: center;
+    padding: 70px 20px;
+    border-radius: 16px;
+    transition: all 0.25s ease;
+    background: rgba(10, 25, 47, 0.5);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="light"] .listings-empty-state {
+    background: #ffffff;
+    border: 1px dashed #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.empty-state-icon {
+    font-size: 2.4rem;
+    margin-bottom: 14px;
+    color: #64748b;
+}
+
+[data-theme="light"] .empty-state-icon {
+    color: #94a3b8;
+}
+
+.empty-state-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text-white);
+}
+
+[data-theme="light"] .empty-state-title {
+    color: #0f172a;
+}
+
+.empty-state-desc {
+    font-size: 0.92rem;
+    margin-bottom: 16px;
+    color: var(--text-gray);
+}
+
+[data-theme="light"] .empty-state-desc {
+    color: #64748b;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Adjustments
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    .listings-header {
+        padding-top: 105px;
+        padding-bottom: 18px;
+    }
+
+    .exitwise-slim-capsule {
+        flex-direction: column;
+        border-radius: 14px;
+        padding: 10px 14px;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .capsule-content {
+        flex-wrap: wrap;
+    }
+
+    .capsule-actions {
+        justify-content: flex-end;
+    }
+}

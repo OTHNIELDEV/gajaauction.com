@@ -1,0 +1,433 @@
+/* ==========================================================================
+   FilterBar (Unified Control Hub) Component Styles
+   Theme Support: Dark (Default) / Light Mode
+   ========================================================================== */
+
+.filter-hub {
+    position: relative;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(10, 25, 47, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="light"] .filter-hub {
+    background: #ffffff;
+    border: 1px solid rgba(203, 213, 225, 0.8);
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
+}
+
+/* --------------------------------------------------------------------------
+   Top Row: Segmented Tab Bar + Search Input
+   -------------------------------------------------------------------------- */
+.filter-hub-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+/* Segmented Control Track */
+.segmented-tabs {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 12px;
+    transition: background-color 0.25s ease;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .segmented-tabs {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+}
+
+/* Individual Tab Button */
+.segmented-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    background: transparent;
+    color: var(--text-gray);
+}
+
+.segmented-tab-btn:hover {
+    color: var(--text-white);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="light"] .segmented-tab-btn {
+    background: transparent;
+    color: #475569;
+}
+
+[data-theme="light"] .segmented-tab-btn:hover {
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* Active Tab Button */
+.segmented-tab-btn.active {
+    background: var(--accent-gold);
+    color: #050b14;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+}
+
+[data-theme="light"] .segmented-tab-btn.active {
+    background: #c59b27;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 3px 12px rgba(197, 155, 39, 0.35);
+}
+
+/* Tab Badge */
+.tab-badge {
+    font-size: 0.75rem;
+    padding: 1px 7px;
+    border-radius: 20px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-gray);
+}
+
+.segmented-tab-btn.active .tab-badge {
+    background: rgba(5, 11, 20, 0.25);
+    color: #050b14;
+}
+
+[data-theme="light"] .segmented-tab-btn .tab-badge {
+    background: rgba(0, 0, 0, 0.06);
+    color: #64748b;
+}
+
+[data-theme="light"] .segmented-tab-btn.active .tab-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+/* Search Group */
+.filter-search-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filter-search-box {
+    position: relative;
+    width: 290px;
+    transition: width 0.3s ease;
+}
+
+.filter-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.88rem;
+    pointer-events: none;
+    transition: color 0.2s ease;
+    color: #8892b0;
+}
+
+[data-theme="light"] .filter-search-icon {
+    color: #94a3b8;
+}
+
+.filter-search-input {
+    width: 100%;
+    padding: 9px 36px 9px 38px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    outline: none;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+.filter-search-input:focus {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+.filter-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="light"] .filter-search-input {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+}
+
+[data-theme="light"] .filter-search-input:focus {
+    background: #ffffff;
+    border-color: #c59b27;
+    box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.15);
+}
+
+[data-theme="light"] .filter-search-input::placeholder {
+    color: #94a3b8;
+}
+
+.filter-search-clear {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: background-color 0.2s ease;
+    color: #8892b0;
+}
+
+.filter-search-clear:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+[data-theme="light"] .filter-search-clear {
+    color: #64748b;
+}
+
+[data-theme="light"] .filter-search-clear:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: #0f172a;
+}
+
+/* Result Count Pill */
+.filter-result-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-gray);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.filter-result-count strong {
+    color: var(--accent-gold);
+}
+
+[data-theme="light"] .filter-result-count {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .filter-result-count strong {
+    color: #b8860b;
+}
+
+/* --------------------------------------------------------------------------
+   Divider
+   -------------------------------------------------------------------------- */
+.filter-hub-divider {
+    height: 1px;
+    margin: 14px 0 12px;
+    transition: background-color 0.25s ease;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .filter-hub-divider {
+    background: #f1f5f9;
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Row: Category Chips + Reset Button
+   -------------------------------------------------------------------------- */
+.filter-hub-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.category-chips-list {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.category-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-right: 4px;
+    letter-spacing: -0.2px;
+    color: #8892b0;
+}
+
+[data-theme="light"] .category-label {
+    color: #64748b;
+}
+
+/* Chip Button */
+.category-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-gray);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+.category-chip:hover {
+    color: var(--text-white);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.category-chip.active {
+    background: rgba(212, 175, 55, 0.16);
+    color: var(--accent-gold);
+    border-color: rgba(212, 175, 55, 0.45);
+    font-weight: 600;
+}
+
+/* Light Mode Chips */
+[data-theme="light"] .category-chip {
+    background: #f8fafc;
+    color: #475569;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .category-chip:hover {
+    color: #0f172a;
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+[data-theme="light"] .category-chip.active {
+    background: rgba(197, 155, 39, 0.12);
+    color: #9e7514;
+    border-color: rgba(197, 155, 39, 0.4);
+    font-weight: 600;
+}
+
+/* Reset Button */
+.filter-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    margin-left: auto;
+    background: rgba(255, 255, 255, 0.04);
+    color: #8892b0;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.filter-reset-btn:hover {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="light"] .filter-reset-btn {
+    background: #f1f5f9;
+    color: #64748b;
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .filter-reset-btn:hover {
+    background: #fee2e2;
+    color: #ef4444;
+    border-color: #fca5a5;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Media Queries
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+    .filter-hub-top {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .segmented-tabs {
+        width: 100%;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding: 4px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .segmented-tab-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: fit-content;
+    }
+
+    .filter-search-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .filter-search-box {
+        flex: 1;
+        width: auto;
+    }
+
+    .category-chips-list {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        width: 100%;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .filter-reset-btn {
+        margin-left: 0;
+        margin-top: 4px;
+    }
+}
