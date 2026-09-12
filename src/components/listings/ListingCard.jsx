@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 
 const ListingCard = ({ item }) => {
+    const { isDark } = useTheme();
     const isGeneral = item.type === 'general';
     const isNpl = item.type === 'npl';
     const isAuction = item.type === 'auction' || !item.type;
@@ -19,8 +21,8 @@ const ListingCard = ({ item }) => {
                 background: 'var(--card-bg)',
                 borderRadius: '16px',
                 overflow: 'hidden',
-                border: item.isExitwiseLinked ? '1px solid rgba(14, 165, 233, 0.4)' : '1px solid var(--glass-border)',
-                boxShadow: item.isExitwiseLinked ? '0 10px 30px rgba(14, 165, 233, 0.15)' : 'none',
+                border: item.isExitwiseLinked ? '1px solid rgba(14, 165, 233, 0.4)' : (isDark ? '1px solid var(--glass-border)' : '1px solid #e2e8f0'),
+                boxShadow: item.isExitwiseLinked ? '0 10px 30px rgba(14, 165, 233, 0.15)' : (isDark ? 'none' : '0 4px 16px rgba(0,0,0,0.04)'),
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'transform 0.3s ease, border-color 0.3s ease'
@@ -122,16 +124,16 @@ const ListingCard = ({ item }) => {
                     </h3>
 
                     {/* Dynamic Pricing Info */}
-                    <div style={{ marginTop: 'auto', paddingTop: '10px', borderTop: '1px solid var(--glass-border)' }}>
+                    <div style={{ marginTop: 'auto', paddingTop: '10px', borderTop: isDark ? '1px solid var(--glass-border)' : '1px solid #f1f5f9' }}>
                         {isGeneral && (
                             <div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
                                     <span style={{ fontSize: '0.85rem', color: 'var(--text-gray)' }}>희망 매매가</span>
-                                    <span style={{ fontSize: '1.3rem', fontWeight: '800', color: '#10b981' }}>{item.salePrice || item.minPrice}</span>
+                                    <span style={{ fontSize: '1.3rem', fontWeight: '800', color: isDark ? '#10b981' : '#059669' }}>{item.salePrice || item.minPrice}</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-off-white)' }}>
                                     <span>예상 수익률</span>
-                                    <span style={{ color: 'var(--accent-gold)', fontWeight: 'bold' }}>{item.roi || '협의'} {item.monthlyRent ? `(월 ${item.monthlyRent})` : ''}</span>
+                                    <span style={{ color: isDark ? 'var(--accent-gold)' : '#b8860b', fontWeight: 'bold' }}>{item.roi || '협의'} {item.monthlyRent ? `(월 ${item.monthlyRent})` : ''}</span>
                                 </div>
                             </div>
                         )}
@@ -140,7 +142,7 @@ const ListingCard = ({ item }) => {
                             <div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
                                     <span style={{ fontSize: '0.85rem', color: 'var(--text-gray)' }}>매각 희망가</span>
-                                    <span style={{ fontSize: '1.3rem', fontWeight: '800', color: '#c084fc' }}>{item.nplTargetPrice || item.minPrice}</span>
+                                    <span style={{ fontSize: '1.3rem', fontWeight: '800', color: isDark ? '#c084fc' : '#7c3aed' }}>{item.nplTargetPrice || item.minPrice}</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-off-white)' }}>
                                     <span>채권최고액</span>
@@ -153,7 +155,7 @@ const ListingCard = ({ item }) => {
                             <div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
                                     <span style={{ fontSize: '0.85rem', color: 'var(--text-gray)' }}>최저입찰가</span>
-                                    <span style={{ fontSize: '1.3rem', fontWeight: '800', color: 'var(--accent-gold)' }}>{item.minPrice}</span>
+                                    <span style={{ fontSize: '1.3rem', fontWeight: '800', color: isDark ? 'var(--accent-gold)' : '#b8860b' }}>{item.minPrice}</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-gray)' }}>
                                     <span>감정가 {item.appraisal}</span>

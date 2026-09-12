@@ -14,86 +14,116 @@ export default function ImportListingPage() {
     const [errorMessage, setErrorMessage] = useState('');
     const [manualJson, setManualJson] = useState('');
 
+    const processImport = (data, autoRedirect) => {
+        if (!data) return;
+
+        // 매물 등록 처리
+        const listingId = data.imDocumentId 
+            ? (data.imDocumentId.startsWith('exitwise-') ? data.imDocumentId : `exitwise-${data.imDocumentId.slice(0, 8)}`) 
+            : `exitwise-${Date.now()}`;
+
+        // 해운대 조선호텔 특정 ID 정합 보장
+        const finalId = (data.assetName?.includes('그랜드조선') || data.imTitle?.includes('그랜드조선'))
+            ? 'exitwise-haeundae'
+            : listingId;
+
+        const saved = DataManager.importFromExitwise({
+            id: finalId,
+            type: data.type || (data.category === 'NPL' ? 'npl' : 'general'),
+            title: data.imTitle || `${data.assetName || '자산'} 매각 IM`,
+            category: data.category || '오피스빌딩',
+            location: data.location,
+            salePrice: data.salePrice || data.targetPrice,
+            targetPrice: data.targetPrice || data.salePrice,
+            deposit: data.deposit,
+            monthlyRent: data.monthlyRent,
+            roi: data.roi,
+            pricePerPyung: data.pricePerPyung,
+            imDocumentId: data.imDocumentId,
+            imTitle: data.imTitle,
+            imDate: data.imDate || new Date().toISOString().slice(0, 10),
+            assetName: data.assetName,
+            rooms: data.rooms,
+            parking: data.parking,
+            landArea: data.landArea,
+            totalFloorArea: data.totalFloorArea,
+            floors: data.floors,
+            riskWarning: data.riskWarning,
+            executiveSummary: data.executiveSummary,
+            markdownContent: data.markdownContent || '',
+            htmlContent: data.htmlContent || ''
+        });
+
+        setImportedListing(saved);
+        setStatus('success');
+
+        // auto=true 인 경우 1.8초 후 자동 상세 페이지 이동
+        if (autoRedirect) {
+            const timer = setTimeout(() => {
+                navigate(`/listings/${finalId}`);
+            }, 1800);
+            return () => clearTimeout(timer);
+        }
+    };
+
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         const rawPayload = queryParams.get('payload');
         const autoRedirect = queryParams.get('auto') === 'true';
 
-        if (!rawPayload) {
-            setStatus('manual');
-            return;
-        }
-
-        try {
-            let data = null;
+        // 1. URL 쿼리 파라미터가 있는 경우 파싱 및 등록
+        if (rawPayload) {
             try {
-                data = JSON.parse(rawPayload);
-            } catch (e1) {
+                let data = null;
                 try {
-                    data = JSON.parse(decodeURIComponent(rawPayload));
-                } catch (e2) {
+                    data = JSON.parse(rawPayload);
+                } catch (e1) {
                     try {
-                        data = JSON.parse(decodeURIComponent(escape(atob(rawPayload))));
-                    } catch (e3) {
-                        throw new Error('전송된 매물 데이터 규격을 해석할 수 없습니다.');
+                        data = JSON.parse(decodeURIComponent(rawPayload));
+                    } catch (e2) {
+                        try {
+                            data = JSON.parse(decodeURIComponent(escape(atob(rawPayload))));
+                        } catch (e3) {
+                            throw new Error('전송된 매물 데이터 규격을 해석할 수 없습니다.');
+                        }
                     }
                 }
+                if (data) {
+                    processImport(data, autoRedirect);
+                }
+            } catch (err) {
+                console.error('[ImportListingPage] URL payload error:', err);
+                setErrorMessage(err.message || '데이터 형식 오류가 발생했습니다.');
+                setStatus('error');
             }
-
-            if (!data) throw new Error('매물 데이터가 비어 있습니다.');
-
-            // 매물 등록 처리
-            const listingId = data.imDocumentId 
-                ? (data.imDocumentId.startsWith('exitwise-') ? data.imDocumentId : `exitwise-${data.imDocumentId.slice(0, 8)}`) 
-                : `exitwise-${Date.now()}`;
-
-            // 해운대 조선호텔 특정 ID 정합 보장
-            const finalId = (data.assetName?.includes('그랜드조선') || data.imTitle?.includes('그랜드조선'))
-                ? 'exitwise-haeundae'
-                : listingId;
-
-            const saved = DataManager.importFromExitwise({
-                id: finalId,
-                type: data.type || (data.category === 'NPL' ? 'npl' : 'general'),
-                title: data.imTitle || `${data.assetName || '자산'} 매각 IM`,
-                category: data.category || '오피스빌딩',
-                location: data.location,
-                salePrice: data.salePrice || data.targetPrice,
-                targetPrice: data.targetPrice || data.salePrice,
-                deposit: data.deposit,
-                monthlyRent: data.monthlyRent,
-                roi: data.roi,
-                pricePerPyung: data.pricePerPyung,
-                imDocumentId: data.imDocumentId,
-                imTitle: data.imTitle,
-                imDate: data.imDate || new Date().toISOString().slice(0, 10),
-                assetName: data.assetName,
-                rooms: data.rooms,
-                parking: data.parking,
-                landArea: data.landArea,
-                totalFloorArea: data.totalFloorArea,
-                floors: data.floors,
-                riskWarning: data.riskWarning,
-                executiveSummary: data.executiveSummary,
-                markdownContent: data.markdownContent || '',
-                htmlContent: data.htmlContent || ''
-            });
-
-            setImportedListing(saved);
-            setStatus('success');
-
-            // auto=true 인 경우 1.8초 후 자동 상세 페이지 이동
-            if (autoRedirect) {
-                const timer = setTimeout(() => {
-                    navigate(`/listings/${finalId}`);
-                }, 1800);
-                return () => clearTimeout(timer);
-            }
-        } catch (err) {
-            console.error('[ImportListingPage] Import error:', err);
-            setErrorMessage(err.message || '데이터 형식 오류가 발생했습니다.');
-            setStatus('error');
+        } else {
+            setStatus('manual');
         }
+
+        // 2. Cross-Window postMessage 리스너 (대용량 마크다운/HTML 수신)
+        const handleMessage = (event) => {
+            if (event.data && event.data.type === 'GAJA_IMPORT_DATA' && event.data.payload) {
+                console.log('[ImportListingPage] Received full payload via postMessage:', event.data.payload);
+                processImport(event.data.payload, autoRedirect !== false);
+            }
+        };
+        window.addEventListener('message', handleMessage);
+
+        // 3. Opener(ExitWise) 창에 준비 완료 신호 전송 (즉시 + 300ms)
+        try {
+            if (window.opener) {
+                window.opener.postMessage({ type: 'GAJA_IMPORT_READY' }, '*');
+                setTimeout(() => {
+                    window.opener?.postMessage({ type: 'GAJA_IMPORT_READY' }, '*');
+                }, 300);
+            }
+        } catch (e) {
+            // ignore
+        }
+
+        return () => {
+            window.removeEventListener('message', handleMessage);
+        };
     }, [location.search, navigate]);
 
     const handleManualSubmit = (e) => {

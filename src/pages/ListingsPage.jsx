@@ -6,13 +6,14 @@ import ListingCard from '../components/listings/ListingCard';
 import SEO from '../components/SEO';
 import { filterCategories, transactionTypes } from '../data/mockListings';
 import DataManager from '../utils/DataManager';
+import './ListingsPage.css';
 
 const ListingsPage = () => {
     const [selectedType, setSelectedType] = useState('all');
     const [selectedCategory, setSelectedCategory] = useState("전체");
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('latest'); // 'latest' | 'priceDesc' | 'priceAsc'
     const [listings, setListings] = useState([]);
+    const [showExitWiseBanner, setShowExitWiseBanner] = useState(true);
 
     useEffect(() => {
         DataManager.init();
@@ -63,6 +64,12 @@ const ListingsPage = () => {
         return matchesType && matchesCategory && matchesSearch;
     });
 
+    const handleResetAll = () => {
+        setSelectedType('all');
+        setSelectedCategory('전체');
+        setSearchTerm('');
+    };
+
     return (
         <div className="listings-page">
             <SEO
@@ -71,83 +78,71 @@ const ListingsPage = () => {
             />
 
             {/* Header Section */}
-            <section className="listings-header" style={{ paddingTop: '150px', paddingBottom: '40px', textAlign: 'center' }}>
+            <section className="listings-header">
                 <div className="container">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', background: 'rgba(212, 175, 55, 0.12)', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '30px', color: 'var(--accent-gold)', fontSize: '0.88rem', fontWeight: 'bold', marginBottom: '16px' }}
+                        className="listings-badge"
                     >
                         <i className="fas fa-crown"></i> Institutional & High-End Assets
                     </motion.div>
 
                     <motion.h1
-                        initial={{ opacity: 0, y: -20 }}
+                        initial={{ opacity: 0, y: -16 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-gold"
-                        style={{ fontSize: '2.8rem', fontWeight: '800', letterSpacing: '-0.5px' }}
+                        className="listings-title"
                     >
                         Exclusive Investment Portfolio
                     </motion.h1>
-                    <p style={{ color: 'var(--text-gray)', marginTop: '15px', fontSize: '1.1rem', maxWidth: '750px', margin: '15px auto 0', lineHeight: '1.6' }}>
+
+                    <p className="listings-subtitle">
                         오피스빌딩, 특급호텔, NPL(부실채권), 법원 경매 및 우량 일반매각 물건까지<br />
                         상위 1% 자산가를 위한 가자에셋만의 독점 투자 기회를 만나보세요.
                     </p>
 
-                    {/* ExitWise Integration Banner */}
-                    <div style={{
-                        marginTop: '30px',
-                        background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.15))',
-                        border: '1px solid rgba(14, 165, 233, 0.35)',
-                        borderRadius: '12px',
-                        padding: '14px 24px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '20px',
-                        maxWidth: '850px',
-                        width: '90%',
-                        flexWrap: 'wrap'
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' }}>
-                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#0ea5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                                <i className="fas fa-bolt"></i>
-                            </div>
-                            <div>
-                                <div style={{ fontWeight: 'bold', color: 'var(--text-white)', fontSize: '0.95rem' }}>
-                                    ExitWise.io AI IM 연동 시스템 가동 중
+                    {/* ExitWise AI Slim Capsule Notification */}
+                    <AnimatePresence>
+                        {showExitWiseBanner && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.96, height: 0, margin: 0, overflow: 'hidden' }}
+                                transition={{ duration: 0.25 }}
+                                className="exitwise-slim-capsule"
+                            >
+                                <div className="capsule-content">
+                                    <span className="capsule-tag">
+                                        <i className="fas fa-bolt"></i> ExitWise AI
+                                    </span>
+                                    <span className="capsule-text">
+                                        실시간 연동: <strong>해운대 그랜드조선 호텔 매각 IM</strong>이 가자에셋에 정상 연동되었습니다.
+                                    </span>
                                 </div>
-                                <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)' }}>
-                                    ExitWise IM 스튜디오에서 생성된 [해운대 그랜드조선 호텔 매각 IM]이 가자에셋에 실시간 연동되었습니다.
+                                <div className="capsule-actions">
+                                    <Link to="/exitwise-bridge" className="capsule-link">
+                                        시뮬레이터 체험 <i className="fas fa-arrow-right"></i>
+                                    </Link>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowExitWiseBanner(false)}
+                                        className="capsule-close-btn"
+                                        aria-label="배너 닫기"
+                                        title="배너 닫기"
+                                    >
+                                        <i className="fas fa-times"></i>
+                                    </button>
                                 </div>
-                            </div>
-                        </div>
-                        <Link
-                            to="/exitwise-bridge"
-                            style={{
-                                padding: '8px 16px',
-                                background: '#0ea5e9',
-                                color: 'white',
-                                borderRadius: '8px',
-                                textDecoration: 'none',
-                                fontSize: '0.85rem',
-                                fontWeight: 'bold',
-                                whiteSpace: 'nowrap',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px'
-                            }}
-                        >
-                            연동 시뮬레이터 직접 체험 <i className="fas fa-arrow-right"></i>
-                        </Link>
-                    </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </section>
 
             {/* Listings Content Section */}
-            <section className="listings-content" style={{ paddingBottom: '120px' }}>
+            <section className="listings-content" style={{ paddingBottom: '100px' }}>
                 <div className="container">
-                    {/* Filter Bar with Dual Category and Transaction Types */}
+                    {/* Unified Filter Hub (대분류 탭 + 검색창 + 자산용도 칩 + 초기화) */}
                     <FilterBar
                         transactionTypes={transactionTypes}
                         selectedType={selectedType}
@@ -156,52 +151,15 @@ const ListingsPage = () => {
                         selectedCategory={selectedCategory}
                         onSelectCategory={setSelectedCategory}
                         counts={counts}
+                        searchTerm={searchTerm}
+                        onSearchChange={setSearchTerm}
+                        onClearSearch={() => setSearchTerm('')}
+                        totalCount={filteredListings.length}
+                        onResetAll={handleResetAll}
                     />
 
-                    {/* Search & Meta Bar */}
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '30px',
-                        flexWrap: 'wrap',
-                        gap: '15px'
-                    }}>
-                        <div style={{ position: 'relative', width: '320px' }}>
-                            <i className="fas fa-search" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#888' }}></i>
-                            <input
-                                type="text"
-                                placeholder="매물명, 지역(강남, 해운대 등) 검색..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{
-                                    width: '100%',
-                                    padding: '12px 14px 12px 45px',
-                                    borderRadius: '10px',
-                                    background: 'var(--input-bg)',
-                                    border: '1px solid var(--input-border)',
-                                    color: 'var(--input-text)',
-                                    fontSize: '0.92rem',
-                                    outline: 'none'
-                                }}
-                            />
-                            {searchTerm && (
-                                <button
-                                    onClick={() => setSearchTerm('')}
-                                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#888', cursor: 'pointer' }}
-                                >
-                                    ×
-                                </button>
-                            )}
-                        </div>
-
-                        <div style={{ color: 'var(--text-gray)', fontSize: '0.95rem' }}>
-                            검색 결과: <strong style={{ color: 'var(--accent-gold)' }}>{filteredListings.length}</strong>건의 매물
-                        </div>
-                    </div>
-
                     {/* Listings Grid */}
-                    <motion.div layout className="grid-3" style={{ minHeight: '500px' }}>
+                    <motion.div layout className="grid-3" style={{ minHeight: '450px' }}>
                         <AnimatePresence>
                             {filteredListings.map((item) => (
                                 <ListingCard key={item.id} item={item} />
@@ -211,34 +169,29 @@ const ListingsPage = () => {
 
                     {/* Empty State */}
                     {filteredListings.length === 0 && (
-                        <div style={{
-                            textAlign: 'center',
-                            padding: '80px 20px',
-                            color: 'var(--text-gray)',
-                            background: 'var(--card-bg)',
-                            borderRadius: '16px',
-                            border: '1px dashed var(--glass-border)',
-                            marginTop: '20px'
-                        }}>
-                            <i className="fas fa-search" style={{ fontSize: '2.5rem', color: '#666', marginBottom: '15px' }}></i>
-                            <h3 style={{ color: 'var(--text-white)', marginBottom: '8px' }}>선택하신 조건의 매물이 없습니다.</h3>
-                            <p style={{ fontSize: '0.95rem', color: '#888' }}>
-                                다른 필터 또는 검색어로 다시 시도해 보세요.
+                        <div className="listings-empty-state">
+                            <i className="fas fa-magnifying-glass empty-state-icon"></i>
+                            <h3 className="empty-state-title">선택하신 조건에 일치하는 매물이 없습니다.</h3>
+                            <p className="empty-state-desc">
+                                다른 거래 유형, 자산 용도를 선택하시거나 검색어를 변경해 보세요.
                             </p>
                             <button
-                                onClick={() => { setSelectedType('all'); setSelectedCategory('전체'); setSearchTerm(''); }}
+                                type="button"
+                                onClick={handleResetAll}
                                 style={{
-                                    marginTop: '15px',
-                                    padding: '8px 20px',
+                                    padding: '9px 22px',
                                     background: 'var(--accent-gold)',
                                     border: 'none',
                                     borderRadius: '8px',
-                                    color: '#000',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer'
+                                    color: '#050b14',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    boxShadow: '0 4px 14px rgba(212, 175, 55, 0.3)'
                                 }}
                             >
-                                필터 초기화
+                                <i className="fas fa-rotate-left" style={{ marginRight: '6px' }}></i>
+                                필터 전체 초기화
                             </button>
                         </div>
                     )}

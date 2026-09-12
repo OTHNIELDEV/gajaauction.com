@@ -1,127 +1,141 @@
 import React from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import './FilterBar.css';
 
 const FilterBar = ({
     transactionTypes = [
-        { key: 'all', label: '전체 매물' },
-        { key: 'general', label: '일반매물(급매/매매)' },
-        { key: 'npl', label: 'NPL(부실채권)' },
-        { key: 'auction', label: '경매 물건' }
+        { key: 'all', label: '전체' },
+        { key: 'general', label: '일반매물' },
+        { key: 'npl', label: 'NPL' },
+        { key: 'auction', label: '경매' }
     ],
     selectedType = 'all',
     onSelectType,
     categories = ["전체", "오피스빌딩", "호텔", "상가", "토지", "아파트/주택"],
     selectedCategory = '전체',
     onSelectCategory,
-    counts = {}
+    counts = {},
+    searchTerm = '',
+    onSearchChange,
+    onClearSearch,
+    totalCount = 0,
+    onResetAll
 }) => {
-    const { isDark } = useTheme();
+    const isFiltered = selectedType !== 'all' || selectedCategory !== '전체' || (searchTerm && searchTerm.trim() !== '');
+
+    const getCategoryIcon = (category) => {
+        switch (category) {
+            case '오피스빌딩':
+                return <i className="fas fa-building" style={{ fontSize: '0.8rem' }}></i>;
+            case '호텔':
+                return <i className="fas fa-hotel" style={{ fontSize: '0.8rem' }}></i>;
+            case '상가':
+                return <i className="fas fa-store" style={{ fontSize: '0.78rem' }}></i>;
+            case '토지':
+                return <i className="fas fa-mountain-sun" style={{ fontSize: '0.8rem' }}></i>;
+            case '아파트/주택':
+                return <i className="fas fa-house" style={{ fontSize: '0.8rem' }}></i>;
+            default:
+                return null;
+        }
+    };
 
     return (
-        <div className="filter-bar-container" style={{ marginBottom: '45px' }}>
-            {/* 1단계: 거래 유형 (대분류 탭) */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '12px',
-                flexWrap: 'wrap',
-                marginBottom: '20px'
-            }}>
-                {transactionTypes.map((t) => {
-                    const isSelected = selectedType === t.key;
-                    const count = counts[t.key] !== undefined ? counts[t.key] : null;
+        <div className="filter-hub">
+            {/* Top Row: 거래 유형 세그먼트 탭 & 검색 인풋 그룹 */}
+            <div className="filter-hub-top">
+                {/* 1단계: 세그먼트 컨트롤 탭 */}
+                <div className="segmented-tabs" role="tablist" aria-label="거래 유형 선택">
+                    {transactionTypes.map((t) => {
+                        const isSelected = selectedType === t.key;
+                        const count = counts[t.key] !== undefined ? counts[t.key] : null;
 
-                    return (
-                        <button
-                            key={t.key}
-                            onClick={() => onSelectType && onSelectType(t.key)}
-                            style={{
-                                background: isSelected ? 'var(--accent-gold)' : (isDark ? 'rgba(255, 255, 255, 0.04)' : '#ffffff'),
-                                color: isSelected ? '#000' : 'var(--text-off-white)',
-                                border: isSelected ? '1px solid var(--accent-gold)' : (isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #cbd5e1'),
-                                padding: '12px 28px',
-                                borderRadius: '12px',
-                                cursor: 'pointer',
-                                fontSize: '1.02rem',
-                                fontWeight: isSelected ? '700' : '500',
-                                transition: 'all 0.25s ease',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                boxShadow: isSelected ? '0 4px 20px rgba(212, 175, 55, 0.35)' : (isDark ? 'none' : '0 2px 6px rgba(0,0,0,0.04)')
-                            }}
-                        >
-                            <span>{t.label}</span>
-                            {count !== null && (
-                                <span style={{
-                                    fontSize: '0.78rem',
-                                    padding: '2px 8px',
-                                    borderRadius: '20px',
-                                    background: isSelected ? '#000' : (isDark ? 'rgba(255, 255, 255, 0.1)' : '#f1f5f9'),
-                                    color: isSelected ? 'var(--accent-gold)' : 'var(--text-gray)',
-                                    fontWeight: 'bold'
-                                }}>
-                                    {count}
-                                </span>
-                            )}
-                        </button>
-                    );
-                })}
+                        return (
+                            <button
+                                key={t.key}
+                                type="button"
+                                role="tab"
+                                aria-selected={isSelected}
+                                className={`segmented-tab-btn ${isSelected ? 'active' : ''}`}
+                                onClick={() => onSelectType && onSelectType(t.key)}
+                            >
+                                <span>{t.label}</span>
+                                {count !== null && (
+                                    <span className="tab-badge">{count}</span>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* 우측: 검색창 및 실시간 건수 뱃지 */}
+                <div className="filter-search-group">
+                    <div className="filter-search-box">
+                        <i className="fas fa-search filter-search-icon"></i>
+                        <input
+                            type="text"
+                            className="filter-search-input"
+                            placeholder="매물명, 지역(강남, 판교 등) 검색..."
+                            value={searchTerm}
+                            onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+                            aria-label="매물 검색"
+                        />
+                        {searchTerm && (
+                            <button
+                                type="button"
+                                className="filter-search-clear"
+                                onClick={() => onClearSearch && onClearSearch()}
+                                title="검색어 지우기"
+                                aria-label="검색어 지우기"
+                            >
+                                <i className="fas fa-times"></i>
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="filter-result-count">
+                        매물 <strong>{totalCount}</strong>건
+                    </div>
+                </div>
             </div>
 
-            {/* 2단계: 자산 용도 (오피스빌딩, 호텔 등 소분류 필터) */}
-            <div style={{
-                display: 'flex',
-                gap: '10px',
-                overflowX: 'auto',
-                paddingBottom: '10px',
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-gray)', marginRight: '5px', whiteSpace: 'nowrap' }}>
-                    <i className="fas fa-filter" style={{ marginRight: '6px', color: 'var(--accent-gold)' }}></i>자산 용도 :
-                </span>
-                {categories.map((category) => {
-                    const isSelected = selectedCategory === category;
-                    const isHighlighted = category === '오피스빌딩' || category === '호텔';
+            {/* 중간 디바이더 라인 */}
+            <div className="filter-hub-divider" />
 
-                    return (
-                        <button
-                            key={category}
-                            onClick={() => onSelectCategory && onSelectCategory(category)}
-                            style={{
-                                background: isSelected
-                                    ? (isDark ? 'rgba(212, 175, 55, 0.2)' : 'rgba(212, 175, 55, 0.25)')
-                                    : (isDark ? 'rgba(255, 255, 255, 0.03)' : '#ffffff'),
-                                color: isSelected
-                                    ? 'var(--accent-gold)'
-                                    : isHighlighted
-                                        ? (isDark ? '#fff' : '#0f172a')
-                                        : 'var(--text-gray)',
-                                border: isSelected
-                                    ? '1px solid var(--accent-gold)'
-                                    : isHighlighted
-                                        ? (isDark ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid #94a3b8')
-                                        : (isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid #e2e8f0'),
-                                padding: '8px 18px',
-                                borderRadius: '50px',
-                                cursor: 'pointer',
-                                fontSize: '0.9rem',
-                                fontWeight: isSelected || isHighlighted ? '600' : '400',
-                                transition: 'all 0.25s ease',
-                                whiteSpace: 'nowrap',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                boxShadow: isDark ? 'none' : '0 2px 4px rgba(0,0,0,0.03)'
-                            }}
-                        >
-                            {category === '오피스빌딩' && <i className="fas fa-building" style={{ fontSize: '0.8rem' }}></i>}
-                            {category === '호텔' && <i className="fas fa-hotel" style={{ fontSize: '0.8rem' }}></i>}
-                            <span>{category}</span>
-                        </button>
-                    );
-                })}
+            {/* Bottom Row: 자산 용도 칩 필터 & 초기화 버튼 */}
+            <div className="filter-hub-bottom">
+                <div className="category-chips-list">
+                    <span className="category-label">
+                        <i className="fas fa-sliders" style={{ fontSize: '0.78rem', color: 'var(--accent-gold)' }}></i>
+                        자산 용도
+                    </span>
+                    {categories.map((category) => {
+                        const isSelected = selectedCategory === category;
+                        return (
+                            <button
+                                key={category}
+                                type="button"
+                                className={`category-chip ${isSelected ? 'active' : ''}`}
+                                onClick={() => onSelectCategory && onSelectCategory(category)}
+                            >
+                                {getCategoryIcon(category)}
+                                <span>{category}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* 필터가 적용된 경우만 노출되는 초기화 버튼 */}
+                {isFiltered && (
+                    <button
+                        type="button"
+                        className="filter-reset-btn"
+                        onClick={() => onResetAll && onResetAll()}
+                        title="모든 검색 및 필터 초기화"
+                    >
+                        <i className="fas fa-rotate-left"></i>
+                        <span>필터 초기화</span>
+                    </button>
+                )}
             </div>
         </div>
     );
