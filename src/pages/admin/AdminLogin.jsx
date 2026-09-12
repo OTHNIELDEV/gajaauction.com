@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ThemeToggle from '../../components/ThemeToggle';
 
 const AdminLogin = () => {
     const [password, setPassword] = useState('');
@@ -17,27 +18,29 @@ const AdminLogin = () => {
     };
 
     return (
-        <div className="admin-login" style={{ minHeight: '100vh', background: '#02060b', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="glass-card" style={{ padding: '40px', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <h2 style={{ marginBottom: '30px', color: 'var(--accent-gold)' }}>GAJA ADMIN</h2>
+        <div className="admin-login" style={{ minHeight: '100vh', background: 'var(--admin-bg)', color: 'var(--admin-text-main)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+            <div style={{ position: 'absolute', top: '25px', right: '25px' }}>
+                <ThemeToggle />
+            </div>
+
+            <div className="admin-card" style={{ padding: '40px', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <h2 style={{ marginBottom: '30px', color: 'var(--accent-gold)', fontWeight: '700' }}>GAJA ADMIN</h2>
                 <form onSubmit={handleLogin} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <input
                         type="password"
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        className="admin-input"
                         style={{
-                            padding: '15px',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            background: 'rgba(255,255,255,0.05)',
-                            color: 'white',
-                            fontSize: '1rem'
+                            padding: '14px',
+                            fontSize: '1rem',
+                            width: '100%'
                         }}
                     />
-                    <button type="submit" className="btn-primary" style={{ width: '100%', padding: '15px', fontSize: '1rem' }}>Login</button>
+                    <button type="submit" className="btn-primary" style={{ width: '100%', padding: '14px', fontSize: '1rem' }}>Login</button>
                 </form>
-                <p style={{ marginTop: '20px', color: '#666', fontSize: '0.8rem' }}>(Demo Password: admin1234)</p>
+                <p style={{ marginTop: '20px', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>(Demo Password: admin1234)</p>
             </div>
         </div>
     );

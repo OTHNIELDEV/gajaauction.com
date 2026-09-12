@@ -80,14 +80,51 @@ const ListingDetailPage = () => {
     const isExitwise = Boolean(listing.isExitwiseLinked);
 
     const tabs = isExitwise ? [
-        { id: 'exitwise', label: '⚡ ExitWise 공식 IM (투자설명서 전문)' },
-        { id: 'overview', label: '자산 개요 (Overview)' },
-        { id: 'analysis', label: '수익률 & 시뮬레이션' },
-        { id: 'location', label: '입지 분석 (Location)' }
+        {
+            id: 'exitwise',
+            label: 'ExitWise 공식 IM',
+            sub: '투자설명서 전문',
+            icon: 'fas fa-bolt',
+            isExitwise: true,
+            badge: 'AI IM'
+        },
+        {
+            id: 'overview',
+            label: '자산 개요',
+            sub: 'Overview',
+            icon: 'fas fa-building'
+        },
+        {
+            id: 'analysis',
+            label: '수익률 시뮬레이션',
+            sub: 'Simulation Model',
+            icon: 'fas fa-chart-line'
+        },
+        {
+            id: 'location',
+            label: '입지 분석',
+            sub: 'Location Map',
+            icon: 'fas fa-map-marked-alt'
+        }
     ] : [
-        { id: 'overview', label: 'Overview (기본 정보)' },
-        { id: 'analysis', label: 'Investment Analysis (수익률 분석)' },
-        { id: 'location', label: 'Location (입지 분석)' }
+        {
+            id: 'overview',
+            label: '자산 개요',
+            sub: 'Overview',
+            icon: 'fas fa-building'
+        },
+        {
+            id: 'analysis',
+            label: '수익률 분석',
+            sub: 'Investment Analysis',
+            icon: 'fas fa-chart-line'
+        },
+        {
+            id: 'location',
+            label: '입지 분석',
+            sub: 'Location Map',
+            icon: 'fas fa-map-marked-alt'
+        }
     ];
 
     // Theme adaptive styles helper
@@ -199,29 +236,43 @@ const ListingDetailPage = () => {
 
                         {/* Left: Main Tabs & Info */}
                         <div style={{ flex: 2, minWidth: '320px' }}>
-                            {/* Navigation Tabs */}
-                            <div style={{ display: 'flex', borderBottom: '1px solid var(--glass-border)', marginBottom: '40px', overflowX: 'auto' }}>
-                                {tabs.map(tab => (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
-                                        style={{
-                                            background: 'transparent',
-                                            border: 'none',
-                                            padding: '15px 25px',
-                                            fontSize: '1.05rem',
-                                            color: activeTab === tab.id ? 'var(--accent-gold)' : 'var(--text-gray)',
-                                            borderBottom: activeTab === tab.id ? '3px solid var(--accent-gold)' : '3px solid transparent',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.3s ease',
-                                            whiteSpace: 'nowrap',
-                                            fontWeight: activeTab === tab.id ? '700' : '500'
-                                        }}
-                                    >
-                                        {tab.label}
-                                    </button>
-                                ))}
-                            </div>
+                            {/* Navigation Tabs (Luxury Grid Segmented Bar, No Scrollbar) */}
+                            <nav
+                                className={`detail-tabs-nav ${tabs.length === 4 ? 'has-4-tabs' : 'has-3-tabs'}`}
+                                aria-label="매물 상세 정보 탭 네비게이션"
+                            >
+                                {tabs.map(tab => {
+                                    const isActive = activeTab === tab.id;
+                                    return (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => setActiveTab(tab.id)}
+                                            className={`detail-tab-btn ${isActive ? 'is-active' : ''} ${tab.isExitwise && isActive ? 'is-exitwise' : ''}`}
+                                            type="button"
+                                        >
+                                            <div className="tab-top-row">
+                                                <i
+                                                    className={`${tab.icon} tab-icon`}
+                                                    style={{
+                                                        color: tab.isExitwise && isActive
+                                                            ? (isDark ? '#38bdf8' : '#0284c7')
+                                                            : isActive
+                                                                ? 'var(--accent-gold)'
+                                                                : 'inherit'
+                                                    }}
+                                                ></i>
+                                                <span>{tab.label}</span>
+                                                {tab.badge && (
+                                                    <span className="tab-badge">{tab.badge}</span>
+                                                )}
+                                            </div>
+                                            {tab.sub && (
+                                                <span className="tab-sub-label">{tab.sub}</span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </nav>
 
                             <AnimatePresence mode='wait'>
                                 <motion.div
@@ -570,7 +621,7 @@ const ListingDetailPage = () => {
 
                                                 {/* Financials Table */}
                                                 <h4 style={{ color: 'var(--text-white)', marginBottom: '14px', fontSize: '1.05rem' }}>연도별 재무 및 현금흐름 추이 (단위: 억원)</h4>
-                                                <div style={{ overflowX: 'auto' }}>
+                                                <div className="no-scrollbar" style={{ overflowX: 'auto' }}>
                                                     <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
                                                         <thead>
                                                             <tr style={{ background: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9', color: 'var(--text-gray)', borderBottom: `1px solid ${subCardBorder}` }}>
@@ -696,7 +747,7 @@ const ListingDetailPage = () => {
                                                     <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 4. 층별 공간 및 시설 구성 (Floor-by-Floor Program)</h3>
                                                 </div>
 
-                                                <div style={{ overflowX: 'auto' }}>
+                                                <div className="no-scrollbar" style={{ overflowX: 'auto' }}>
                                                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                                                         <thead>
                                                             <tr style={{ background: isDark ? 'rgba(255,255,255,0.04)' : '#f1f5f9', color: 'var(--text-gray)', borderBottom: `1px solid ${subCardBorder}` }}>
@@ -1045,7 +1096,7 @@ const ListingDetailPage = () => {
                                 </div>
 
                                 {/* Slide Tabs / Breadcrumbs */}
-                                <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', padding: '4px 0' }}>
+                                <div className="no-scrollbar" style={{ display: 'flex', gap: '6px', overflowX: 'auto', padding: '4px 0' }}>
                                     {[
                                         { num: 1, label: '커버' },
                                         { num: 2, label: '개요 & 스펙' },

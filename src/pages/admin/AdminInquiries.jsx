@@ -32,31 +32,31 @@ const AdminInquiries = () => {
 
     return (
         <div className="admin-inquiries">
-            <h1 style={{ marginBottom: '30px', fontSize: '1.8rem', color: 'white' }}>Customer Inquiries</h1>
+            <h1 style={{ marginBottom: '30px', fontSize: '1.8rem', color: 'var(--admin-text-main)' }}>Customer Inquiries</h1>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                 {inquiries.map(inquiry => (
-                    <div key={inquiry.id} className="glass-card" style={{ padding: '25px', position: 'relative' }}>
+                    <div key={inquiry.id} className="admin-card" style={{ padding: '25px', position: 'relative' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                             <div>
-                                <h3 style={{ fontSize: '1.2rem', color: 'white', marginBottom: '5px' }}>{inquiry.name || 'Unknown User'}</h3>
-                                <p style={{ color: '#666', fontSize: '0.9rem' }}>{inquiry.date}</p>
+                                <h3 style={{ fontSize: '1.2rem', color: 'var(--admin-text-main)', marginBottom: '5px' }}>{inquiry.name || 'Unknown User'}</h3>
+                                <p style={{ color: 'var(--admin-text-muted)', fontSize: '0.9rem', margin: 0 }}>{inquiry.date}</p>
                             </div>
                             <StatusBadge status={inquiry.status} />
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '25px' }}>
                             <div>
-                                <label style={{ fontSize: '0.8rem', color: '#666', display: 'block', marginBottom: '3px' }}>Interest</label>
-                                <span style={{ color: '#a8b2d1' }}>{inquiry.interest}</span>
+                                <label style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)', display: 'block', marginBottom: '3px' }}>Interest</label>
+                                <span style={{ color: 'var(--admin-text-sub)' }}>{inquiry.interest}</span>
                             </div>
                             <div>
-                                <label style={{ fontSize: '0.8rem', color: '#666', display: 'block', marginBottom: '3px' }}>Budget</label>
-                                <span style={{ color: '#a8b2d1' }}>{inquiry.budget}</span>
+                                <label style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)', display: 'block', marginBottom: '3px' }}>Budget</label>
+                                <span style={{ color: 'var(--admin-text-sub)' }}>{inquiry.budget}</span>
                             </div>
                             <div style={{ gridColumn: '1 / -1' }}>
-                                <label style={{ fontSize: '0.8rem', color: '#666', display: 'block', marginBottom: '3px' }}>Contact</label>
-                                <span style={{ color: 'var(--accent-gold)', fontSize: '1.1rem' }}>{inquiry.phone}</span>
+                                <label style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)', display: 'block', marginBottom: '3px' }}>Contact</label>
+                                <span style={{ color: 'var(--accent-gold)', fontSize: '1.1rem', fontWeight: '600' }}>{inquiry.phone}</span>
                             </div>
                         </div>
 
@@ -67,12 +67,10 @@ const AdminInquiries = () => {
                             <select
                                 value={inquiry.status}
                                 onChange={(e) => handleStatusChange(inquiry.id, e.target.value)}
+                                className="admin-select"
                                 style={{
                                     flex: 1,
                                     padding: '10px',
-                                    background: 'rgba(255,255,255,0.05)',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    color: 'white',
                                     borderRadius: '50px'
                                 }}
                             >

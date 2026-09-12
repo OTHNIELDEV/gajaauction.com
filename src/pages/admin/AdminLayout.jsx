@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggle from '../../components/ThemeToggle';
 
 const AdminLayout = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -30,15 +31,16 @@ const AdminLayout = () => {
     ];
 
     return (
-        <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', background: '#02060b', color: '#e6f1ff' }}>
+        <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', background: 'var(--admin-bg)', color: 'var(--admin-text-main)' }}>
             {/* Sidebar */}
             <motion.aside
+                className="admin-aside"
                 initial={{ width: 260 }}
                 animate={{ width: isSidebarOpen ? 260 : 80 }}
                 transition={{ duration: 0.3 }}
                 style={{
-                    background: '#0a1525',
-                    borderRight: '1px solid rgba(255,255,255,0.05)',
+                    background: 'var(--admin-sidebar-bg)',
+                    borderRight: '1px solid var(--admin-sidebar-border)',
                     display: 'flex',
                     flexDirection: 'column',
                     position: 'fixed',
@@ -47,11 +49,11 @@ const AdminLayout = () => {
                 }}
             >
                 {/* Logo Area */}
-                <div style={{ padding: '25px', display: 'flex', alignItems: 'center', justifyContent: isSidebarOpen ? 'space-between' : 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ padding: '25px', display: 'flex', alignItems: 'center', justifyContent: isSidebarOpen ? 'space-between' : 'center', borderBottom: '1px solid var(--admin-sidebar-border)' }}>
                     {isSidebarOpen && (
                         <h2 style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--accent-gold)', margin: 0 }}>GAJA ADMIN</h2>
                     )}
-                    <button onClick={() => setSidebarOpen(!isSidebarOpen)} style={{ background: 'none', border: 'none', color: '#666', cursor: 'pointer' }}>
+                    <button onClick={() => setSidebarOpen(!isSidebarOpen)} style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer' }}>
                         <i className={isSidebarOpen ? "fas fa-chevron-left" : "fas fa-bars"}></i>
                     </button>
                 </div>
@@ -69,12 +71,13 @@ const AdminLayout = () => {
                                             display: 'flex',
                                             alignItems: 'center',
                                             padding: '15px 25px',
-                                            color: isActive ? 'var(--accent-gold)' : '#a8b2d1',
-                                            background: isActive ? 'rgba(212, 175, 55, 0.05)' : 'transparent',
+                                            color: isActive ? 'var(--accent-gold)' : 'var(--admin-text-sub)',
+                                            background: isActive ? 'var(--admin-sidebar-active-bg)' : 'transparent',
                                             borderRight: isActive ? '3px solid var(--accent-gold)' : '3px solid transparent',
                                             textDecoration: 'none',
                                             transition: 'all 0.2s',
-                                            justifyContent: isSidebarOpen ? 'flex-start' : 'center'
+                                            justifyContent: isSidebarOpen ? 'flex-start' : 'center',
+                                            fontWeight: isActive ? '600' : '400'
                                         }}
                                     >
                                         <i className={item.icon} style={{ width: '25px', fontSize: '1.1rem' }}></i>
@@ -87,15 +90,15 @@ const AdminLayout = () => {
                 </nav>
 
                 {/* User Profile / Logout */}
-                <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ padding: '20px', borderTop: '1px solid var(--admin-sidebar-border)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '15px', justifyContent: isSidebarOpen ? 'flex-start' : 'center' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--accent-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 'bold' }}>
                             A
                         </div>
                         {isSidebarOpen && (
                             <div>
-                                <p style={{ fontSize: '0.9rem', fontWeight: '600' }}>Admin User</p>
-                                <p style={{ fontSize: '0.75rem', color: '#666' }}>Super Admin</p>
+                                <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--admin-text-main)', margin: 0 }}>Admin User</p>
+                                <p style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)', margin: 0 }}>Super Admin</p>
                             </div>
                         )}
                     </div>
@@ -105,17 +108,19 @@ const AdminLayout = () => {
                             style={{
                                 width: '100%',
                                 padding: '10px',
-                                background: 'rgba(255,255,255,0.05)',
-                                border: 'none',
-                                borderRadius: '4px',
-                                color: '#aaa',
+                                background: 'var(--admin-btn-secondary-bg)',
+                                border: '1px solid var(--admin-border)',
+                                borderRadius: '6px',
+                                color: 'var(--admin-text-sub)',
                                 cursor: 'pointer',
-                                transition: 'background 0.2s'
+                                transition: 'all 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px'
                             }}
-                            onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
-                            onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
                         >
-                            <i className="fas fa-sign-out-alt" style={{ marginRight: '8px' }}></i> Logout
+                            <i className="fas fa-sign-out-alt"></i> Logout
                         </button>
                     )}
                 </div>
@@ -124,25 +129,32 @@ const AdminLayout = () => {
             {/* Main Content Area */}
             <div style={{ flex: 1, marginLeft: isSidebarOpen ? 260 : 80, transition: 'margin-left 0.3s ease' }}>
                 {/* Top Header */}
-                <header style={{
-                    height: '70px',
-                    background: 'rgba(10, 21, 37, 0.8)',
-                    backdropFilter: 'blur(10px)',
-                    borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0 30px',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 90
-                }}>
-                    <h2 style={{ fontSize: '1.2rem', color: 'white' }}>
+                <header
+                    className="admin-header"
+                    style={{
+                        height: '70px',
+                        background: 'var(--admin-header-bg)',
+                        backdropFilter: 'blur(10px)',
+                        borderBottom: '1px solid var(--admin-header-border)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '0 30px',
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 90
+                    }}
+                >
+                    <h2 style={{ fontSize: '1.2rem', color: 'var(--admin-text-main)', margin: 0 }}>
                         {menuItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
                     </h2>
                     <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                        <div style={{ position: 'relative' }}>
-                            <i className="fas fa-bell" style={{ color: '#a8b2d1', cursor: 'pointer' }}></i>
+                        {/* Theme Toggle Button */}
+                        <ThemeToggle />
+
+                        {/* Notification Bell */}
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <i className="fas fa-bell" style={{ color: 'var(--admin-text-sub)', fontSize: '1.1rem', cursor: 'pointer' }}></i>
                             <span style={{ position: 'absolute', top: '-5px', right: '-5px', width: '8px', height: '8px', background: 'var(--accent-gold)', borderRadius: '50%' }}></span>
                         </div>
                     </div>

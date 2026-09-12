@@ -120,8 +120,8 @@ const AdminListings = () => {
                     {/* Top Action Bar */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '15px' }}>
                         <div>
-                            <h2 style={{ color: 'white', margin: 0, fontSize: '1.6rem' }}>매물 통합 관리 (Listings Management)</h2>
-                            <p style={{ color: '#a8b2d1', margin: '5px 0 0', fontSize: '0.9rem' }}>경매, 일반매물(급매), NPL 및 ExitWise IM 연동 매물을 통합 관리합니다.</p>
+                            <h2 style={{ color: 'var(--admin-text-main)', margin: 0, fontSize: '1.6rem' }}>매물 통합 관리 (Listings Management)</h2>
+                            <p style={{ color: 'var(--admin-text-sub)', margin: '5px 0 0', fontSize: '0.9rem' }}>경매, 일반매물(급매), NPL 및 ExitWise IM 연동 매물을 통합 관리합니다.</p>
                         </div>
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <button
@@ -148,9 +148,9 @@ const AdminListings = () => {
                                 style={{
                                     padding: '10px 18px',
                                     borderRadius: '8px',
-                                    background: 'rgba(255,255,255,0.08)',
-                                    color: '#e2e8f0',
-                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    background: 'var(--admin-btn-secondary-bg)',
+                                    color: 'var(--admin-btn-secondary-text)',
+                                    border: '1px solid var(--admin-btn-secondary-border)',
                                     textDecoration: 'none',
                                     fontWeight: '600',
                                     display: 'flex',
@@ -167,7 +167,7 @@ const AdminListings = () => {
                     </div>
 
                     {/* Type Tabs */}
-                    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px', overflowX: 'auto' }}>
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '10px', overflowX: 'auto' }}>
                         {[
                             { key: 'all', label: '전체 매물', count: listings.length },
                             { key: 'general', label: '일반매물', count: listings.filter(i => i.type === 'general').length },
@@ -183,7 +183,7 @@ const AdminListings = () => {
                                     background: selectedType === tab.key ? 'rgba(212, 175, 55, 0.15)' : 'transparent',
                                     border: 'none',
                                     borderBottom: selectedType === tab.key ? '2px solid var(--accent-gold)' : '2px solid transparent',
-                                    color: selectedType === tab.key ? 'var(--accent-gold)' : '#a8b2d1',
+                                    color: selectedType === tab.key ? 'var(--accent-gold)' : 'var(--admin-text-sub)',
                                     fontWeight: selectedType === tab.key ? '700' : '400',
                                     cursor: 'pointer',
                                     display: 'flex',
@@ -198,8 +198,8 @@ const AdminListings = () => {
                                     fontSize: '0.75rem',
                                     padding: '2px 6px',
                                     borderRadius: '10px',
-                                    background: selectedType === tab.key ? 'var(--accent-gold)' : 'rgba(255,255,255,0.1)',
-                                    color: selectedType === tab.key ? '#000' : '#fff'
+                                    background: selectedType === tab.key ? 'var(--accent-gold)' : 'var(--admin-pill-inactive-bg)',
+                                    color: selectedType === tab.key ? '#000' : 'var(--admin-pill-inactive-text)'
                                 }}>
                                     {tab.count}
                                 </span>
@@ -211,18 +211,15 @@ const AdminListings = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '15px', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <div className="search-box" style={{ position: 'relative' }}>
-                                <i className="fas fa-search" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#666' }}></i>
+                                <i className="fas fa-search" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: 'var(--admin-text-muted)' }}></i>
                                 <input
                                     type="text"
                                     placeholder="매물명 또는 지역 검색..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="admin-input"
                                     style={{
                                         padding: '10px 10px 10px 40px',
-                                        borderRadius: '8px',
-                                        border: '1px solid rgba(255,255,255,0.1)',
-                                        background: 'rgba(255,255,255,0.05)',
-                                        color: 'white',
                                         width: '280px'
                                     }}
                                 />
@@ -230,13 +227,7 @@ const AdminListings = () => {
                             <select
                                 value={selectedCategory}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
-                                style={{
-                                    padding: '10px 14px',
-                                    borderRadius: '8px',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    background: 'rgba(255,255,255,0.05)',
-                                    color: 'white'
-                                }}
+                                className="admin-select"
                             >
                                 <option value="All">전체 카테고리</option>
                                 <option value="빌딩/오피스">빌딩/오피스</option>
@@ -246,27 +237,27 @@ const AdminListings = () => {
                                 <option value="토지">토지</option>
                             </select>
                         </div>
-                        <div style={{ color: '#888', fontSize: '0.9rem' }}>
+                        <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.9rem' }}>
                             총 <strong style={{ color: 'var(--accent-gold)' }}>{filteredListings.length}</strong>개 매물 표시 중
                         </div>
                     </div>
 
                     {/* Table View */}
-                    <div className="glass-card" style={{ overflowX: 'auto', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div className="admin-card" style={{ overflowX: 'auto', borderRadius: '12px' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '850px' }}>
-                            <thead style={{ background: 'rgba(255,255,255,0.03)' }}>
+                            <thead style={{ background: 'var(--admin-table-header-bg)' }}>
                                 <tr>
-                                    <th style={{ padding: '16px', textAlign: 'left', color: '#a8b2d1', fontWeight: '600' }}>구분</th>
-                                    <th style={{ padding: '16px', textAlign: 'left', color: '#a8b2d1', fontWeight: '600' }}>매물 정보</th>
-                                    <th style={{ padding: '16px', textAlign: 'left', color: '#a8b2d1', fontWeight: '600' }}>가격 및 주요 지표</th>
-                                    <th style={{ padding: '16px', textAlign: 'left', color: '#a8b2d1', fontWeight: '600' }}>용도</th>
-                                    <th style={{ padding: '16px', textAlign: 'left', color: '#a8b2d1', fontWeight: '600' }}>상태</th>
-                                    <th style={{ padding: '16px', textAlign: 'right', color: '#a8b2d1', fontWeight: '600' }}>관리</th>
+                                    <th style={{ padding: '16px', textAlign: 'left', color: 'var(--admin-text-sub)', fontWeight: '600' }}>구분</th>
+                                    <th style={{ padding: '16px', textAlign: 'left', color: 'var(--admin-text-sub)', fontWeight: '600' }}>매물 정보</th>
+                                    <th style={{ padding: '16px', textAlign: 'left', color: 'var(--admin-text-sub)', fontWeight: '600' }}>가격 및 주요 지표</th>
+                                    <th style={{ padding: '16px', textAlign: 'left', color: 'var(--admin-text-sub)', fontWeight: '600' }}>용도</th>
+                                    <th style={{ padding: '16px', textAlign: 'left', color: 'var(--admin-text-sub)', fontWeight: '600' }}>상태</th>
+                                    <th style={{ padding: '16px', textAlign: 'right', color: 'var(--admin-text-sub)', fontWeight: '600' }}>관리</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredListings.map(item => (
-                                    <tr key={item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s' }}>
+                                    <tr key={item.id} style={{ borderBottom: '1px solid var(--admin-table-row-border)', transition: 'background 0.2s' }}>
                                         <td style={{ padding: '16px' }}>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
                                                 {getTypeBadge(item.type, item.isExitwiseLinked)}
@@ -276,15 +267,15 @@ const AdminListings = () => {
                                             <img
                                                 src={item.img}
                                                 alt=""
-                                                style={{ width: '70px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }}
+                                                style={{ width: '70px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--admin-border)' }}
                                             />
                                             <div>
-                                                <div style={{ fontWeight: '600', color: 'white', fontSize: '0.98rem' }}>
-                                                    <Link to={`/listings/${item.id}`} target="_blank" style={{ color: 'white', textDecoration: 'none' }}>
-                                                        {item.title} <i className="fas fa-external-link-alt" style={{ fontSize: '0.75rem', color: '#888' }}></i>
+                                                <div style={{ fontWeight: '600', color: 'var(--admin-text-main)', fontSize: '0.98rem' }}>
+                                                    <Link to={`/listings/${item.id}`} target="_blank" style={{ color: 'var(--admin-text-main)', textDecoration: 'none' }}>
+                                                        {item.title} <i className="fas fa-external-link-alt" style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}></i>
                                                     </Link>
                                                 </div>
-                                                <div style={{ fontSize: '0.85rem', color: '#888', marginTop: '2px' }}>
+                                                <div style={{ fontSize: '0.85rem', color: 'var(--admin-text-muted)', marginTop: '2px' }}>
                                                     <i className="fas fa-map-marker-alt" style={{ color: 'var(--accent-gold)', marginRight: '4px' }}></i>{item.location}
                                                 </div>
                                             </div>
@@ -295,7 +286,7 @@ const AdminListings = () => {
                                                     <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '1rem' }}>
                                                         매매 {item.salePrice || item.minPrice}
                                                     </div>
-                                                    <div style={{ fontSize: '0.82rem', color: '#888' }}>
+                                                    <div style={{ fontSize: '0.82rem', color: 'var(--admin-text-muted)' }}>
                                                         {item.roi && `수익률: ${item.roi}`} {item.monthlyRent && `| 월세: ${item.monthlyRent}`}
                                                     </div>
                                                 </div>
@@ -305,7 +296,7 @@ const AdminListings = () => {
                                                     <div style={{ color: '#c084fc', fontWeight: 'bold', fontSize: '1rem' }}>
                                                         매각희망 {item.nplTargetPrice || item.minPrice}
                                                     </div>
-                                                    <div style={{ fontSize: '0.82rem', color: '#888' }}>
+                                                    <div style={{ fontSize: '0.82rem', color: 'var(--admin-text-muted)' }}>
                                                         채권최고액: {item.claimMax || item.appraisal} (OPB: {item.opb || '-'})
                                                     </div>
                                                 </div>
@@ -315,7 +306,7 @@ const AdminListings = () => {
                                                     <div style={{ color: 'var(--accent-gold)', fontWeight: 'bold', fontSize: '1rem' }}>
                                                         최저가 {item.minPrice}
                                                     </div>
-                                                    <div style={{ fontSize: '0.82rem', color: '#888' }}>
+                                                    <div style={{ fontSize: '0.82rem', color: 'var(--admin-text-muted)' }}>
                                                         감정가: {item.appraisal} ({item.rate || '70%'})
                                                     </div>
                                                 </div>
@@ -325,9 +316,9 @@ const AdminListings = () => {
                                             <span style={{
                                                 padding: '4px 10px',
                                                 borderRadius: '20px',
-                                                background: 'rgba(255,255,255,0.06)',
+                                                background: 'var(--admin-tag-bg)',
                                                 fontSize: '0.85rem',
-                                                color: '#cbd5e1'
+                                                color: 'var(--admin-tag-text)'
                                             }}>{item.category}</span>
                                         </td>
                                         <td style={{ padding: '16px' }}>
@@ -342,14 +333,14 @@ const AdminListings = () => {
                                         <td style={{ padding: '16px', textAlign: 'right' }}>
                                             <button
                                                 onClick={() => handleEdit(item)}
-                                                style={{ marginRight: '10px', background: 'rgba(255,255,255,0.06)', border: 'none', color: '#38bdf8', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}
+                                                style={{ marginRight: '10px', background: 'var(--admin-btn-secondary-bg)', border: '1px solid var(--admin-btn-secondary-border)', color: '#0284c7', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
                                                 title="수정"
                                             >
                                                 <i className="fas fa-edit"></i> 수정
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(item.id)}
-                                                style={{ background: 'rgba(239,68,68,0.1)', border: 'none', color: '#ef4444', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}
+                                                style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
                                                 title="삭제"
                                             >
                                                 <i className="fas fa-trash"></i>
@@ -360,7 +351,7 @@ const AdminListings = () => {
                             </tbody>
                         </table>
                         {filteredListings.length === 0 && (
-                            <div style={{ padding: '50px', textAlign: 'center', color: '#888' }}>
+                            <div style={{ padding: '50px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>
                                 해당 조건에 일치하는 매물이 없습니다.
                             </div>
                         )}
@@ -378,7 +369,7 @@ const AdminListings = () => {
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    background: 'rgba(0,0,0,0.7)',
+                    background: 'var(--admin-modal-overlay)',
                     backdropFilter: 'blur(6px)',
                     zIndex: 9999,
                     display: 'flex',
@@ -390,24 +381,24 @@ const AdminListings = () => {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         style={{
-                            background: '#0f172a',
-                            border: '1px solid rgba(14, 165, 233, 0.4)',
+                            background: 'var(--admin-modal-bg)',
+                            border: '1px solid var(--admin-border)',
                             borderRadius: '16px',
                             maxWidth: '650px',
                             width: '100%',
                             padding: '30px',
-                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+                            boxShadow: 'var(--admin-modal-shadow)'
                         }}
                     >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <span style={{ background: '#0ea5e9', color: 'white', padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 'bold' }}>ExitWise API</span>
-                                <h3 style={{ margin: 0, color: 'white', fontSize: '1.3rem' }}>ExitWise IM 매물 가져오기</h3>
+                                <h3 style={{ margin: 0, color: 'var(--admin-text-main)', fontSize: '1.3rem' }}>ExitWise IM 매물 가져오기</h3>
                             </div>
-                            <button onClick={() => setShowExitwiseModal(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '1.2rem', cursor: 'pointer' }}>×</button>
+                            <button onClick={() => setShowExitwiseModal(false)} style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', fontSize: '1.4rem', cursor: 'pointer' }}>×</button>
                         </div>
 
-                        <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '25px', lineHeight: '1.6' }}>
+                        <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.9rem', marginBottom: '25px', lineHeight: '1.6' }}>
                             ExitWise IM 스튜디오에서 생성 완료된 프리미엄 M&A / 부동산 매각 IM 문서를 선택하여 가자에셋 리스팅에 원클릭 등록할 수 있습니다.
                         </p>
 
@@ -416,8 +407,8 @@ const AdminListings = () => {
                             <div style={{
                                 padding: '18px',
                                 borderRadius: '10px',
-                                background: 'rgba(255,255,255,0.03)',
-                                border: '1px solid rgba(14, 165, 233, 0.3)',
+                                background: 'var(--admin-card-bg)',
+                                border: '1px solid rgba(14, 165, 233, 0.4)',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center'
@@ -425,9 +416,9 @@ const AdminListings = () => {
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                                         <span style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px' }}>생성 완료</span>
-                                        <strong style={{ color: 'white', fontSize: '1rem' }}>해운대 그랜드조선 부산 관광호텔 자산 매각 IM</strong>
+                                        <strong style={{ color: 'var(--admin-text-main)', fontSize: '1rem' }}>해운대 그랜드조선 부산 관광호텔 자산 매각 IM</strong>
                                     </div>
-                                    <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+                                    <div style={{ fontSize: '0.85rem', color: 'var(--admin-text-sub)' }}>
                                         자산명: 그랜드조선 부산 | 희망매각가: 1,850억 원 | 객실: 330실
                                     </div>
                                     <div style={{ fontSize: '0.75rem', color: '#0ea5e9', marginTop: '4px' }}>
@@ -474,8 +465,8 @@ const AdminListings = () => {
                             <div style={{
                                 padding: '18px',
                                 borderRadius: '10px',
-                                background: 'rgba(255,255,255,0.03)',
-                                border: '1px solid rgba(255,255,255,0.08)',
+                                background: 'var(--admin-card-bg)',
+                                border: '1px solid var(--admin-border)',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center'
@@ -483,12 +474,12 @@ const AdminListings = () => {
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                                         <span style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px' }}>생성 완료</span>
-                                        <strong style={{ color: 'white', fontSize: '1rem' }}>여의도 금융타운 프라임 오피스 통매각 IM</strong>
+                                        <strong style={{ color: 'var(--admin-text-main)', fontSize: '1rem' }}>여의도 금융타운 프라임 오피스 통매각 IM</strong>
                                     </div>
-                                    <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+                                    <div style={{ fontSize: '0.85rem', color: 'var(--admin-text-sub)' }}>
                                         자산명: 여의도 파이낸스센터 B동 | 희망매각가: 920억 원
                                     </div>
-                                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)', marginTop: '4px' }}>
                                         문서 ID: efd9210a-3312-4211-9a11-54b12c8a2091
                                     </div>
                                 </div>
@@ -511,9 +502,9 @@ const AdminListings = () => {
                                     style={{
                                         padding: '10px 18px',
                                         borderRadius: '8px',
-                                        background: 'rgba(255,255,255,0.1)',
-                                        color: 'white',
-                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        background: 'var(--admin-btn-secondary-bg)',
+                                        color: 'var(--admin-btn-secondary-text)',
+                                        border: '1px solid var(--admin-btn-secondary-border)',
                                         fontWeight: '600',
                                         cursor: 'pointer',
                                         whiteSpace: 'nowrap'
@@ -569,10 +560,10 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
         >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '15px' }}>
                 <div>
-                    <h2 style={{ color: 'white', fontSize: '1.6rem', margin: 0 }}>
+                    <h2 style={{ color: 'var(--admin-text-main)', fontSize: '1.6rem', margin: 0 }}>
                         {item.title ? `매물 수정: ${item.title}` : '신규 매물 등록'}
                     </h2>
-                    <p style={{ color: '#94a3b8', margin: '5px 0 0', fontSize: '0.9rem' }}>
+                    <p style={{ color: 'var(--admin-text-sub)', margin: '5px 0 0', fontSize: '0.9rem' }}>
                         매물 거래 유형을 선택하면 입력 항목이 지능적으로 최적화됩니다.
                     </p>
                 </div>
@@ -584,8 +575,8 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
 
             {/* Transaction Type Selector Bar */}
             <div style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'var(--admin-card-bg)',
+                border: '1px solid var(--admin-border)',
                 borderRadius: '12px',
                 padding: '16px',
                 marginBottom: '25px',
@@ -594,7 +585,7 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                 gap: '15px',
                 flexWrap: 'wrap'
             }}>
-                <span style={{ color: '#a8b2d1', fontWeight: '600', fontSize: '0.95rem' }}>거래 유형 선택 :</span>
+                <span style={{ color: 'var(--admin-text-sub)', fontWeight: '600', fontSize: '0.95rem' }}>거래 유형 선택 :</span>
                 <div style={{ display: 'flex', gap: '10px' }}>
                     {[
                         { key: 'general', label: '일반매물 (매매/급매)', color: '#10b981' },
@@ -608,9 +599,9 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                             style={{
                                 padding: '10px 20px',
                                 borderRadius: '8px',
-                                border: formData.type === t.key ? `2px solid ${t.color}` : '1px solid rgba(255,255,255,0.15)',
-                                background: formData.type === t.key ? 'rgba(255,255,255,0.1)' : 'transparent',
-                                color: formData.type === t.key ? t.color : '#94a3b8',
+                                border: formData.type === t.key ? `2px solid ${t.color}` : '1px solid var(--admin-border)',
+                                background: formData.type === t.key ? 'var(--admin-pill-inactive-bg)' : 'transparent',
+                                color: formData.type === t.key ? t.color : 'var(--admin-text-sub)',
                                 fontWeight: formData.type === t.key ? '700' : '400',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s'
@@ -627,9 +618,9 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                 )}
             </div>
 
-            <div className="glass-card" style={{ padding: '30px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="admin-card" style={{ padding: '30px', borderRadius: '12px' }}>
                 {/* Navigation Tabs */}
-                <div style={{ display: 'flex', gap: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '30px' }}>
+                <div style={{ display: 'flex', gap: '20px', borderBottom: '1px solid var(--admin-border)', marginBottom: '30px' }}>
                     {[
                         { id: 'basic', label: '기본 정보' },
                         { id: 'price', label: formData.type === 'general' ? '매매가 및 수익률' : formData.type === 'npl' ? '채권/담보 조건' : '경매/입찰 정보' },
@@ -644,7 +635,7 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                                 background: 'none',
                                 border: 'none',
                                 borderBottom: activeTab === tab.id ? '2px solid var(--accent-gold)' : '2px solid transparent',
-                                color: activeTab === tab.id ? 'var(--accent-gold)' : '#a8b2d1',
+                                color: activeTab === tab.id ? 'var(--accent-gold)' : 'var(--admin-text-sub)',
                                 cursor: 'pointer',
                                 fontSize: '1rem',
                                 fontWeight: '600'
@@ -662,12 +653,13 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                         <InputField label="소재지 (Location)" name="location" value={formData.location} onChange={handleChange} placeholder="예: 부산 해운대구 우동" />
 
                         <div className="form-group">
-                            <label style={{ display: 'block', color: '#a8b2d1', marginBottom: '8px', fontSize: '0.9rem' }}>부동산 용도 (Category)</label>
+                            <label style={{ display: 'block', color: 'var(--admin-text-sub)', marginBottom: '8px', fontSize: '0.9rem' }}>부동산 용도 (Category)</label>
                             <select
                                 name="category"
                                 value={formData.category}
                                 onChange={handleChange}
-                                className="admin-input"
+                                className="admin-select"
+                                style={{ width: '100%' }}
                             >
                                 <option value="빌딩/오피스">빌딩/오피스</option>
                                 <option value="호텔/숙박">호텔/숙박</option>
@@ -678,12 +670,13 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                         </div>
 
                         <div className="form-group">
-                            <label style={{ display: 'block', color: '#a8b2d1', marginBottom: '8px', fontSize: '0.9rem' }}>게시 상태 (Status)</label>
+                            <label style={{ display: 'block', color: 'var(--admin-text-sub)', marginBottom: '8px', fontSize: '0.9rem' }}>게시 상태 (Status)</label>
                             <select
                                 name="status"
                                 value={formData.status || 'Active'}
                                 onChange={handleChange}
-                                className="admin-input"
+                                className="admin-select"
+                                style={{ width: '100%' }}
                             >
                                 <option value="Active">Active (공개 진행 중)</option>
                                 <option value="Under Contract">Under Contract (협상/계약 진행)</option>
@@ -839,30 +832,30 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                                 }}
                                 style={{
                                     padding: '12px',
-                                    background: 'rgba(255,255,255,0.05)',
-                                    border: '1px dashed rgba(255,255,255,0.3)',
+                                    background: 'var(--admin-input-bg)',
+                                    border: '1px dashed var(--admin-input-border)',
                                     borderRadius: '8px',
-                                    color: 'white',
+                                    color: 'var(--admin-input-text)',
                                     width: '100%',
                                     cursor: 'pointer'
                                 }}
                             />
-                            <div style={{ margin: '15px 0', textAlign: 'center', color: '#666', fontSize: '0.85rem' }}>또는 이미지 URL 직접 입력</div>
+                            <div style={{ margin: '15px 0', textAlign: 'center', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>또는 이미지 URL 직접 입력</div>
                             <InputField label="이미지 URL" name="img" value={formData.img || ''} onChange={handleChange} placeholder="https://..." />
                         </div>
 
                         <div style={{ marginTop: '20px' }}>
-                            <label style={{ display: 'block', color: '#a8b2d1', marginBottom: '10px' }}>미리보기</label>
+                            <label style={{ display: 'block', color: 'var(--admin-text-sub)', marginBottom: '10px' }}>미리보기</label>
                             <div style={{
                                 width: '100%',
                                 height: '280px',
-                                background: 'rgba(0,0,0,0.3)',
+                                background: 'var(--admin-input-bg)',
                                 borderRadius: '8px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 overflow: 'hidden',
-                                border: '1px solid rgba(255,255,255,0.1)'
+                                border: '1px solid var(--admin-border)'
                             }}>
                                 <img
                                     src={formData.img}
@@ -870,7 +863,7 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     onError={(e) => {
                                         e.target.style.display = 'none';
-                                        e.target.parentNode.innerHTML = '<span style="color:#666">이미지를 불러올 수 없습니다</span>';
+                                        e.target.parentNode.innerHTML = '<span style="color:var(--admin-text-muted)">이미지를 불러올 수 없습니다</span>';
                                     }}
                                 />
                             </div>
@@ -878,32 +871,13 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                     </div>
                 )}
             </div>
-
-            <style>{`
-                .admin-input {
-                    padding: 12px 14px;
-                    background: rgba(255,255,255,0.05);
-                    border: 1px solid rgba(255,255,255,0.12);
-                    border-radius: 8px;
-                    color: white;
-                    width: 100%;
-                    font-size: 0.95rem;
-                    transition: all 0.2s;
-                    box-sizing: border-box;
-                }
-                .admin-input:focus {
-                    outline: none;
-                    border-color: var(--accent-gold);
-                    background: rgba(255,255,255,0.08);
-                }
-            `}</style>
         </motion.div>
     );
 };
 
 const InputField = ({ label, name, value, onChange, placeholder }) => (
     <div className="form-group">
-        <label style={{ display: 'block', color: '#a8b2d1', marginBottom: '8px', fontSize: '0.9rem' }}>{label}</label>
+        <label style={{ display: 'block', color: 'var(--admin-text-sub)', marginBottom: '8px', fontSize: '0.9rem' }}>{label}</label>
         <input
             type="text"
             name={name}
@@ -911,6 +885,7 @@ const InputField = ({ label, name, value, onChange, placeholder }) => (
             onChange={onChange}
             placeholder={placeholder}
             className="admin-input"
+            style={{ width: '100%' }}
         />
     </div>
 );
