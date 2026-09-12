@@ -81,6 +81,13 @@ const ListingDetailPage = () => {
     const isAuction = listing.type === 'auction' || !listing.type;
     const isExitwise = Boolean(listing.isExitwiseLinked);
 
+    const assetCategory = listing.category || listing.exitwiseData?.category || '';
+    const assetTitle = `${listing.title || ''} ${listing.exitwiseData?.imTitle || ''} ${listing.location || ''}`;
+    const isHotel = assetCategory === '호텔' || assetTitle.includes('호텔') || assetTitle.includes('그랜드조선');
+    const isFactory = assetCategory === '공장/제조' || assetTitle.includes('공장') || assetTitle.includes('제조') || assetTitle.includes('플랜트') || assetTitle.includes('양주');
+    const isOffice = assetCategory === '오피스빌딩' || assetTitle.includes('오피스') || assetTitle.includes('타워') || assetTitle.includes('FKI');
+    const isLogistics = assetCategory === '물류센터' || assetTitle.includes('물류');
+
     const tabs = isExitwise ? [
         {
             id: 'exitwise',
@@ -340,11 +347,21 @@ const ListingDetailPage = () => {
                                                     </div>
                                                     <div>
                                                         <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>규모/층수: </span>
-                                                        <strong style={{ color: 'var(--text-white)' }}>{listing.specs?.floors || listing.exitwiseData?.floors || '지하 6층 / 지상 16층'}</strong>
+                                                        <strong style={{ color: 'var(--text-white)' }}>{listing.specs?.floors || listing.exitwiseData?.floors || (isFactory ? '지상 3층 (공장 2개동 및 R&D동)' : (isOffice ? '지하 7층 / 지상 50층' : '지하 6층 / 지상 16층'))}</strong>
                                                     </div>
                                                     <div>
-                                                        <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>{listing.category === '호텔' ? '객실 수: ' : '주차 대수: '}</span>
-                                                        <strong style={{ color: 'var(--text-white)' }}>{listing.category === '호텔' ? (listing.exitwiseData?.rooms || '330실') : '자주식 140대'}</strong>
+                                                        <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>
+                                                            {isHotel ? '객실 수: ' : (isFactory ? '수전/전력: ' : (isOffice ? '기준층 전용률: ' : '주차 대수: '))}
+                                                        </span>
+                                                        <strong style={{ color: 'var(--text-white)' }}>
+                                                            {isHotel
+                                                                ? (listing.exitwiseData?.rooms || '330실')
+                                                                : (isFactory
+                                                                    ? (listing.exitwiseData?.power || '3,000 kW (특고압)')
+                                                                    : (isOffice
+                                                                        ? (listing.exitwiseData?.efficiency || '58.4%')
+                                                                        : (listing.specs?.parking || listing.exitwiseData?.parking || '자주식 완비')))}
+                                                        </strong>
                                                     </div>
                                                 </div>
                                             </div>
@@ -527,357 +544,563 @@ const ListingDetailPage = () => {
                                                 <>
                                                     {/* Chapter 1: Executive Summary & Deal Structure (Fallback Demo) */}
                                                     <div className="glass-card" style={{ padding: '35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
-                                                    <span style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0ea5e9', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>1</span>
-                                                    <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 1. 자산 개요 및 거래 구조 (Executive Summary)</h3>
-                                                </div>
-
-                                                <div style={{
-                                                    display: 'grid',
-                                                    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                                                    gap: '18px',
-                                                    marginBottom: '25px',
-                                                    background: subCardBg,
-                                                    padding: '24px',
-                                                    borderRadius: '12px',
-                                                    border: `1px solid ${subCardBorder}`
-                                                }}>
-                                                    <div>
-                                                        <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>매각 대상 자산명</div>
-                                                        <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.1rem' }}>{listing.exitwiseData?.assetName || '그랜드조선 부산'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>희망 매각가</div>
-                                                        <div style={{ color: 'var(--accent-gold)', fontWeight: 'bold', fontSize: '1.25rem' }}>{listing.salePrice || '1,850억원'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>목표 수익률 (Cap Rate)</div>
-                                                        <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '1.15rem' }}>{listing.exitwiseData?.capRate || '5.8% (정상화 6.3%)'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>총 객실 수</div>
-                                                        <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.1rem' }}>{listing.exitwiseData?.rooms || '330실'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>대지면적</div>
-                                                        <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.05rem' }}>{listing.exitwiseData?.landArea || '4,158.4㎡ (1,257.9평)'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>연면적</div>
-                                                        <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.05rem' }}>{listing.exitwiseData?.totalFloorArea || '36,837.2㎡ (11,143.2평)'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>건축 규모</div>
-                                                        <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.05rem' }}>{listing.exitwiseData?.floors || '지하 6층 / 지상 16층'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>주차 대수</div>
-                                                        <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.05rem' }}>{listing.exitwiseData?.parking || '240대 (자주식 180대)'}</div>
-                                                    </div>
-                                                </div>
-
-                                                <div style={{
-                                                    background: isDark ? 'rgba(14, 165, 233, 0.05)' : '#f0f9ff',
-                                                    borderLeft: '4px solid #0284c7',
-                                                    padding: '16px 20px',
-                                                    borderRadius: '0 8px 8px 0',
-                                                    lineHeight: '1.7',
-                                                    color: 'var(--text-off-white)',
-                                                    fontSize: '0.96rem'
-                                                }}>
-                                                    <strong style={{ color: '#0284c7' }}>[Executive Summary]</strong> {listing.exitwiseData?.executiveSummary || '해운대 백사장 바로 앞에 위치한 5성급 럭셔리 관광호텔로 안정적인 객실 점유율(OCC 78%)과 식음(F&B) 매출을 보유하고 있으며, 향후 브랜드 리뉴얼 및 웰니스 복합 리조트 확장 가능성이 높은 국내 최정상급 밸류애드 호텔 자산입니다.'}
-                                                </div>
-                                            </div>
-
-                                            {/* Chapter 2: Key Operational & Financial Metrics */}
-                                            <div className="glass-card" style={{ padding: '35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
-                                                    <span style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0ea5e9', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>2</span>
-                                                    <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 2. 핵심 운영 및 재무 실적 (Operating & Financials)</h3>
-                                                </div>
-
-                                                {/* KPI 3 Big Cards */}
-                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '16px', marginBottom: '30px' }}>
-                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
-                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px', display: 'flex', justifyContent: 'space-between' }}>
-                                                            <span>객실 점유율 (OCC)</span>
-                                                            <span style={{ color: '#10b981', fontWeight: 'bold' }}>+6.2%p YoY</span>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
+                                                            <span style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0ea5e9', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>1</span>
+                                                            <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 1. 자산 개요 및 거래 구조 (Executive Summary)</h3>
                                                         </div>
-                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#0284c7' }}>78.4%</div>
-                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>부산 5성급 평균(69.2%) 대비 우수</div>
-                                                    </div>
 
-                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
-                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>평균 객실 단가 (ADR)</div>
-                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: 'var(--accent-gold)' }}>285,000원</div>
-                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>주말/성수기 420,000원 이상 실현</div>
-                                                    </div>
-
-                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
-                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>가용객실당 매출 (RevPAR)</div>
-                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#10b981' }}>223,440원</div>
-                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>전국 호텔 상위 5% 수준</div>
-                                                    </div>
-
-                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
-                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>연간 EBITDA (영업현금흐름)</div>
-                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#9333ea' }}>107.3억원</div>
-                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>EBITDA Margin 22.1% (매출 485.6억)</div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Financials Table */}
-                                                <h4 style={{ color: 'var(--text-white)', marginBottom: '14px', fontSize: '1.05rem' }}>연도별 재무 및 현금흐름 추이 (단위: 억원)</h4>
-                                                <div className="no-scrollbar" style={{ overflowX: 'auto' }}>
-                                                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
-                                                        <thead>
-                                                            <tr style={{ background: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9', color: 'var(--text-gray)', borderBottom: `1px solid ${subCardBorder}` }}>
-                                                                <th style={{ textAlign: 'left', padding: '12px 14px' }}>구분</th>
-                                                                <th style={{ padding: '12px 14px' }}>2023년 (실적)</th>
-                                                                <th style={{ padding: '12px 14px' }}>2024년 (실적)</th>
-                                                                <th style={{ padding: '12px 14px', color: 'var(--accent-gold)' }}>2025년 (실적)</th>
-                                                                <th style={{ padding: '12px 14px', color: '#0284c7' }}>2026년 (추정)</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}` }}>
-                                                                <td style={{ textAlign: 'left', padding: '12px 14px', fontWeight: 'bold', color: 'var(--text-white)' }}>총 매출액</td>
-                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>412.5억</td>
-                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>451.8억</td>
-                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: 'var(--accent-gold)' }}>485.6억</td>
-                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: '#0284c7' }}>520.0억</td>
-                                                            </tr>
-                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
-                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>- 객실 매출 (Room)</td>
-                                                                <td style={{ padding: '10px 14px' }}>235.0억</td>
-                                                                <td style={{ padding: '10px 14px' }}>258.4억</td>
-                                                                <td style={{ padding: '10px 14px' }}>280.1억</td>
-                                                                <td style={{ padding: '10px 14px' }}>305.0억</td>
-                                                            </tr>
-                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
-                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>- 식음료 매출 (F&B)</td>
-                                                                <td style={{ padding: '10px 14px' }}>142.5억</td>
-                                                                <td style={{ padding: '10px 14px' }}>156.2억</td>
-                                                                <td style={{ padding: '10px 14px' }}>165.0억</td>
-                                                                <td style={{ padding: '10px 14px' }}>172.0억</td>
-                                                            </tr>
-                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
-                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>- 부대시설 및 임대수익</td>
-                                                                <td style={{ padding: '10px 14px' }}>35.0억</td>
-                                                                <td style={{ padding: '10px 14px' }}>37.2억</td>
-                                                                <td style={{ padding: '10px 14px' }}>40.5억</td>
-                                                                <td style={{ padding: '10px 14px' }}>43.0억</td>
-                                                            </tr>
-                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, background: isDark ? 'rgba(14, 165, 233, 0.05)' : '#f0f9ff' }}>
-                                                                <td style={{ textAlign: 'left', padding: '12px 14px', fontWeight: 'bold', color: '#0284c7' }}>EBITDA (현금창출력)</td>
-                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>82.4억</td>
-                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>96.5억</td>
-                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: 'var(--accent-gold)' }}>107.3억</td>
-                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: '#10b981' }}>119.6억</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td style={{ textAlign: 'left', padding: '10px 14px', color: 'var(--text-gray)' }}>EBITDA Margin</td>
-                                                                <td style={{ padding: '10px 14px', color: 'var(--text-gray)' }}>20.0%</td>
-                                                                <td style={{ padding: '10px 14px', color: 'var(--text-gray)' }}>21.4%</td>
-                                                                <td style={{ padding: '10px 14px', color: 'var(--accent-gold)' }}>22.1%</td>
-                                                                <td style={{ padding: '10px 14px', color: '#10b981' }}>23.0%</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-
-                                            {/* Chapter 3: Core Investment Thesis (4대 투자 하이라이트) */}
-                                            <div className="glass-card" style={{ padding: '35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
-                                                    <span style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0ea5e9', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>3</span>
-                                                    <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 3. 4대 핵심 투자 하이라이트 (Investment Thesis)</h3>
-                                                </div>
-
-                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                                                    {(listing.exitwiseData?.highlights || [
-                                                        {
-                                                            title: "해운대 1선 오션프론트 영구조망 독점 입지",
-                                                            desc: "해운대 백사장과 직접 연결되는 도보 0분 입지로, 희소가치가 극대화된 대한민국 1순위 해양 리조트 자산입니다."
-                                                        },
-                                                        {
-                                                            title: "신세계 조선호텔앤리조트 브랜드 파워 & 안정적 캐시카우",
-                                                            desc: "국내 최정상급 호텔 오퍼레이터의 위탁 운영 노하우와 멤버십 네트워크를 바탕으로 비수기 없는 견고한 객실 점유율(OCC 78%)을 확보했습니다."
-                                                        },
-                                                        {
-                                                            title: "저층부 F&B 및 웰니스 복합 리뉴얼 밸류애드(Value-Add) 잠재력",
-                                                            desc: "지하 및 저층부 상업시설의 하이엔드 다이닝 유치와 인피니티풀·스파 시설 리뉴얼을 통해 Cap Rate 6.3% 이상으로 즉각 상승시킬 수 있는 업사이드 잠재력을 보유합니다."
-                                                        },
-                                                        {
-                                                            title: "부산 MICE 및 인바운드 외국인 관광객 폭발적 증가 수혜",
-                                                            desc: "벡스코(BEXCO) 국제행사 및 김해신공항 확장, 외국인 VIP 관광객 증가로 ADR(객실 단가) 지속적 상향 여력이 충분합니다."
-                                                        }
-                                                    ]).map((hl, idx) => (
-                                                        <div key={idx} style={{
+                                                        <div style={{
+                                                            display: 'grid',
+                                                            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                                                            gap: '18px',
+                                                            marginBottom: '25px',
                                                             background: subCardBg,
+                                                            padding: '24px',
                                                             borderRadius: '12px',
-                                                            padding: '22px',
-                                                            border: `1px solid ${subCardBorder}`,
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            gap: '10px'
+                                                            border: `1px solid ${subCardBorder}`
                                                         }}>
-                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                                <span style={{
-                                                                    width: '24px',
-                                                                    height: '24px',
-                                                                    borderRadius: '50%',
-                                                                    background: isDark ? 'rgba(14, 165, 233, 0.2)' : '#e0f2fe',
-                                                                    color: '#0284c7',
-                                                                    display: 'flex',
-                                                                    alignItems: 'center',
-                                                                    justifyContent: 'center',
-                                                                    fontSize: '0.8rem',
-                                                                    fontWeight: 'bold'
-                                                                }}>
-                                                                    {idx + 1}
-                                                                </span>
-                                                                <strong style={{ color: 'var(--text-white)', fontSize: '1.02rem', lineHeight: '1.4' }}>{hl.title}</strong>
+                                                            <div>
+                                                                <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>매각 대상 자산명</div>
+                                                                <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.1rem' }}>{listing.exitwiseData?.assetName || listing.title}</div>
                                                             </div>
-                                                            <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-gray)', lineHeight: '1.65' }}>
-                                                                {hl.desc}
-                                                            </p>
+                                                            <div>
+                                                                <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>희망 매각가</div>
+                                                                <div style={{ color: 'var(--accent-gold)', fontWeight: 'bold', fontSize: '1.25rem' }}>{listing.salePrice || (isFactory ? '480억원' : (isOffice ? '2,850억원' : '1,850억원'))}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>목표 수익률 (Cap Rate)</div>
+                                                                <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '1.15rem' }}>{listing.exitwiseData?.capRate || (isFactory ? '6.5% (정상화 7.1%)' : (isOffice ? '5.4% (정상화 5.9%)' : '5.8% (정상화 6.3%)'))}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>
+                                                                    {isHotel ? '총 객실 수' : (isFactory ? '수전/전력 용량' : (isOffice ? '기준층 전용률' : '핵심 제원'))}
+                                                                </div>
+                                                                <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                                                                    {isHotel
+                                                                        ? (listing.exitwiseData?.rooms || '330실')
+                                                                        : (isFactory
+                                                                            ? (listing.exitwiseData?.power || '3,000 kW (특고압)')
+                                                                            : (isOffice
+                                                                                ? (listing.exitwiseData?.efficiency || '58.4% (전용 450평)')
+                                                                                : (listing.exitwiseData?.assetClass || '우량 실물자산')))}
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>대지면적</div>
+                                                                <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.05rem' }}>{listing.exitwiseData?.landArea || listing.specs?.landArea || (isFactory ? '16,528.9㎡ (5,000평)' : (isOffice ? '3,305.8㎡ (1,000평)' : '4,158.4㎡ (1,257.9평)'))}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>연면적</div>
+                                                                <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.05rem' }}>{listing.exitwiseData?.totalFloorArea || listing.specs?.totalFloorArea || (isFactory ? '23,140.5㎡ (7,000평)' : (isOffice ? '52,890.0㎡ (16,000평)' : '36,837.2㎡ (11,143.2평)'))}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>건축 규모</div>
+                                                                <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.05rem' }}>{listing.exitwiseData?.floors || listing.specs?.floors || (isFactory ? '지상 3층 (공장 2개동 및 R&D동)' : (isOffice ? '지하 7층 / 지상 50층' : '지하 6층 / 지상 16층'))}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ color: 'var(--text-gray)', fontSize: '0.82rem', marginBottom: '4px' }}>주차 대수</div>
+                                                                <div style={{ color: 'var(--text-white)', fontWeight: 'bold', fontSize: '1.05rem' }}>{listing.exitwiseData?.parking || listing.specs?.parking || (isFactory ? '총 120대 (트레일러 15대)' : (isOffice ? '총 450대 (자주식 380대)' : '240대 (자주식 180대)'))}</div>
+                                                            </div>
                                                         </div>
-                                                    ))}
-                                                </div>
-                                            </div>
 
-                                            {/* Chapter 4: Floor-by-Floor Facility Plan */}
-                                            <div className="glass-card" style={{ padding: '35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
-                                                    <span style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0ea5e9', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>4</span>
-                                                    <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 4. 층별 공간 및 시설 구성 (Floor-by-Floor Program)</h3>
-                                                </div>
+                                                        <div style={{
+                                                            background: isDark ? 'rgba(14, 165, 233, 0.05)' : '#f0f9ff',
+                                                            borderLeft: '4px solid #0284c7',
+                                                            padding: '16px 20px',
+                                                            borderRadius: '0 8px 8px 0',
+                                                            lineHeight: '1.7',
+                                                            color: 'var(--text-off-white)',
+                                                            fontSize: '0.96rem'
+                                                        }}>
+                                                            <strong style={{ color: '#0284c7' }}>[Executive Summary]</strong> {listing.exitwiseData?.executiveSummary || (
+                                                                isFactory
+                                                                    ? '수도권 제2순환고속도로 개통 수혜지인 양주시 남면 상수리 일반공업지역 내 위치한 최신식 스마트 팩토리 플랜트로, 우량 제조기업 10년 마스터리스(NNN) 계약을 통해 공실 리스크 없이 연 6.5% 이상의 고수익 현금흐름이 보장된 최우량 산업용 부동산입니다.'
+                                                                    : (isOffice
+                                                                        ? '대한민국 금융 중심지 여의도(YBD) 핵심 요지에 위치한 랜드마크 프라임 타워로, 대기업 본사 및 우량 외국계 금융기관 중심의 높은 우량 임차인 비중(신용도 AAA급 72%)과 장기 WALE(4.8년)을 기반으로 견고한 배당 수익을 자랑합니다.'
+                                                                        : '해운대 백사장 바로 앞에 위치한 5성급 럭셔리 관광호텔로 안정적인 객실 점유율(OCC 78%)과 식음(F&B) 매출을 보유하고 있으며, 향후 브랜드 리뉴얼 및 웰니스 복합 리조트 확장 가능성이 높은 국내 최정상급 밸류애드 호텔 자산입니다.')
+                                                            )}
+                                                        </div>
+                                                    </div>
 
-                                                <div className="no-scrollbar" style={{ overflowX: 'auto' }}>
-                                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                                                        <thead>
-                                                            <tr style={{ background: isDark ? 'rgba(255,255,255,0.04)' : '#f1f5f9', color: 'var(--text-gray)', borderBottom: `1px solid ${subCardBorder}` }}>
-                                                                <th style={{ width: '15%', padding: '12px 14px', textAlign: 'left' }}>층수</th>
-                                                                <th style={{ width: '55%', padding: '12px 14px', textAlign: 'left' }}>용도 및 주요 시설</th>
-                                                                <th style={{ width: '30%', padding: '12px 14px', textAlign: 'left' }}>특장점 / 비고</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {(listing.exitwiseData?.floorPlan || [
-                                                                { floor: "16F", use: "루프탑 인피니티풀 (사계절 온수풀), 풀사이드 라운지 & 바", note: "해운대 오션뷰 파노라마" },
-                                                                { floor: "6F ~ 15F", use: "프리미엄 객실 (총 330실)", note: "디럭스 180실, 프리미어 100실, 스위트 50실" },
-                                                                { floor: "4F ~ 5F", use: "피트니스 클럽, 실내 수영장, 사우나 & 스파, 키즈존", note: "투숙객 전용 웰니스 복합 공간" },
-                                                                { floor: "2F ~ 3F", use: "뷔페 '아리아', 중식 파인다이닝 '팔레드신', 대/중 연회장", note: "F&B 연간 165억 매출 견인" },
-                                                                { floor: "1F", use: "메인 로비, 컨시어지, 라운지&바, '조선델리' 베이커리", note: "해변 직접 연결 프리미엄 로비" },
-                                                                { floor: "B1F ~ B6F", use: "지하 주차장 (240대 완비), 기계실, 전기실, 세탁/지원시설", note: "자주식 180대 / 기계식 60대" }
-                                                            ]).map((item, idx) => (
-                                                                <tr key={idx} style={{ borderBottom: `1px solid ${subCardBorder}` }}>
-                                                                    <td style={{ padding: '12px 14px', fontWeight: 'bold', color: '#0284c7' }}>{item.floor}</td>
-                                                                    <td style={{ padding: '12px 14px', color: 'var(--text-white)' }}>{item.use}</td>
-                                                                    <td style={{ padding: '12px 14px', color: 'var(--text-gray)' }}>{item.note}</td>
-                                                                </tr>
+                                                    {/* Chapter 2: Key Operational & Financial Metrics */}
+                                                    <div className="glass-card" style={{ padding: '35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
+                                                            <span style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0ea5e9', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>2</span>
+                                                            <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 2. 핵심 운영 및 재무 실적 (Operating & Financials)</h3>
+                                                        </div>
+
+                                                        {/* KPI 4 Big Cards (자산 유형별 동적 분기) */}
+                                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '16px', marginBottom: '30px' }}>
+                                                            {isFactory ? (
+                                                                <>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px', display: 'flex', justifyContent: 'space-between' }}>
+                                                                            <span>마스터리스 가동률</span>
+                                                                            <span style={{ color: '#10b981', fontWeight: 'bold' }}>10년 NNN</span>
+                                                                        </div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#0284c7' }}>100.0%</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>단독 임차 공실 리스크 제로</div>
+                                                                    </div>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>연간 순영업소득 (NOI)</div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: 'var(--accent-gold)' }}>31.2억원</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>Cap Rate 6.5% 안정적 실현</div>
+                                                                    </div>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>평당 임대단가</div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#10b981' }}>40,000원</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>관리비 실비 정산 방식</div>
+                                                                    </div>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>연간 EBITDA (현금흐름)</div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#9333ea' }}>32.5억원</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>EBITDA Margin 96.8% 달성</div>
+                                                                    </div>
+                                                                </>
+                                                            ) : isOffice ? (
+                                                                <>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px', display: 'flex', justifyContent: 'space-between' }}>
+                                                                            <span>임대율 (Occupancy)</span>
+                                                                            <span style={{ color: '#10b981', fontWeight: 'bold' }}>공실률 1.8%</span>
+                                                                        </div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#0284c7' }}>98.2%</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>YBD 프라임 최저 공실률</div>
+                                                                    </div>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>평균 NOC (평당 임대료)</div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: 'var(--accent-gold)' }}>128,000원</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>여의도 최고급 프라임 상위</div>
+                                                                    </div>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>잔여임대기간 (WALE)</div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#10b981' }}>4.8년</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>AAA급 우량 테넌트 점유</div>
+                                                                    </div>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>연간 EBITDA (현금흐름)</div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#9333ea' }}>158.6억원</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>EBITDA Margin 88.5%</div>
+                                                                    </div>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px', display: 'flex', justifyContent: 'space-between' }}>
+                                                                            <span>객실 점유율 (OCC)</span>
+                                                                            <span style={{ color: '#10b981', fontWeight: 'bold' }}>+6.2%p YoY</span>
+                                                                        </div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#0284c7' }}>78.4%</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>부산 5성급 평균(69.2%) 대비 우수</div>
+                                                                    </div>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>평균 객실 단가 (ADR)</div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: 'var(--accent-gold)' }}>285,000원</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>주말/성수기 420,000원 이상 실현</div>
+                                                                    </div>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>가용객실당 매출 (RevPAR)</div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#10b981' }}>223,440원</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>전국 호텔 상위 5% 수준</div>
+                                                                    </div>
+                                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-gray)', marginBottom: '6px' }}>연간 EBITDA (영업현금흐름)</div>
+                                                                        <div style={{ fontSize: '2.1rem', fontWeight: '800', color: '#9333ea' }}>107.3억원</div>
+                                                                        <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)', marginTop: '4px' }}>EBITDA Margin 22.1% (매출 485.6억)</div>
+                                                                    </div>
+                                                                </>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Financials Table (자산 유형별 동적 테이블) */}
+                                                        <h4 style={{ color: 'var(--text-white)', marginBottom: '14px', fontSize: '1.05rem' }}>연도별 재무 및 현금흐름 추이 (단위: 억원)</h4>
+                                                        <div className="no-scrollbar" style={{ overflowX: 'auto' }}>
+                                                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '0.9rem' }}>
+                                                                <thead>
+                                                                    <tr style={{ background: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9', color: 'var(--text-gray)', borderBottom: `1px solid ${subCardBorder}` }}>
+                                                                        <th style={{ textAlign: 'left', padding: '12px 14px' }}>구분</th>
+                                                                        <th style={{ padding: '12px 14px' }}>2023년 (실적)</th>
+                                                                        <th style={{ padding: '12px 14px' }}>2024년 (실적)</th>
+                                                                        <th style={{ padding: '12px 14px', color: 'var(--accent-gold)' }}>2025년 (실적)</th>
+                                                                        <th style={{ padding: '12px 14px', color: '#0284c7' }}>2026년 (추정)</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {isFactory ? (
+                                                                        <>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}` }}>
+                                                                                <td style={{ textAlign: 'left', padding: '12px 14px', fontWeight: 'bold', color: 'var(--text-white)' }}>총 임대수입</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>31.5억</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>32.4억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: 'var(--accent-gold)' }}>33.6억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: '#0284c7' }}>35.0억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>- 제조공장 마스터리스 임대료</td>
+                                                                                <td style={{ padding: '10px 14px' }}>30.0억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>30.9억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>32.0억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>33.3억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>- 공용관리비 및 부대수입</td>
+                                                                                <td style={{ padding: '10px 14px' }}>1.5억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>1.5억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>1.6억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>1.7억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>운영비용 (OPEX)</td>
+                                                                                <td style={{ padding: '10px 14px' }}>1.0억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>1.1억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>1.1억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>1.2억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, background: isDark ? 'rgba(14, 165, 233, 0.05)' : '#f0f9ff' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '12px 14px', fontWeight: 'bold', color: '#0284c7' }}>순영업소득 (NOI)</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>30.5억</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>31.3억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: 'var(--accent-gold)' }}>32.5억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: '#10b981' }}>33.8억</td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px', color: 'var(--text-gray)' }}>EBITDA Margin</td>
+                                                                                <td style={{ padding: '10px 14px', color: 'var(--text-gray)' }}>96.8%</td>
+                                                                                <td style={{ padding: '10px 14px', color: 'var(--text-gray)' }}>96.6%</td>
+                                                                                <td style={{ padding: '10px 14px', color: 'var(--accent-gold)' }}>96.7%</td>
+                                                                                <td style={{ padding: '10px 14px', color: '#10b981' }}>96.6%</td>
+                                                                            </tr>
+                                                                        </>
+                                                                    ) : isOffice ? (
+                                                                        <>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}` }}>
+                                                                                <td style={{ textAlign: 'left', padding: '12px 14px', fontWeight: 'bold', color: 'var(--text-white)' }}>총 임대수입</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>155.0억</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>164.2억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: 'var(--accent-gold)' }}>174.5억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: '#0284c7' }}>185.0억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>- 기준층 오피스 임대료</td>
+                                                                                <td style={{ padding: '10px 14px' }}>135.0억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>142.8억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>151.5억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>160.5억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>- 관리비 및 리테일 수입</td>
+                                                                                <td style={{ padding: '10px 14px' }}>20.0억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>21.4억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>23.0억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>24.5억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>운영비용 (OPEX)</td>
+                                                                                <td style={{ padding: '10px 14px' }}>18.5억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>19.2억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>20.3억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>21.5억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, background: isDark ? 'rgba(14, 165, 233, 0.05)' : '#f0f9ff' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '12px 14px', fontWeight: 'bold', color: '#0284c7' }}>순영업소득 (NOI)</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>136.5억</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>145.0억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: 'var(--accent-gold)' }}>154.2억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: '#10b981' }}>163.5억</td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px', color: 'var(--text-gray)' }}>EBITDA Margin</td>
+                                                                                <td style={{ padding: '10px 14px', color: 'var(--text-gray)' }}>88.1%</td>
+                                                                                <td style={{ padding: '10px 14px', color: 'var(--text-gray)' }}>88.3%</td>
+                                                                                <td style={{ padding: '10px 14px', color: 'var(--accent-gold)' }}>88.5%</td>
+                                                                                <td style={{ padding: '10px 14px', color: '#10b981' }}>88.4%</td>
+                                                                            </tr>
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}` }}>
+                                                                                <td style={{ textAlign: 'left', padding: '12px 14px', fontWeight: 'bold', color: 'var(--text-white)' }}>총 매출액</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>412.5억</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>451.8억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: 'var(--accent-gold)' }}>485.6억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: '#0284c7' }}>520.0억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>- 객실 매출 (Room)</td>
+                                                                                <td style={{ padding: '10px 14px' }}>235.0억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>258.4억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>280.1억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>305.0억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>- 식음료 매출 (F&B)</td>
+                                                                                <td style={{ padding: '10px 14px' }}>142.5억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>156.2억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>165.0억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>172.0억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, color: 'var(--text-gray)' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px' }}>- 부대시설 및 임대수익</td>
+                                                                                <td style={{ padding: '10px 14px' }}>35.0억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>37.2억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>40.5억</td>
+                                                                                <td style={{ padding: '10px 14px' }}>43.0억</td>
+                                                                            </tr>
+                                                                            <tr style={{ borderBottom: `1px solid ${subCardBorder}`, background: isDark ? 'rgba(14, 165, 233, 0.05)' : '#f0f9ff' }}>
+                                                                                <td style={{ textAlign: 'left', padding: '12px 14px', fontWeight: 'bold', color: '#0284c7' }}>EBITDA (현금창출력)</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>82.4억</td>
+                                                                                <td style={{ padding: '12px 14px', color: 'var(--text-off-white)' }}>96.5억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: 'var(--accent-gold)' }}>107.3억</td>
+                                                                                <td style={{ padding: '12px 14px', fontWeight: 'bold', color: '#10b981' }}>119.6억</td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td style={{ textAlign: 'left', padding: '10px 14px', color: 'var(--text-gray)' }}>EBITDA Margin</td>
+                                                                                <td style={{ padding: '10px 14px', color: 'var(--text-gray)' }}>20.0%</td>
+                                                                                <td style={{ padding: '10px 14px', color: 'var(--text-gray)' }}>21.4%</td>
+                                                                                <td style={{ padding: '10px 14px', color: 'var(--accent-gold)' }}>22.1%</td>
+                                                                                <td style={{ padding: '10px 14px', color: '#10b981' }}>23.0%</td>
+                                                                            </tr>
+                                                                        </>
+                                                                    )}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Chapter 3: Core Investment Thesis (자산 유형별 투자 하이라이트) */}
+                                                    <div className="glass-card" style={{ padding: '35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
+                                                            <span style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0ea5e9', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>3</span>
+                                                            <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 3. 4대 핵심 투자 하이라이트 (Investment Thesis)</h3>
+                                                        </div>
+
+                                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+                                                            {(listing.exitwiseData?.highlights || (
+                                                                isFactory ? [
+                                                                    {
+                                                                        title: "수도권 제2순환고속도로 및 세종-포천고속도로 연계 특급 물류 인프라",
+                                                                        desc: "남양주-포천 고속도로 IC와 인접하여 서울 강남권 50분, 수도권 전역 1시간 이내 물류 이동이 가능한 일반공업지역 핵심 요지입니다."
+                                                                    },
+                                                                    {
+                                                                        title: "우량 코스닥 상장 첨단부품 제조기업 10년 장기 마스터리스 (NNN 계약)",
+                                                                        desc: "국내 최정상 부품 제조사와 2032년까지 NNN 장기 임대차 계약이 체결되어 공실 위험 없이 연 6.5% 이상의 순수 현금흐름이 보장됩니다."
+                                                                    },
+                                                                    {
+                                                                        title: "3,000kW 특고압 전력, 12m 층고, 5.0톤 바닥하중 스마트 플랜트 스펙",
+                                                                        desc: "대형 호이스트 크레인 4기 및 자동화 물류라인이 완비되어 중공업, 정밀기계, 반도체·배터리 2차 벤더사 즉시 입주 가능한 최고 등급 설비입니다."
+                                                                    },
+                                                                    {
+                                                                        title: "수도권 과밀억제권역 외 소재로 취득세 및 법인세 감면 등 세제 혜택",
+                                                                        desc: "지방세특례제한법에 따른 취득세 50% 감면 및 법인세 4년간 100% 감면 등 대규모 세제 혜택이 적용되는 투자 최적화 자산입니다."
+                                                                    }
+                                                                ] : isOffice ? [
+                                                                    {
+                                                                        title: "대한민국 금융 1번지 여의도(YBD) 최중심 프라임 랜드마크",
+                                                                        desc: "여의도역(5·9호선) 도보 역세권 및 여의대로 대로변 코너에 위치한 국내 랜드마크 최상급 트로피 에셋(Trophy Asset)입니다."
+                                                                    },
+                                                                    {
+                                                                        title: "AAA급 글로벌 금융사 및 대기업 본사 장기 임차 (공실률 1.8%)",
+                                                                        desc: "신용등급 AAA급 우량 임차인이 72% 이상 점유하고 있으며, 가중평균 잔여임대기간(WALE) 4.8년으로 안정적인 코어 배당 수익을 창출합니다."
+                                                                    },
+                                                                    {
+                                                                        title: "친환경 최우수 등급 (LEED 플래티넘) 인증 ESG 코어 자산",
+                                                                        desc: "BIPV 건물일체형 태양광 및 지열 시스템 도입으로 관리비 절감 및 글로벌 ESG 기관투자자 펀드 투자 적격 요건을 완벽 충족합니다."
+                                                                    },
+                                                                    {
+                                                                        title: "신안산선·GTX-B 복합 환승센터 개통에 따른 자산가치 상승 잠재력",
+                                                                        desc: "향후 수도권 광역급행철도 개통 시 서울 서남부 및 수도권 전역 접근성이 비약적으로 개선되어 Cap Rate 압축 및 매각 차익 극대화가 기대됩니다."
+                                                                    }
+                                                                ] : [
+                                                                    {
+                                                                        title: "해운대 1선 오션프론트 영구조망 독점 입지",
+                                                                        desc: "해운대 백사장과 직접 연결되는 도보 0분 입지로, 희소가치가 극대화된 대한민국 1순위 해양 리조트 자산입니다."
+                                                                    },
+                                                                    {
+                                                                        title: "신세계 조선호텔앤리조트 브랜드 파워 & 안정적 캐시카우",
+                                                                        desc: "국내 최정상급 호텔 오퍼레이터의 위탁 운영 노하우와 멤버십 네트워크를 바탕으로 비수기 없는 견고한 객실 점유율(OCC 78%)을 확보했습니다."
+                                                                    },
+                                                                    {
+                                                                        title: "저층부 F&B 및 웰니스 복합 리뉴얼 밸류애드(Value-Add) 잠재력",
+                                                                        desc: "지하 및 저층부 상업시설의 하이엔드 다이닝 유치와 인피니티풀·스파 시설 리뉴얼을 통해 Cap Rate 6.3% 이상으로 즉각 상승시킬 수 있는 업사이드 잠재력을 보유합니다."
+                                                                    },
+                                                                    {
+                                                                        title: "부산 MICE 및 인바운드 외국인 관광객 폭발적 증가 수혜",
+                                                                        desc: "벡스코(BEXCO) 국제행사 및 김해신공항 확장, 외국인 VIP 관광객 증가로 ADR(객실 단가) 지속적 상향 여력이 충분합니다."
+                                                                    }
+                                                                ]
+                                                            )).map((hl, idx) => (
+                                                                <div key={idx} style={{
+                                                                    background: subCardBg,
+                                                                    borderRadius: '12px',
+                                                                    padding: '22px',
+                                                                    border: `1px solid ${subCardBorder}`,
+                                                                    display: 'flex',
+                                                                    flexDirection: 'column',
+                                                                    gap: '10px'
+                                                                }}>
+                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                                        <span style={{
+                                                                            width: '24px',
+                                                                            height: '24px',
+                                                                            borderRadius: '50%',
+                                                                            background: isDark ? 'rgba(14, 165, 233, 0.2)' : '#e0f2fe',
+                                                                            color: '#0284c7',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center',
+                                                                            fontSize: '0.8rem',
+                                                                            fontWeight: 'bold'
+                                                                        }}>
+                                                                            {idx + 1}
+                                                                        </span>
+                                                                        <strong style={{ color: 'var(--text-white)', fontSize: '1.02rem', lineHeight: '1.4' }}>{hl.title}</strong>
+                                                                    </div>
+                                                                    <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-gray)', lineHeight: '1.65' }}>
+                                                                        {hl.desc}
+                                                                    </p>
+                                                                </div>
                                                             ))}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-
-                                            {/* Chapter 5: Determinism Verification Audit */}
-                                            <div className="glass-card" style={{ padding: '35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                        <span style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0ea5e9', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>5</span>
-                                                        <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)</h3>
-                                                    </div>
-                                                    <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
-                                                        <span style={{ padding: '4px 10px', borderRadius: '6px', background: isDark ? 'rgba(239,68,68,0.2)' : '#fee2e2', color: isDark ? '#ef4444' : '#b91c1c', fontWeight: 'bold' }}>오류 0</span>
-                                                        <span style={{ padding: '4px 10px', borderRadius: '6px', background: isDark ? 'rgba(245,158,11,0.2)' : '#fef3c7', color: isDark ? '#f59e0b' : '#b45309', fontWeight: 'bold' }}>주의 2</span>
-                                                        <span style={{ padding: '4px 10px', borderRadius: '6px', background: isDark ? 'rgba(16,185,129,0.2)' : '#dcfce7', color: isDark ? '#10b981' : '#15803d', fontWeight: 'bold' }}>확인 4</span>
-                                                    </div>
-                                                </div>
-
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                                    <div style={{
-                                                        background: isDark ? 'rgba(16,185,129,0.06)' : '#f0fdf4',
-                                                        border: isDark ? '1px solid rgba(16,185,129,0.25)' : '1px solid #bbf7d0',
-                                                        padding: '14px 18px',
-                                                        borderRadius: '8px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '12px'
-                                                    }}>
-                                                        <i className="fas fa-check-circle" style={{ color: '#16a34a' }}></i>
-                                                        <div style={{ fontSize: '0.9rem', color: isDark ? '#e2e8f0' : '#14532d' }}>
-                                                            <strong>[소유권 확인 완료]</strong> 소유권 단독 명의 및 매각 동의 의향서(LOI) 징구 완료.
                                                         </div>
                                                     </div>
 
-                                                    <div style={{
-                                                        background: isDark ? 'rgba(16,185,129,0.06)' : '#f0fdf4',
-                                                        border: isDark ? '1px solid rgba(16,185,129,0.25)' : '1px solid #bbf7d0',
-                                                        padding: '14px 18px',
-                                                        borderRadius: '8px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '12px'
-                                                    }}>
-                                                        <i className="fas fa-check-circle" style={{ color: '#16a34a' }}></i>
-                                                        <div style={{ fontSize: '0.9rem', color: isDark ? '#e2e8f0' : '#14532d' }}>
-                                                            <strong>[공적장부 면적 일치]</strong> 등기부등본 및 건축물대장상 대지면적(4,158.4㎡) 및 연면적(36,837.2㎡) 불일치 없음.
+                                                    {/* Chapter 4: Floor-by-Floor Facility Plan */}
+                                                    <div className="glass-card" style={{ padding: '35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
+                                                            <span style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0ea5e9', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>4</span>
+                                                            <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 4. 층별 공간 및 시설 구성 (Floor-by-Floor Program)</h3>
+                                                        </div>
+
+                                                        <div className="no-scrollbar" style={{ overflowX: 'auto' }}>
+                                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                                                <thead>
+                                                                    <tr style={{ background: isDark ? 'rgba(255,255,255,0.04)' : '#f1f5f9', color: 'var(--text-gray)', borderBottom: `1px solid ${subCardBorder}` }}>
+                                                                        <th style={{ width: '15%', padding: '12px 14px', textAlign: 'left' }}>층수</th>
+                                                                        <th style={{ width: '55%', padding: '12px 14px', textAlign: 'left' }}>용도 및 주요 시설</th>
+                                                                        <th style={{ width: '30%', padding: '12px 14px', textAlign: 'left' }}>특장점 / 비고</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {(listing.exitwiseData?.floorPlan || (
+                                                                        isFactory ? [
+                                                                            { floor: "3F", use: "스마트 R&D 연구소, 설계실, 대회의실 및 임직원 구내식당, 옥상 휴게공원", note: "R&D 및 복합 업무공간 완비" },
+                                                                            { floor: "2F", use: "정밀 부품 자동화 조립 라인, 항온항습 클린룸 (Class 10,000), 품질검사실", note: "무진동 첨단 자동화 설비" },
+                                                                            { floor: "1F", use: "주 제조공장 (Plant A/B), 10톤 호이스트 크레인 4기, 원자재 및 완제품 보관창고", note: "유효 층고 12.0m / 바닥 5.0t/㎡" },
+                                                                            { floor: "야외/부대", use: "40ft 대형 트레일러 하역 도크 (15대 접안), 수전변전실 (3,000kW), 위험물 저장창고", note: "자주식 주차 120대 완비" }
+                                                                        ] : isOffice ? [
+                                                                            { floor: "40F ~ 50F", use: "하이엔드 스카이라운지, VIP 콘퍼런스홀, 글로벌 투자은행(IB) 본사", note: "한강 파노라마 조망" },
+                                                                            { floor: "20F ~ 39F", use: "대기업 지주사 및 주요 금융지주사 헤드쿼터 프라임 오피스", note: "기준층 전용 450평 (전용률 58.4%)" },
+                                                                            { floor: "4F ~ 19F", use: "IT 테크 기업 본사 및 전문직 (대형 로펌·회계법인) 임차 공간", note: "장기 임대차 계약 체결" },
+                                                                            { floor: "1F ~ 3F", use: "그랜드 로비, 컨벤션 센터, 프리미엄 카페테리아 및 리테일 편의시설", note: "입주사 전용 어메니티" },
+                                                                            { floor: "B1F ~ B7F", use: "지하 주차장 (총 450대 / 자주식 380대), 기계실, 전기차 충전소", note: "넉넉한 주차 공간 확보" }
+                                                                        ] : [
+                                                                            { floor: "16F", use: "루프탑 인피니티풀 (온수풀), 풀사이드 라운지 & 바", note: "오션뷰 파노라마" },
+                                                                            { floor: "6F ~ 15F", use: "프리미엄 객실 (총 330실)", note: "디럭스 180실, 프리미어 100실, 스위트 50실" },
+                                                                            { floor: "4F ~ 5F", use: "피트니스 클럽, 실내 수영장, 사우나 & 스파, 키즈존", note: "투숙객 전용 웰니스" },
+                                                                            { floor: "2F ~ 3F", use: "프리미엄 뷔페 '아리아', 중식 파인다이닝 '팔레드신', 대/중 연회장", note: "F&B 연간 165억 매출" },
+                                                                            { floor: "1F", use: "메인 로비, 프런트 데스크, 라운지&바, '조선델리' 베이커리", note: "해변 직접 연결 로비" },
+                                                                            { floor: "B1F ~ B6F", use: "지하 주차장 (240대 완비), 기계실, 전기실, 세탁/지원시설", note: "자주식 180대 / 기계식 60대" }
+                                                                        ]
+                                                                    )).map((item, idx) => (
+                                                                        <tr key={idx} style={{ borderBottom: `1px solid ${subCardBorder}` }}>
+                                                                            <td style={{ padding: '12px 14px', fontWeight: 'bold', color: '#0284c7' }}>{item.floor}</td>
+                                                                            <td style={{ padding: '12px 14px', color: 'var(--text-white)' }}>{item.use}</td>
+                                                                            <td style={{ padding: '12px 14px', color: 'var(--text-gray)' }}>{item.note}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
                                                         </div>
                                                     </div>
 
-                                                    <div style={{
-                                                        background: isDark ? 'rgba(245,158,11,0.06)' : '#fffbeb',
-                                                        border: isDark ? '1px solid rgba(245,158,11,0.25)' : '1px solid #fde68a',
-                                                        padding: '14px 18px',
-                                                        borderRadius: '8px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '12px'
-                                                    }}>
-                                                        <i className="fas fa-exclamation-circle" style={{ color: '#d97706' }}></i>
-                                                        <div style={{ fontSize: '0.9rem', color: isDark ? '#e2e8f0' : '#78350f' }}>
-                                                            <strong>[주의 - 권리관계]</strong> 근저당권 말소 조건부 매매계약 체결 요망 (매매잔금 시 기존 담보대출 동시 상환 프로세스 적용).
+                                                    {/* Chapter 5: Determinism Verification Audit */}
+                                                    <div className="glass-card" style={{ padding: '35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                                <span style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0ea5e9', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>5</span>
+                                                                <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)</h3>
+                                                            </div>
+                                                            <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
+                                                                <span style={{ padding: '4px 10px', borderRadius: '6px', background: isDark ? 'rgba(239,68,68,0.2)' : '#fee2e2', color: isDark ? '#ef4444' : '#b91c1c', fontWeight: 'bold' }}>오류 0</span>
+                                                                <span style={{ padding: '4px 10px', borderRadius: '6px', background: isDark ? 'rgba(245,158,11,0.2)' : '#fef3c7', color: isDark ? '#f59e0b' : '#b45309', fontWeight: 'bold' }}>주의 1</span>
+                                                                <span style={{ padding: '4px 10px', borderRadius: '6px', background: isDark ? 'rgba(16,185,129,0.2)' : '#dcfce7', color: isDark ? '#10b981' : '#15803d', fontWeight: 'bold' }}>확인 3</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                                            {(listing.exitwiseData?.auditItems || (
+                                                                isFactory ? [
+                                                                    { status: "확인", title: "소유권 확인 완료", desc: "법인 단독 명의 소유권 확인 및 매각 의향서(LOI) 징구 완료." },
+                                                                    { status: "확인", title: "공적장부 면적 일치", desc: `토지대장 및 건축물대장상 대지면적(${listing.exitwiseData?.landArea || '16,528.9㎡'}) 및 연면적(${listing.exitwiseData?.totalFloorArea || '23,140.5㎡'}) 불일치 없음.` },
+                                                                    { status: "확인", title: "환경 및 오염도 통과", desc: "토양환경보전법상 토양오염도 검사 적합 판정 및 유해물질 배출 기준 충족 완료." },
+                                                                    { status: "주의", title: "전력 및 설비 승계", desc: "기설치된 3,000kW 수전설비 및 호이스트 크레인 4기는 매매가에 포함되어 포괄 양수도 진행 요망." }
+                                                                ] : isOffice ? [
+                                                                    { status: "확인", title: "소유권 확인 완료", desc: "법인 단독 명의 소유권 확인 및 등기부상 권리제한 사항 전무." },
+                                                                    { status: "확인", title: "공적장부 면적 일치", desc: `등기부등본 및 건축물대장상 연면적(${listing.exitwiseData?.totalFloorArea || '52,890.0㎡'}) 정합성 100% 확인.` },
+                                                                    { status: "확인", title: "임대차 계약 검증", desc: "임차 테넌트 85% 이상 5년 이상 장기 계약 확인 및 보증금 전액 예치 완료." },
+                                                                    { status: "주의", title: "저층부 리테일 리뉴얼", desc: "저층부 일부 리테일 만기 도래에 따른 하이엔드 테넌트 재배치 및 임대료 상향 여력 보유." }
+                                                                ] : [
+                                                                    { status: "확인", title: "소유권 확인 완료", desc: "소유권 단독 명의 및 매각 동의 의향서(LOI) 징구 완료." },
+                                                                    { status: "확인", title: "공적장부 면적 일치", desc: "등기부등본 및 건축물대장상 대지면적(4,158.4㎡) 및 연면적(36,837.2㎡) 불일치 없음." },
+                                                                    { status: "주의", title: "권리관계", desc: "근저당권 말소 조건부 매매계약 체결 요망 (매매잔금 시 기존 담보대출 동시 상환 프로세스 적용)." },
+                                                                    { status: "주의", title: "운영승계", desc: "신세계조선호텔 위탁운영 계약 승계 여부 및 브랜드 유지 조건은 매수자 희망 구조에 따라 협의 진행 필요." }
+                                                                ]
+                                                            )).map((audit, idx) => {
+                                                                const isWarning = audit.status === '주의' || audit.status === '경고';
+                                                                const iconClass = isWarning ? 'fa-exclamation-circle' : 'fa-check-circle';
+                                                                const iconColor = isWarning ? '#d97706' : '#16a34a';
+                                                                const auditBg = isDark
+                                                                    ? (isWarning ? 'rgba(245,158,11,0.06)' : 'rgba(16,185,129,0.06)')
+                                                                    : (isWarning ? '#fffbeb' : '#f0fdf4');
+                                                                const auditBorder = isDark
+                                                                    ? (isWarning ? '1px solid rgba(245,158,11,0.25)' : '1px solid rgba(16,185,129,0.25)')
+                                                                    : (isWarning ? '1px solid #fde68a' : '1px solid #bbf7d0');
+                                                                const textColor = isDark
+                                                                    ? '#e2e8f0'
+                                                                    : (isWarning ? '#78350f' : '#14532d');
+
+                                                                return (
+                                                                    <div key={idx} style={{
+                                                                        background: auditBg,
+                                                                        border: auditBorder,
+                                                                        padding: '14px 18px',
+                                                                        borderRadius: '8px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '12px'
+                                                                    }}>
+                                                                        <i className={`fas ${iconClass}`} style={{ color: iconColor }}></i>
+                                                                        <div style={{ fontSize: '0.9rem', color: textColor }}>
+                                                                            <strong>[{audit.title}]</strong> {audit.desc}
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
                                                         </div>
                                                     </div>
 
+                                                    {/* Chapter 6: Legal Risk Warning */}
                                                     <div style={{
-                                                        background: isDark ? 'rgba(245,158,11,0.06)' : '#fffbeb',
-                                                        border: isDark ? '1px solid rgba(245,158,11,0.25)' : '1px solid #fde68a',
-                                                        padding: '14px 18px',
-                                                        borderRadius: '8px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '12px'
+                                                        background: isDark ? 'rgba(239, 68, 68, 0.08)' : '#fef2f2',
+                                                        border: isDark ? '1px solid rgba(239, 68, 68, 0.35)' : '1px solid #fca5a5',
+                                                        borderRadius: '12px',
+                                                        padding: '25px',
+                                                        boxShadow: isDark ? '0 4px 20px rgba(239, 68, 68, 0.1)' : '0 4px 15px rgba(239, 68, 68, 0.06)'
                                                     }}>
-                                                        <i className="fas fa-exclamation-circle" style={{ color: '#d97706' }}></i>
-                                                        <div style={{ fontSize: '0.9rem', color: isDark ? '#e2e8f0' : '#78350f' }}>
-                                                            <strong>[주의 - 운영승계]</strong> 신세계조선호텔 위탁운영 계약 승계 여부 및 브랜드 유지 조건은 매수자 희망 구조에 따라 협의 진행 필요.
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: isDark ? '#f87171' : '#b91c1c', fontWeight: 'bold', fontSize: '1.05rem', marginBottom: '12px' }}>
+                                                            <i className="fas fa-exclamation-triangle"></i> Chapter 6. 법적 투자 위험 경고 (Investment Risk Warning)
                                                         </div>
+                                                        <p style={{ fontSize: '0.9rem', color: isDark ? '#cbd5e1' : '#334155', lineHeight: '1.8', margin: 0 }}>
+                                                            {listing.exitwiseData?.riskWarning || (
+                                                                isFactory
+                                                                    ? '본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 하며, 투자 권유 또는 확정적 수익을 보장하지 않습니다. 공장 및 산업용 실물자산 투자에는 제조 환경 규제 및 원금 손실 리스크가 수반되며, 최종 투자 결정은 투자자 본인의 책임 하에 이루어져야 합니다.'
+                                                                    : (isOffice
+                                                                        ? '본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 하며, 투자 권유 또는 확정적 수익을 보장하지 않습니다. 오피스 실물자산 투자에는 공실률 변동 및 거시경제 리스크가 수반될 수 있습니다.'
+                                                                        : '본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 하며, 투자 권유 또는 확정적 수익을 보장하지 않습니다. 호텔 및 실물자산 투자에는 운영 리스크 및 원금 손실 리스크가 수반되며, 최종 투자 결정은 투자자 본인의 책임 하에 이루어져야 합니다.')
+                                                            )}
+                                                        </p>
                                                     </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Chapter 6: Legal Risk Warning (첨부 사진 내용과 100% 동일) */}
-                                            <div style={{
-                                                background: isDark ? 'rgba(239, 68, 68, 0.08)' : '#fef2f2',
-                                                border: isDark ? '1px solid rgba(239, 68, 68, 0.35)' : '1px solid #fca5a5',
-                                                borderRadius: '12px',
-                                                padding: '25px',
-                                                boxShadow: isDark ? '0 4px 20px rgba(239, 68, 68, 0.1)' : '0 4px 15px rgba(239, 68, 68, 0.06)'
-                                            }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: isDark ? '#f87171' : '#b91c1c', fontWeight: 'bold', fontSize: '1.05rem', marginBottom: '12px' }}>
-                                                    <i className="fas fa-exclamation-triangle"></i> Chapter 6. 법적 투자 위험 경고 (Investment Risk Warning)
-                                                </div>
-                                                    <p style={{ fontSize: '0.9rem', color: isDark ? '#cbd5e1' : '#334155', lineHeight: '1.8', margin: 0 }}>
-                                                        {listing.exitwiseData?.riskWarning ||
-                                                            `본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 하며, 투자 권유 또는 확정적 수익을 보장하지 않습니다. 호텔 및 실물자산 투자에는 운영 리스크 및 원금 손실 리스크가 수반되며, 최종 투자 결정은 투자자 본인의 책임 하에 이루어져야 합니다. 본 문서는 투자·법률·세무 자문이 아닌 의사결정 보조 자료이며, 매각·인수 검토 전 반드시 매도인 측 실사 자료 확보 및 전문 감정평가를 진행하시기 바랍니다.`}
-                                                    </p>
-                                                </div>
-                                            </>
-                                        )}
+                                                </>
+                                            )}
 
                                             {/* Bottom Full Report Action Card */}
                                             <div style={{

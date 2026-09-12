@@ -222,12 +222,34 @@ export const AiAssetImageMatcher = {
                 location: item.location
             });
 
-            // 사진이 해운대 호텔 사진이거나, 위치가 여의도/양주인데 해운대로 되어 있는 경우 교정
+            // 사진이 해운대 호텔 사진이거나, 위치가 여의도/양주인데 해운대로 되어 있거나, 공장에 객실수가 있는 경우 교정
             const isWrongHotelImg = item.img && item.img.includes('photo-1566073771259-6a8506099945') && !item.title?.includes('그랜드조선');
             const isWrongLocation = (item.title?.includes('양주') || item.title?.includes('공장') || item.title?.includes('여의도')) && item.location?.includes('해운대');
+            const hasWrongRooms = (item.title?.includes('양주') || item.title?.includes('공장') || item.title?.includes('여의도')) && item.exitwiseData?.rooms;
+            const isMissingSpec = item.title?.includes('양주') && !item.exitwiseData?.power;
 
-            if (isWrongHotelImg || isWrongLocation || !item.img) {
+            if (isWrongHotelImg || isWrongLocation || hasWrongRooms || isMissingSpec || !item.img) {
                 hasChanged = true;
+                const isYangju = item.title?.includes('양주') || item.title?.includes('공장');
+                const isFki = item.title?.includes('여의도') || item.title?.includes('FKI');
+
+                const cleanedExitwiseData = { ...(item.exitwiseData || {}) };
+                if (isYangju || isFki) {
+                    delete cleanedExitwiseData.rooms;
+                }
+                if (isYangju) {
+                    cleanedExitwiseData.power = '3,000 kW (특고압 수전설비)';
+                    cleanedExitwiseData.ceilingHeight = '10.0m ~ 12.0m (유효 천장고)';
+                    cleanedExitwiseData.floorLoad = '5.0 ton/㎡ (중하중 설비)';
+                    cleanedExitwiseData.hoist = '10톤 크레인 4기 완비';
+                    cleanedExitwiseData.trailerDock = '40ft 트레일러 15대 동시 접안';
+                }
+                if (isFki) {
+                    cleanedExitwiseData.efficiency = '58.4% (기준층 전용률)';
+                    cleanedExitwiseData.vacancyRate = '1.8% (극저공실률)';
+                    cleanedExitwiseData.wale = '4.8년 (우량 임차인 잔여기간)';
+                }
+
                 return {
                     ...item,
                     img: matchResult.img || item.img,
@@ -237,13 +259,13 @@ export const AiAssetImageMatcher = {
                     minPrice: (item.title?.includes('양주') && item.minPrice === '1,850억') ? '480억' : item.minPrice,
                     tags: ['ExitWise 연동', matchResult.category || item.category, '투자분석완료'],
                     exitwiseData: {
-                        ...(item.exitwiseData || {}),
-                        category: matchResult.category || item.exitwiseData?.category,
-                        location: matchResult.location || item.exitwiseData?.location,
-                        landArea: matchResult.specs?.landArea || item.exitwiseData?.landArea,
-                        totalFloorArea: matchResult.specs?.totalFloorArea || item.exitwiseData?.totalFloorArea,
-                        floors: matchResult.floors || item.exitwiseData?.floors,
-                        parking: matchResult.parking || item.exitwiseData?.parking,
+                        ...cleanedExitwiseData,
+                        category: matchResult.category || cleanedExitwiseData.category,
+                        location: matchResult.location || cleanedExitwiseData.location,
+                        landArea: matchResult.specs?.landArea || cleanedExitwiseData.landArea,
+                        totalFloorArea: matchResult.specs?.totalFloorArea || cleanedExitwiseData.totalFloorArea,
+                        floors: matchResult.floors || cleanedExitwiseData.floors,
+                        parking: matchResult.parking || cleanedExitwiseData.parking,
                     }
                 };
             }
