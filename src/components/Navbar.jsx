@@ -123,7 +123,7 @@ const Navbar = ({ onConsultingClick }) => {
                                             </span>
                                             <span className="tag-badge tag-platform">OFFICIAL</span>
                                         </div>
-                                        <span className="exitwise-item-desc">M&A 및 부동산 매물 IM 자동화 생성 엔진</span>
+                                        <span className="exitwise-item-desc">AI 자산 매물 IM 자동화 생성 엔진</span>
                                     </div>
                                 </a>
 

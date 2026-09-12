@@ -412,7 +412,7 @@ const ListingDetailPage = () => {
                                                             {listing.exitwiseData?.imTitle || listing.title}
                                                         </h2>
                                                         <p style={{ color: 'var(--text-gray)', margin: 0, fontSize: '0.95rem' }}>
-                                                            발행일: <strong style={{ color: 'var(--text-white)' }}>{listing.exitwiseData?.imDate || '2026.09.09'}</strong> • 발행처: <strong style={{ color: 'var(--text-white)' }}>ExitWise M&A Studio × 가자에셋 Prime Asset Division</strong>
+                                                            발행일: <strong style={{ color: 'var(--text-white)' }}>{listing.exitwiseData?.imDate || '2026.09.09'}</strong> • 발행처: <strong style={{ color: 'var(--text-white)' }}>ExitWise AI Studio × 가자에셋 Prime Asset Division</strong>
                                                         </p>
                                                     </div>
 

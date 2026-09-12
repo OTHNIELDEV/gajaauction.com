@@ -8,7 +8,7 @@ const RAW_IM_TEXT = `# [ExitWise IM Studio] 해운대 그랜드조선 부산 관
 - 문서 관리 번호: IM-2026-EW-BUSAN-09
 - 세션 경로: https://www.exitwise.io/dashboard?p=im-studio&chat=cda6733f-78b1-4a42-b7ae-3a9b1c1bc606
 - 작성 일자: 2026년 9월 9일
-- 작성 엔진: ExitWise M&A Studio / Determinism Verification Engine v2.6
+- 작성 엔진: ExitWise AI Studio / Determinism Verification Engine v2.6
 - 기밀 등급: STRICTLY CONFIDENTIAL / FOR AUTHORIZED INVESTORS ONLY
 
 ---
@@ -124,7 +124,7 @@ const RAW_IM_TEXT = `# [ExitWise IM Studio] 해운대 그랜드조선 부산 관
 ---
 
 ## [문서 서명 및 발급 정보]
-- 발급처: ExitWise M&A Studio (AI Transaction Room)
+- 발급처: ExitWise AI Studio (AI Transaction Room)
 - 공동 주관: (주)가자에셋파트너스 Prime Real Estate Division
 - 문서 검증 해시: SHA256: 8f4a2c9103e6d8b745ef1c890ab2c41793deca84
 - 본 문서는 ExitWise 스튜디오 채팅 세션 (ID: cda6733f-78b1-4a42-b7ae-3a9b1c1bc606)에서 생성된 정식 원문입니다.
@@ -436,7 +436,7 @@ const RawImViewerPage = () => {
                                 {imTitle}
                             </h1>
                             <p style={{ color: colors.subText, fontSize: '0.92rem', marginBottom: '35px' }}>
-                                작성 일자: {imDate} • 작성 엔진: ExitWise AI M&A Studio • 대상: {listing?.exitwiseData?.assetName || listing?.title || '자산'}
+                                작성 일자: {imDate} • 작성 엔진: ExitWise AI Studio • 대상: {listing?.exitwiseData?.assetName || listing?.title || '자산'}
                             </p>
                             <ExitWiseMarkdownViewer markdown={imText} isDark={isDark} />
                             <div style={{
@@ -449,7 +449,7 @@ const RawImViewerPage = () => {
                                 fontSize: '0.8rem',
                                 color: colors.subText
                             }}>
-                                <div>발행처: ExitWise M&A Studio × 가자에셋파트너스</div>
+                                <div>발행처: ExitWise AI Studio × 가자에셋파트너스</div>
                                 <div>검증 해시: SHA256:8f4a2c9103e6d8b745ef1c890ab2c41793deca84</div>
                             </div>
                         </div>
@@ -469,7 +469,7 @@ const RawImViewerPage = () => {
                                 해운대 그랜드조선 부산 관광호텔 자산 매각 IM
                             </h1>
                             <p style={{ color: colors.subText, fontSize: '0.92rem', marginBottom: '35px' }}>
-                                작성 일자: 2026년 9월 9일 • 작성 엔진: ExitWise AI M&A Studio • 대상: 그랜드조선 부산
+                                작성 일자: 2026년 9월 9일 • 작성 엔진: ExitWise AI Studio • 대상: 그랜드조선 부산
                             </p>
 
                             {/* Warning Box (첨부 스크린샷 원문 그대로) */}
@@ -670,7 +670,7 @@ const RawImViewerPage = () => {
                                 fontSize: '0.8rem',
                                 color: colors.subText
                             }}>
-                                <div>발행처: ExitWise M&A Studio × 가자에셋파트너스</div>
+                                <div>발행처: ExitWise AI Studio × 가자에셋파트너스</div>
                                 <div>검증 해시: SHA256:8f4a2c9103e6d8b745ef1c890ab2c41793deca84</div>
                             </div>
                         </div>
