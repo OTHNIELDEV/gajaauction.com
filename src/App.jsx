@@ -13,6 +13,9 @@ const ListingDetailPage = lazy(() => import('./pages/ListingDetailPage'));
 const PartnersPage = lazy(() => import('./pages/PartnersPage'));
 const MapSearchPage = lazy(() => import('./pages/MapSearchPage'));
 const BusinessCardPage = lazy(() => import('./pages/BusinessCardPage'));
+const ExitWiseBridgePage = lazy(() => import('./pages/ExitWiseBridgePage'));
+const RawImViewerPage = lazy(() => import('./pages/RawImViewerPage'));
+const ImportListingPage = lazy(() => import('./pages/ImportListingPage'));
 
 // Loading Component
 const Loading = () => (
@@ -70,6 +73,11 @@ function App() {
                   <ListingsPage />
                 </Suspense>
               } />
+              <Route path="/listings/import" element={
+                <Suspense fallback={<Loading />}>
+                  <ImportListingPage />
+                </Suspense>
+              } />
               <Route path="/listings/:id" element={
                 <Suspense fallback={<Loading />}>
                   <ListingDetailPage />
@@ -91,6 +99,20 @@ function App() {
                 </Suspense>
               } />
             </Route>
+
+            {/* ExitWise Integration Interactive Mockup (Standalone Full View) */}
+            <Route path="/exitwise-bridge" element={
+              <Suspense fallback={<Loading />}>
+                <ExitWiseBridgePage />
+              </Suspense>
+            } />
+
+            {/* ExitWise Chat IM Raw Document Viewer (Standalone Window) */}
+            <Route path="/im-raw-viewer" element={
+              <Suspense fallback={<Loading />}>
+                <RawImViewerPage />
+              </Suspense>
+            } />
 
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
