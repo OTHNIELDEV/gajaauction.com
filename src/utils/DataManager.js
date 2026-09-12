@@ -21,8 +21,9 @@ function syncExitwiseIMData(list) {
             const isOldYangju = item.id === 'exitwise-yangju' && (!item.exitwiseData?.power || !item.exitwiseData?.keyMetrics);
             const isOldFki = item.id === 'exitwise-fki' && (!item.exitwiseData?.efficiency || !item.exitwiseData?.keyMetrics);
             const isOldHaeundae = item.id === 'exitwise-haeundae' && !item.exitwiseData?.markdownContent;
+            const isOldZenith = (item.id === 'exitwise-zenith-npl' || item.title?.includes('두산위브')) && (item.img?.includes('photo-1450133064473') || item.location?.includes('역삼'));
 
-            if (missingMd || isOldYangju || isOldFki || isOldHaeundae) {
+            if (missingMd || isOldYangju || isOldFki || isOldHaeundae || isOldZenith) {
                 changed = true;
                 return {
                     ...item,
@@ -229,9 +230,7 @@ const DataManager = {
 
         const finalCategory = aiMatched.category || imData.category || '오피스빌딩';
         const isHotel = finalCategory === '호텔';
-        const finalLocation = (imData.location && !imData.location.includes('해운대'))
-            ? imData.location
-            : (aiMatched.location || (isHotel ? '부산 해운대구 우동' : '서울 영등포구 여의대로 24'));
+        const finalLocation = imData.location?.trim() || aiMatched.location || (isHotel ? '부산 해운대구 우동' : '서울 영등포구 여의대로 24');
         const finalImg = imData.img || aiMatched.img;
         const finalSalePrice = imData.salePrice || imData.targetPrice || aiMatched.salePrice || '2,850억';
 
