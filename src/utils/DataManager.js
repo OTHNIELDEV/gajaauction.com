@@ -112,33 +112,46 @@ const DataManager = {
         return listings;
     },
     importFromExitwise: (imData) => {
+        const category = imData.category || (imData.assetName?.includes('호텔') ? '호텔' : '오피스빌딩');
+        const isHotel = category.includes('호텔') || category.includes('숙박');
+        const defaultImg = isHotel
+            ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80'
+            : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=80';
+
         const newListing = {
             id: imData.id || `exitwise-${Date.now()}`,
-            type: imData.type || 'general',
-            title: imData.title || imData.imTitle || 'ExitWise 연동 매물',
-            location: imData.location || '부산 해운대구',
-            category: imData.category || '호텔/숙박',
-            salePrice: imData.salePrice || imData.targetPrice || '1,850억',
-            minPrice: imData.salePrice || imData.targetPrice || '1,850억',
+            type: imData.type || (category === 'NPL' ? 'npl' : 'general'),
+            title: imData.title || imData.imTitle || `${imData.assetName || '자산'} 매각 IM`,
+            location: imData.location || (isHotel ? '부산 해운대구 우동' : '서울 영등포구 여의대로 24'),
+            category: category,
+            salePrice: imData.salePrice || imData.targetPrice || (isHotel ? '1,850억' : '2,850억'),
+            minPrice: imData.salePrice || imData.targetPrice || (isHotel ? '1,850억' : '2,850억'),
             deposit: imData.deposit || '30억',
             monthlyRent: imData.monthlyRent || '8.5억',
             roi: imData.roi || '5.8%',
-            pricePerPyung: imData.pricePerPyung || '1억 4,700만',
+            pricePerPyung: imData.pricePerPyung || (isHotel ? '1억 4,700만' : '3,800만'),
             status: 'Active',
-            img: imData.img || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80',
-            tags: ['ExitWise 연동', imData.category || '호텔/숙박', '투자분석완료'],
+            img: imData.img || defaultImg,
+            tags: ['ExitWise 연동', category, '투자분석완료'],
             isExitwiseLinked: true,
             exitwiseData: {
-                imDocumentId: imData.imDocumentId || 'cda6733f-78b1-4a42-b7ae-3a9b1c1bc606',
+                imDocumentId: imData.imDocumentId || `doc-${Date.now()}`,
                 imTitle: imData.imTitle || imData.title,
-                imDate: imData.imDate || '2026-09-09',
-                assetName: imData.assetName || '그랜드조선 부산',
-                rooms: imData.rooms || '330실',
-                landArea: imData.landArea || '4,158.4㎡ (1,257.9평)',
-                totalFloorArea: imData.totalFloorArea || '36,837.2㎡ (11,143.2평)',
-                floors: imData.floors || '지하 6층 / 지상 16층',
+                imDate: imData.imDate || new Date().toISOString().slice(0, 10),
+                assetName: imData.assetName || imData.title,
+                category: category,
+                location: imData.location,
+                salePrice: imData.salePrice || imData.targetPrice,
+                capRate: imData.roi || '5.8%',
+                rooms: isHotel ? (imData.rooms || '330실') : undefined,
+                parking: imData.parking || (isHotel ? '240대 (자주식 180대)' : '총 450대 (자주식 380대)'),
+                landArea: imData.landArea || (isHotel ? '4,158.4㎡ (1,257.9평)' : '3,305.8㎡ (1,000평)'),
+                totalFloorArea: imData.totalFloorArea || (isHotel ? '36,837.2㎡ (11,143.2평)' : '52,890.0㎡ (16,000평)'),
+                floors: imData.floors || (isHotel ? '지하 6층 / 지상 16층' : '지하 7층 / 지상 50층'),
                 riskWarning: imData.riskWarning || '본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 합니다.',
-                executiveSummary: imData.executiveSummary || '해운대 백사장 바로 앞에 위치한 5성급 럭셔리 관광호텔 자산 매각 IM입니다.',
+                executiveSummary: imData.executiveSummary || `${imData.assetName || '해당'} 자산에 대한 ExitWise AI 종합 출구전략 및 매각 인텔리전스 IM 리포트입니다.`,
+                markdownContent: imData.markdownContent || '',
+                htmlContent: imData.htmlContent || '',
                 validationStatus: '검증 완료'
             }
         };

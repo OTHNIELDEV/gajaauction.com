@@ -7,6 +7,7 @@ import { TrustBadge } from '../components/trust/TrustBadge';
 import SEO from '../components/SEO';
 import DataManager from '../utils/DataManager';
 import { useTheme } from '../context/ThemeContext';
+import ExitWiseMarkdownViewer from '../components/im/ExitWiseMarkdownViewer';
 
 const parseKoreanCurrency = (str) => {
     if (!str) return 0;
@@ -44,8 +45,9 @@ const ListingDetailPage = () => {
         const height = 960;
         const left = (window.screen.width - width) / 2;
         const top = (window.screen.height - height) / 2;
+        const targetId = listing?.id || id || '';
         window.open(
-            '/im-raw-viewer',
+            `/im-raw-viewer?id=${targetId}`,
             'ExitWiseRawIM',
             `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
         );
@@ -392,7 +394,7 @@ const ListingDetailPage = () => {
                                                             STRICTLY CONFIDENTIAL
                                                         </span>
                                                         <span style={{ fontSize: '0.85rem', color: 'var(--text-gray)' }}>
-                                                            문서번호: <strong style={{ color: 'var(--text-white)' }}>{listing.exitwiseData?.imDocNumber || 'IM-2026-EW-BUSAN-09'}</strong>
+                                                            문서번호: <strong style={{ color: 'var(--text-white)' }}>{listing.exitwiseData?.imDocNumber || (listing.exitwiseData?.imDocumentId ? `IM-${listing.exitwiseData.imDocumentId.slice(0, 8).toUpperCase()}` : 'IM-2026-EW-01')}</strong>
                                                         </span>
                                                     </div>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#0284c7', fontWeight: '600' }}>
@@ -407,7 +409,7 @@ const ListingDetailPage = () => {
                                                             <i className="fas fa-file-alt"></i> OFFICIAL INVESTMENT MEMORANDUM
                                                         </div>
                                                         <h2 style={{ fontSize: '1.85rem', fontWeight: '800', color: 'var(--text-white)', margin: '0 0 10px 0', lineHeight: '1.3' }}>
-                                                            {listing.exitwiseData?.imTitle || '해운대 그랜드조선 부산 관광호텔 자산 매각 IM'}
+                                                            {listing.exitwiseData?.imTitle || listing.title}
                                                         </h2>
                                                         <p style={{ color: 'var(--text-gray)', margin: 0, fontSize: '0.95rem' }}>
                                                             발행일: <strong style={{ color: 'var(--text-white)' }}>{listing.exitwiseData?.imDate || '2026.09.09'}</strong> • 발행처: <strong style={{ color: 'var(--text-white)' }}>ExitWise M&A Studio × 가자에셋 Prime Asset Division</strong>
@@ -518,8 +520,13 @@ const ListingDetailPage = () => {
                                                 </div>
                                             </div>
 
-                                            {/* Chapter 1: Executive Summary & Deal Structure */}
-                                            <div className="glass-card" style={{ padding: '35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
+                                            {/* ExitWise IM 본문 동적 마크다운 렌더링 (원문 전문 표시) */}
+                                            {listing.exitwiseData?.markdownContent ? (
+                                                <ExitWiseMarkdownViewer markdown={listing.exitwiseData.markdownContent} isDark={isDark} />
+                                            ) : (
+                                                <>
+                                                    {/* Chapter 1: Executive Summary & Deal Structure (Fallback Demo) */}
+                                                    <div className="glass-card" style={{ padding: '35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
                                                     <span style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0ea5e9', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>1</span>
                                                     <h3 style={{ margin: 0, fontSize: '1.35rem', color: 'var(--text-white)' }}>Chapter 1. 자산 개요 및 거래 구조 (Executive Summary)</h3>
@@ -864,11 +871,13 @@ const ListingDetailPage = () => {
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: isDark ? '#f87171' : '#b91c1c', fontWeight: 'bold', fontSize: '1.05rem', marginBottom: '12px' }}>
                                                     <i className="fas fa-exclamation-triangle"></i> Chapter 6. 법적 투자 위험 경고 (Investment Risk Warning)
                                                 </div>
-                                                <p style={{ fontSize: '0.9rem', color: isDark ? '#cbd5e1' : '#334155', lineHeight: '1.8', margin: 0 }}>
-                                                    {listing.exitwiseData?.riskWarning ||
-                                                        `본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 하며, 투자 권유 또는 확정적 수익을 보장하지 않습니다. 호텔 및 실물자산 투자에는 운영 리스크 및 원금 손실 리스크가 수반되며, 최종 투자 결정은 투자자 본인의 책임 하에 이루어져야 합니다. 본 문서는 투자·법률·세무 자문이 아닌 의사결정 보조 자료이며, 매각·인수 검토 전 반드시 매도인 측 실사 자료 확보 및 전문 감정평가를 진행하시기 바랍니다.`}
-                                                </p>
-                                            </div>
+                                                    <p style={{ fontSize: '0.9rem', color: isDark ? '#cbd5e1' : '#334155', lineHeight: '1.8', margin: 0 }}>
+                                                        {listing.exitwiseData?.riskWarning ||
+                                                            `본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 하며, 투자 권유 또는 확정적 수익을 보장하지 않습니다. 호텔 및 실물자산 투자에는 운영 리스크 및 원금 손실 리스크가 수반되며, 최종 투자 결정은 투자자 본인의 책임 하에 이루어져야 합니다. 본 문서는 투자·법률·세무 자문이 아닌 의사결정 보조 자료이며, 매각·인수 검토 전 반드시 매도인 측 실사 자료 확보 및 전문 감정평가를 진행하시기 바랍니다.`}
+                                                    </p>
+                                                </div>
+                                            </>
+                                        )}
 
                                             {/* Bottom Full Report Action Card */}
                                             <div style={{

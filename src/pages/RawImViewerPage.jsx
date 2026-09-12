@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import DataManager from '../utils/DataManager';
+import ExitWiseMarkdownViewer from '../components/im/ExitWiseMarkdownViewer';
 
 const RAW_IM_TEXT = `# [ExitWise IM Studio] 해운대 그랜드조선 부산 관광호텔 자산 매각 IM
 - 문서 고유 ID: cda6733f-78b1-4a42-b7ae-3a9b1c1bc606
@@ -133,9 +135,28 @@ const RawImViewerPage = () => {
     const [copied, setCopied] = useState(false);
     const { isDark, toggleTheme } = useTheme();
 
+    const [listing, setListing] = useState(null);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const targetId = params.get('id');
+        if (targetId) {
+            DataManager.init();
+            const found = DataManager.getListingById(targetId);
+            if (found) {
+                setListing(found);
+            }
+        }
+    }, []);
+
+    const imText = listing?.exitwiseData?.markdownContent || RAW_IM_TEXT;
+    const imTitle = listing?.exitwiseData?.imTitle || listing?.title || '해운대 그랜드조선 부산 관광호텔 매각 IM (채팅창 생성 원문 전문)';
+    const imDocId = listing?.exitwiseData?.imDocumentId || (listing?.id ? String(listing.id) : 'cda6733f-78b1-4a42-b7ae-3a9b1c1bc606');
+    const imDate = listing?.exitwiseData?.imDate || '2026.09.09';
+
     const handleCopy = () => {
         if (navigator.clipboard) {
-            navigator.clipboard.writeText(RAW_IM_TEXT);
+            navigator.clipboard.writeText(imText);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         } else {
@@ -244,10 +265,10 @@ const RawImViewerPage = () => {
                     </span>
                     <div>
                         <h1 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '700', color: colors.headerTitle }}>
-                            해운대 그랜드조선 부산 관광호텔 매각 IM (채팅창 생성 원문 전문)
+                            {imTitle}
                         </h1>
                         <span style={{ fontSize: '0.78rem', color: colors.subText }}>
-                            Doc ID: cda6733f-78b1-4a42-b7ae-3a9b1c1bc606 • 2026.09.09 AI 공식 발급
+                            Doc ID: {imDocId} • {imDate} AI 공식 발급
                         </span>
                     </div>
                 </div>
@@ -399,8 +420,39 @@ const RawImViewerPage = () => {
                             margin: 0,
                             lineHeight: '1.7'
                         }}>
-                            {RAW_IM_TEXT}
+                            {imText}
                         </pre>
+                    ) : listing?.exitwiseData?.markdownContent ? (
+                        <div className="im-document-content">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: `2px solid ${colors.subBoxBorder}`, paddingBottom: '16px', marginBottom: '30px' }}>
+                                <span style={{ background: 'rgba(239,68,68,0.12)', color: '#dc2626', padding: '3px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                    STRICTLY CONFIDENTIAL
+                                </span>
+                                <span style={{ color: colors.subText, fontSize: '0.82rem' }}>
+                                    문서 ID: {imDocId}
+                                </span>
+                            </div>
+                            <h1 style={{ fontSize: '2.1rem', color: colors.headingText, fontWeight: '800', marginBottom: '14px', lineHeight: '1.3' }}>
+                                {imTitle}
+                            </h1>
+                            <p style={{ color: colors.subText, fontSize: '0.92rem', marginBottom: '35px' }}>
+                                작성 일자: {imDate} • 작성 엔진: ExitWise AI M&A Studio • 대상: {listing?.exitwiseData?.assetName || listing?.title || '자산'}
+                            </p>
+                            <ExitWiseMarkdownViewer markdown={imText} isDark={isDark} />
+                            <div style={{
+                                marginTop: '50px',
+                                paddingTop: '20px',
+                                borderTop: `1px solid ${colors.subBoxBorder}`,
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                fontSize: '0.8rem',
+                                color: colors.subText
+                            }}>
+                                <div>발행처: ExitWise M&A Studio × 가자에셋파트너스</div>
+                                <div>검증 해시: SHA256:8f4a2c9103e6d8b745ef1c890ab2c41793deca84</div>
+                            </div>
+                        </div>
                     ) : (
                         <div className="im-document-content">
                             {/* Watermark badge */}
