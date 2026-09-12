@@ -80,6 +80,76 @@ export const mockListings = [
             validationStatus: "검증 완료 (오류 0, 주의 2, 확인 4)"
         }
     },
+    // [ExitWise 연동] 매물 2 - 경기 양주시 남면 상수리 일반공업지역 스마트 팩토리 (첨부 사진 자산)
+    {
+        id: 'exitwise-yangju',
+        type: 'general',
+        img: '/assets/listings/yangju_factory.jpg',
+        location: "경기 양주시 남면 상수리 일반공업지역",
+        title: "경기 양주시 남면 상수리 일반공업지역 공장 자산 매각",
+        category: "공장/제조",
+        salePrice: "480억",
+        deposit: "20억",
+        monthlyRent: "2.8억",
+        roi: "6.5%",
+        pricePerPyung: "3,200만",
+        status: "Active",
+        tags: ["ExitWise 연동", "공장/제조", "스마트팩토리", "수익률 6.5%↑"],
+        isExitwiseLinked: true,
+        exitwiseData: {
+            imDocumentId: "cda6733f-78b1-4a42-b7ae-3a9b1c1bc707",
+            imDocNumber: "IM-2026-EW-YANGJU-09",
+            imTitle: "경기 양주시 남면 상수리 일반공업지역 공장 자산 매각 IM",
+            imDate: "2026-09-12",
+            assetName: "양주시 남면 상수리 스마트 제조 플랜트",
+            assetClass: "일반공업지역 스마트 팩토리 & 제조 플랜트",
+            landArea: "16,528.9㎡ (5,000평)",
+            totalFloorArea: "23,140.5㎡ (7,000평)",
+            floors: "지상 3층 (공장동 2개동 및 복합사무동)",
+            capRate: "6.5% (임대 정상화 기준 7.1% 예상)",
+            parking: "총 120대 (대형 화물 트레일러 15대 동시접안)",
+            structure: "철골구조 (PEB) 및 철근콘크리트구조",
+            completionYear: "2022년 준공 최신식 스마트 플랜트",
+            riskWarning: "본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 하며, 투자 권유 또는 확정적 수익을 보장하지 않습니다. 공장 및 산업용 실물자산 투자에는 제조 환경 규제 및 원금 손실 리스크가 수반되며, 최종 투자 결정은 투자자 본인의 책임 하에 이루어져야 합니다.",
+            executiveSummary: "수도권 제2순환고속도로 남양주-포천 구간 개통 수혜지인 양주시 남면 상수리 일반공업지역 내 위치한 대규모 최신식 스마트 팩토리 플랜트로, 안정적인 우량 제조기업 장기 마스터리스 계약과 높은 임대수익률(6.5%)을 확보한 우량 자산 매각 건입니다.",
+            validationStatus: "검증 완료 (오류 0, 확인 완료)"
+        }
+    },
+    // [ExitWise 연동] 매물 3 - 서울 영등포구 여의도 FKI타워 프라임 오피스
+    {
+        id: 'exitwise-fki',
+        type: 'general',
+        img: '/assets/listings/yeouido_fki_tower.jpg',
+        location: "서울 영등포구 여의대로 24 (여의도동)",
+        title: "여의도 FKI타워 프라임 오피스 자산 매각",
+        category: "오피스빌딩",
+        salePrice: "2,850억",
+        deposit: "120억",
+        monthlyRent: "12.5억",
+        roi: "5.4%",
+        pricePerPyung: "3,800만",
+        status: "Active",
+        tags: ["ExitWise 연동", "프라임오피스", "여의도랜드마크", "코어자산"],
+        isExitwiseLinked: true,
+        exitwiseData: {
+            imDocumentId: "cda6733f-78b1-4a42-b7ae-3a9b1c1bc808",
+            imDocNumber: "IM-2026-EW-FKI-09",
+            imTitle: "여의도 FKI타워 프라임 오피스 자산 매각 IM",
+            imDate: "2026-09-12",
+            assetName: "여의도 FKI타워 (전경련회관)",
+            assetClass: "여의도 YBD 프라임 오피스 빌딩",
+            landArea: "3,305.8㎡ (1,000평)",
+            totalFloorArea: "52,890.0㎡ (16,000평)",
+            floors: "지하 7층 / 지상 50층",
+            capRate: "5.4% (정상화 기준 5.9% 예상)",
+            parking: "총 450대 (자주식 380대)",
+            structure: "철골철근콘크리트구조 (SRC)",
+            completionYear: "친환경 최우수 등급 프라임 랜드마크",
+            riskWarning: "본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 하며, 투자 권유 또는 확정적 수익을 보장하지 않습니다.",
+            executiveSummary: "대한민국 금융 중심지 여의도(YBD) 핵심 요지에 위치한 랜드마크 프라임 빌딩으로, 우량 금융사 및 대기업 본사 장기 임차를 바탕으로 안정적인 현금흐름과 우수한 환금성을 보유한 최우량 코어 자산입니다.",
+            validationStatus: "검증 완료 (오류 0, 확인 완료)"
+        }
+    },
     // 일반매물 2 - 강남 테헤란로 오피스 빌딩
     {
         id: 102,

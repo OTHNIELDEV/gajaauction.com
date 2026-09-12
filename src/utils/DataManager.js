@@ -36,9 +36,16 @@ const DataManager = {
                     } else {
                         isValid = true;
                         if (key === STORAGE_KEYS.LISTINGS && Array.isArray(parsed)) {
+                            let currentList = parsed;
+                            // mockListings에 새로 추가된 필수 ExitWise 기본 매물이 누락되어 있다면 자동 동기화
+                            const existingIds = new Set(currentList.map(i => String(i.id)));
+                            const missingExitwise = mockListings.filter(m => m.isExitwiseLinked && !existingIds.has(String(m.id)));
+                            if (missingExitwise.length > 0) {
+                                currentList = [...missingExitwise, ...currentList];
+                            }
                             // AI 자동 자가치유 실행
-                            const { healed, hasChanged } = AiAssetImageMatcher.healListings(parsed);
-                            if (hasChanged) {
+                            const { healed, hasChanged } = AiAssetImageMatcher.healListings(currentList);
+                            if (hasChanged || missingExitwise.length > 0) {
                                 localStorage.setItem(key, JSON.stringify(healed));
                                 return;
                             }
@@ -73,10 +80,18 @@ const DataManager = {
 
     // --- Listings ---
     getListings: () => {
-        const raw = DataManager._safeGet(STORAGE_KEYS.LISTINGS, mockListings);
+        let raw = DataManager._safeGet(STORAGE_KEYS.LISTINGS, mockListings);
+        // mockListings의 ExitWise 연동 매물이 누락되어 있다면 자동 보충
+        const existingIds = new Set(raw.map(i => String(i.id)));
+        const missingExitwise = mockListings.filter(m => m.isExitwiseLinked && !existingIds.has(String(m.id)));
+        let hasAdded = false;
+        if (missingExitwise.length > 0) {
+            raw = [...missingExitwise, ...raw];
+            hasAdded = true;
+        }
         // 조회 시 항상 AI 이미지 및 제원 자동 정합성 검사 (자가치유)
         const { healed, hasChanged } = AiAssetImageMatcher.healListings(raw);
-        if (hasChanged) {
+        if (hasChanged || hasAdded) {
             localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(healed));
         }
         return healed;

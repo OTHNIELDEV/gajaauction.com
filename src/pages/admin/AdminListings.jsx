@@ -3,6 +3,102 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import DataManager from '../../utils/DataManager';
 
+const EXITWISE_AVAILABLE_DOCS = [
+    {
+        id: 'exitwise-yangju',
+        type: 'general',
+        category: '공장/제조',
+        location: '경기 양주시 남면 상수리 일반공업지역',
+        title: '경기 양주시 남면 상수리 일반공업지역 공장 자산 매각',
+        salePrice: '480억',
+        deposit: '20억',
+        monthlyRent: '2.8억',
+        roi: '6.5%',
+        pricePerPyung: '3,200만',
+        imDocumentId: 'cda6733f-78b1-4a42-b7ae-3a9b1c1bc707',
+        imTitle: '경기 양주시 남면 상수리 일반공업지역 공장 자산 매각 IM',
+        img: '/assets/listings/yangju_factory.jpg',
+        landArea: '16,528.9㎡ (5,000평)',
+        totalFloorArea: '23,140.5㎡ (7,000평)',
+        floors: '지상 3층 (공장동 2개동 및 복합사무동)',
+        parking: '총 120대 (대형 화물 트레일러 15대)',
+        riskWarning: '본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 합니다.',
+        executiveSummary: '수도권 제2순환고속도로 개통 수혜지 양주시 남면 상수리 일반공업지역 대규모 최신식 스마트 플랜트입니다.'
+    },
+    {
+        id: 'exitwise-fki',
+        type: 'general',
+        category: '오피스빌딩',
+        location: '서울 영등포구 여의대로 24 (여의도동)',
+        title: '여의도 FKI타워 프라임 오피스 자산 매각',
+        salePrice: '2,850억',
+        deposit: '120억',
+        monthlyRent: '12.5억',
+        roi: '5.4%',
+        pricePerPyung: '3,800만',
+        imDocumentId: 'cda6733f-78b1-4a42-b7ae-3a9b1c1bc808',
+        imTitle: '여의도 FKI타워 프라임 오피스 자산 매각 IM',
+        img: '/assets/listings/yeouido_fki_tower.jpg',
+        landArea: '3,305.8㎡ (1,000평)',
+        totalFloorArea: '52,890.0㎡ (16,000평)',
+        floors: '지하 7층 / 지상 50층',
+        parking: '총 450대 (자주식 380대)',
+        riskWarning: '본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 합니다.',
+        executiveSummary: '대한민국 금융 중심지 여의도(YBD) 랜드마크 프라임 빌딩 통매각 물건입니다.'
+    },
+    {
+        id: 'exitwise-haeundae',
+        type: 'general',
+        category: '호텔',
+        location: '부산 해운대구 우동',
+        title: '해운대 그랜드조선 부산 관광호텔 자산 매각',
+        salePrice: '1,850억',
+        deposit: '30억',
+        monthlyRent: '8.5억',
+        roi: '5.8%',
+        pricePerPyung: '1억 4,700만',
+        imDocumentId: 'cda6733f-78b1-4a42-b7ae-3a9b1c1bc606',
+        imTitle: '해운대 그랜드조선 부산 관광호텔 자산 매각 IM',
+        rooms: '330실',
+        landArea: '4,158.4㎡ (1,257.9평)',
+        totalFloorArea: '36,837.2㎡ (11,143.2평)',
+        floors: '지하 6층 / 지상 16층',
+        parking: '총 240대 (자주식 180대)',
+        riskWarning: '본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 하며...',
+        executiveSummary: '해운대 백사장 바로 앞에 위치한 5성급 럭셔리 관광호텔 자산 매각 IM입니다.'
+    },
+    {
+        id: 'exitwise-yeouido-finance',
+        type: 'general',
+        category: '오피스빌딩',
+        location: '서울 영등포구 여의도동',
+        title: '여의도 금융타운 프라임 오피스 사옥 통매각',
+        salePrice: '920억',
+        deposit: '45억',
+        monthlyRent: '4.1억',
+        roi: '5.6%',
+        pricePerPyung: '1억 8,000만',
+        imDocumentId: 'efd9210a-3312-4211-9a11-54b12c8a2091',
+        imTitle: '여의도 금융타운 프라임 오피스 통매각 IM',
+        executiveSummary: '여의도 금융중심가 소재 랜드마크 프라임 빌딩 통매각 물건입니다.'
+    },
+    {
+        id: 'exitwise-icheon-logistics',
+        type: 'general',
+        category: '물류센터',
+        location: '경기 이천시 마장면 스마트 물류단지',
+        title: '이천 스마트 풀필먼트 복합 물류센터 매각',
+        salePrice: '750억',
+        deposit: '35억',
+        monthlyRent: '3.9억',
+        roi: '6.2%',
+        pricePerPyung: '2,600만',
+        imDocumentId: 'logis-2026-ew-icheon-01',
+        imTitle: '이천 스마트 복합 물류센터 자산 매각 IM',
+        executiveSummary: '영동고속도로 덕평IC 인근 수도권 남부 핵심 물류 거점 복합 센터입니다.'
+    }
+];
+
 const AdminListings = () => {
     const [listings, setListings] = useState([]);
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'edit'
@@ -11,6 +107,8 @@ const AdminListings = () => {
     const [selectedType, setSelectedType] = useState('all'); // 'all' | 'general' | 'npl' | 'auction' | 'exitwise'
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [showExitwiseModal, setShowExitwiseModal] = useState(false);
+    const [exitwiseModalTab, setExitwiseModalTab] = useState('list'); // 'list' | 'manual'
+    const [manualPayloadJson, setManualPayloadJson] = useState('');
 
     useEffect(() => {
         // Initialize and load data
@@ -83,6 +181,31 @@ const AdminListings = () => {
         alert(`[ExitWise 연동 성공]\n'${imPreset.title}' 매물이 가자에셋 리스팅에 성공적으로 등록되었습니다.`);
     };
 
+    const handleSyncAllExitwise = () => {
+        let count = 0;
+        EXITWISE_AVAILABLE_DOCS.forEach(doc => {
+            DataManager.importFromExitwise(doc);
+            count++;
+        });
+        setListings(DataManager.getListings());
+        setShowExitwiseModal(false);
+        alert(`[ExitWise 일괄 동기화 완료]\n총 ${count}건의 ExitWise IM 매물이 가자에셋 리스팅에 성공적으로 동기화되었습니다.`);
+    };
+
+    const handleImportManualJson = (e) => {
+        e.preventDefault();
+        try {
+            const parsed = JSON.parse(manualPayloadJson);
+            DataManager.importFromExitwise(parsed);
+            setListings(DataManager.getListings());
+            setShowExitwiseModal(false);
+            setManualPayloadJson('');
+            alert(`[ExitWise 수동 연동 성공]\n'${parsed.title || parsed.imTitle || '매물'}'이 성공적으로 등록되었습니다.`);
+        } catch (err) {
+            alert('유효한 JSON 형식이 아닙니다: ' + err.message);
+        }
+    };
+
     const filteredListings = listings.filter(item => {
         const matchesSearch = (item.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (item.location || '').toLowerCase().includes(searchTerm.toLowerCase());
@@ -123,7 +246,7 @@ const AdminListings = () => {
                             <h2 style={{ color: 'var(--admin-text-main)', margin: 0, fontSize: '1.6rem' }}>매물 통합 관리 (Listings Management)</h2>
                             <p style={{ color: 'var(--admin-text-sub)', margin: '5px 0 0', fontSize: '0.9rem' }}>경매, 일반매물(급매), NPL 및 ExitWise IM 연동 매물을 통합 관리합니다.</p>
                         </div>
-                        <div style={{ display: 'flex', gap: '10px' }}>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                             <button
                                 onClick={() => setShowExitwiseModal(true)}
                                 style={{
@@ -141,6 +264,25 @@ const AdminListings = () => {
                                 }}
                             >
                                 <i className="fas fa-file-import"></i> ExitWise IM 가져오기
+                            </button>
+                            <button
+                                onClick={handleSyncAllExitwise}
+                                style={{
+                                    padding: '10px 16px',
+                                    borderRadius: '8px',
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    color: 'white',
+                                    border: 'none',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)'
+                                }}
+                                title="ExitWise에서 생성된 최신 5대 핵심 매물(양주 공장, 여의도 FKI, 해운대 호텔 등)을 한 번에 동기화합니다"
+                            >
+                                <i className="fas fa-sync-alt"></i> ExitWise 동기화
                             </button>
                             <Link
                                 to="/exitwise-bridge"
@@ -275,8 +417,24 @@ const AdminListings = () => {
                                                         {item.title} <i className="fas fa-external-link-alt" style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}></i>
                                                     </Link>
                                                 </div>
-                                                <div style={{ fontSize: '0.85rem', color: 'var(--admin-text-muted)', marginTop: '2px' }}>
-                                                    <i className="fas fa-map-marker-alt" style={{ color: 'var(--accent-gold)', marginRight: '4px' }}></i>{item.location}
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', color: 'var(--admin-text-muted)', marginTop: '3px' }}>
+                                                    <span><i className="fas fa-map-marker-alt" style={{ color: 'var(--accent-gold)', marginRight: '3px' }}></i>{item.location}</span>
+                                                    {item.isExitwiseLinked && (
+                                                        <Link
+                                                            to={`/im-raw-viewer?id=${item.id}`}
+                                                            target="_blank"
+                                                            style={{
+                                                                color: '#0ea5e9',
+                                                                textDecoration: 'none',
+                                                                fontWeight: '600',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '3px'
+                                                            }}
+                                                        >
+                                                            <i className="fas fa-file-alt"></i> IM 전문 보기 ↗
+                                                        </Link>
+                                                    )}
                                                 </div>
                                             </div>
                                         </td>
@@ -384,142 +542,232 @@ const AdminListings = () => {
                             background: 'var(--admin-modal-bg)',
                             border: '1px solid var(--admin-border)',
                             borderRadius: '16px',
-                            maxWidth: '650px',
+                            maxWidth: '820px',
                             width: '100%',
-                            padding: '30px',
-                            boxShadow: 'var(--admin-modal-shadow)'
+                            maxHeight: '90vh',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            padding: '28px',
+                            boxShadow: 'var(--admin-modal-shadow)',
+                            overflow: 'hidden'
                         }}
                     >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        {/* Modal Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <span style={{ background: '#0ea5e9', color: 'white', padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 'bold' }}>ExitWise API</span>
-                                <h3 style={{ margin: 0, color: 'var(--admin-text-main)', fontSize: '1.3rem' }}>ExitWise IM 매물 가져오기</h3>
+                                <span style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', color: 'white', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 'bold' }}>ExitWise Cloud Sync</span>
+                                <h3 style={{ margin: 0, color: 'var(--admin-text-main)', fontSize: '1.35rem', fontWeight: 800 }}>ExitWise IM 신규 매물 연동 및 동기화</h3>
                             </div>
-                            <button onClick={() => setShowExitwiseModal(false)} style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', fontSize: '1.4rem', cursor: 'pointer' }}>×</button>
+                            <button onClick={() => setShowExitwiseModal(false)} style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', fontSize: '1.4rem', cursor: 'pointer', lineHeight: 1 }}>×</button>
                         </div>
 
-                        <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.9rem', marginBottom: '25px', lineHeight: '1.6' }}>
-                            ExitWise IM 스튜디오에서 생성 완료된 프리미엄 M&A / 부동산 매각 IM 문서를 선택하여 가자에셋 리스팅에 원클릭 등록할 수 있습니다.
-                        </p>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '25px' }}>
-                            {/* Preset 1: 해운대 그랜드조선 부산 (첨부 사진 자산) */}
-                            <div style={{
-                                padding: '18px',
-                                borderRadius: '10px',
-                                background: 'var(--admin-card-bg)',
-                                border: '1px solid rgba(14, 165, 233, 0.4)',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center'
-                            }}>
-                                <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                                        <span style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px' }}>생성 완료</span>
-                                        <strong style={{ color: 'var(--admin-text-main)', fontSize: '1rem' }}>해운대 그랜드조선 부산 관광호텔 자산 매각 IM</strong>
-                                    </div>
-                                    <div style={{ fontSize: '0.85rem', color: 'var(--admin-text-sub)' }}>
-                                        자산명: 그랜드조선 부산 | 희망매각가: 1,850억 원 | 객실: 330실
-                                    </div>
-                                    <div style={{ fontSize: '0.75rem', color: '#0ea5e9', marginTop: '4px' }}>
-                                        문서 ID: cda6733f-78b1-4a42-b7ae-3a9b1c1bc606 (2026.09.09)
-                                    </div>
-                                </div>
+                        {/* Description & Action Bar */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
+                            <div style={{ display: 'flex', gap: '8px' }}>
                                 <button
-                                    onClick={() => handleImportExitwisePreset({
-                                        id: 'exitwise-haeundae',
-                                        type: 'general',
-                                        category: '호텔/숙박',
-                                        location: '부산 해운대구 우동',
-                                        title: '해운대 그랜드조선 부산 관광호텔 자산 매각',
-                                        salePrice: '1,850억',
-                                        deposit: '30억',
-                                        monthlyRent: '8.5억',
-                                        roi: '5.8%',
-                                        pricePerPyung: '1억 4,700만',
-                                        imDocumentId: 'cda6733f-78b1-4a42-b7ae-3a9b1c1bc606',
-                                        imTitle: '해운대 그랜드조선 부산 관광호텔 자산 매각 IM',
-                                        rooms: '330실',
-                                        landArea: '4,158.4㎡ (1,257.9평)',
-                                        totalFloorArea: '36,837.2㎡ (11,143.2평)',
-                                        floors: '지하 6층 / 지상 16층',
-                                        riskWarning: '본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 하며...',
-                                        executiveSummary: '해운대 백사장 바로 앞에 위치한 5성급 럭셔리 관광호텔 자산 매각 IM입니다.'
-                                    })}
+                                    onClick={() => setExitwiseModalTab('list')}
                                     style={{
-                                        padding: '10px 18px',
-                                        borderRadius: '8px',
-                                        background: '#0ea5e9',
-                                        color: 'white',
+                                        padding: '6px 14px',
+                                        borderRadius: '6px',
                                         border: 'none',
-                                        fontWeight: '600',
+                                        fontSize: '0.86rem',
+                                        fontWeight: 700,
                                         cursor: 'pointer',
-                                        whiteSpace: 'nowrap'
+                                        background: exitwiseModalTab === 'list' ? 'rgba(14, 165, 233, 0.2)' : 'transparent',
+                                        color: exitwiseModalTab === 'list' ? '#0ea5e9' : 'var(--admin-text-sub)'
                                     }}
                                 >
-                                    등록하기
+                                    <i className="fas fa-list"></i> ExitWise 생성 매물 목록 ({EXITWISE_AVAILABLE_DOCS.length})
+                                </button>
+                                <button
+                                    onClick={() => setExitwiseModalTab('manual')}
+                                    style={{
+                                        padding: '6px 14px',
+                                        borderRadius: '6px',
+                                        border: 'none',
+                                        fontSize: '0.86rem',
+                                        fontWeight: 700,
+                                        cursor: 'pointer',
+                                        background: exitwiseModalTab === 'manual' ? 'rgba(14, 165, 233, 0.2)' : 'transparent',
+                                        color: exitwiseModalTab === 'manual' ? '#0ea5e9' : 'var(--admin-text-sub)'
+                                    }}
+                                >
+                                    <i className="fas fa-code"></i> JSON 직접 등록
                                 </button>
                             </div>
 
-                            {/* Preset 2: 여의도 FKI타워 인근 오피스 */}
-                            <div style={{
-                                padding: '18px',
-                                borderRadius: '10px',
-                                background: 'var(--admin-card-bg)',
-                                border: '1px solid var(--admin-border)',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center'
-                            }}>
-                                <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                                        <span style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px' }}>생성 완료</span>
-                                        <strong style={{ color: 'var(--admin-text-main)', fontSize: '1rem' }}>여의도 금융타운 프라임 오피스 통매각 IM</strong>
-                                    </div>
-                                    <div style={{ fontSize: '0.85rem', color: 'var(--admin-text-sub)' }}>
-                                        자산명: 여의도 파이낸스센터 B동 | 희망매각가: 920억 원
-                                    </div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)', marginTop: '4px' }}>
-                                        문서 ID: efd9210a-3312-4211-9a11-54b12c8a2091
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => handleImportExitwisePreset({
-                                        id: 'exitwise-yeouido',
-                                        type: 'general',
-                                        category: '빌딩/오피스',
-                                        location: '서울 영등포구 여의도동',
-                                        title: '여의도 금융타운 프라임 오피스 사옥 통매각',
-                                        salePrice: '920억',
-                                        deposit: '45억',
-                                        monthlyRent: '4.1억',
-                                        roi: '5.6%',
-                                        pricePerPyung: '1억 8,000만',
-                                        imDocumentId: 'efd9210a-3312-4211-9a11-54b12c8a2091',
-                                        imTitle: '여의도 금융타운 프라임 오피스 통매각 IM',
-                                        executiveSummary: '여의도 금융중심가 소재 랜드마크 프라임 빌딩 통매각 물건입니다.'
-                                    })}
-                                    style={{
-                                        padding: '10px 18px',
-                                        borderRadius: '8px',
-                                        background: 'var(--admin-btn-secondary-bg)',
-                                        color: 'var(--admin-btn-secondary-text)',
-                                        border: '1px solid var(--admin-btn-secondary-border)',
-                                        fontWeight: '600',
-                                        cursor: 'pointer',
-                                        whiteSpace: 'nowrap'
-                                    }}
-                                >
-                                    등록하기
-                                </button>
-                            </div>
+                            <button
+                                onClick={handleSyncAllExitwise}
+                                style={{
+                                    padding: '8px 16px',
+                                    borderRadius: '8px',
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    color: 'white',
+                                    border: 'none',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)'
+                                }}
+                            >
+                                <i className="fas fa-sync-alt"></i> ExitWise 전체 일괄 동기화 (Sync All)
+                            </button>
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                            <button onClick={() => setShowExitwiseModal(false)} className="btn-outline">닫기</button>
-                            <Link to="/exitwise-bridge" target="_blank" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                                <i className="fas fa-desktop"></i> ExitWise 스튜디오 시뮬레이터로 가기
-                            </Link>
+                        {/* Tab 1: Available Docs List */}
+                        {exitwiseModalTab === 'list' && (
+                            <div style={{
+                                overflowY: 'auto',
+                                maxHeight: '55vh',
+                                paddingRight: '6px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '14px',
+                                marginBottom: '20px'
+                            }}>
+                                {EXITWISE_AVAILABLE_DOCS.map(doc => {
+                                    const isImported = listings.some(l => String(l.id) === String(doc.id) || l.exitwiseData?.imDocumentId === doc.imDocumentId);
+                                    return (
+                                        <div
+                                            key={doc.id}
+                                            style={{
+                                                padding: '16px',
+                                                borderRadius: '12px',
+                                                background: 'var(--admin-card-bg)',
+                                                border: isImported ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid var(--admin-border)',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                gap: '16px'
+                                            }}
+                                        >
+                                            {/* Thumbnail if available */}
+                                            {doc.img && (
+                                                <div style={{ width: '80px', height: '64px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--admin-border)' }}>
+                                                    <img src={doc.img} alt={doc.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                </div>
+                                            )}
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
+                                                    <span style={{
+                                                        background: isImported ? 'rgba(16, 185, 129, 0.2)' : 'rgba(14, 165, 233, 0.2)',
+                                                        color: isImported ? '#10b981' : '#0ea5e9',
+                                                        fontSize: '0.72rem',
+                                                        padding: '2px 8px',
+                                                        borderRadius: '4px',
+                                                        fontWeight: 'bold'
+                                                    }}>
+                                                        {isImported ? '✓ 가자에셋 등록됨' : 'ExitWise IM'}
+                                                    </span>
+                                                    <span style={{ background: 'rgba(255, 255, 255, 0.08)', color: 'var(--admin-text-sub)', fontSize: '0.72rem', padding: '2px 6px', borderRadius: '4px' }}>
+                                                        {doc.category}
+                                                    </span>
+                                                    <strong style={{ color: 'var(--admin-text-main)', fontSize: '0.98rem' }}>
+                                                        {doc.title}
+                                                    </strong>
+                                                </div>
+                                                <div style={{ fontSize: '0.84rem', color: 'var(--admin-text-sub)', marginBottom: '3px' }}>
+                                                    <span style={{ color: '#10b981', fontWeight: 700 }}>매각가: {doc.salePrice}</span>
+                                                    <span style={{ margin: '0 8px', opacity: 0.5 }}>|</span>
+                                                    <span>위치: {doc.location}</span>
+                                                    {doc.roi && (
+                                                        <>
+                                                            <span style={{ margin: '0 8px', opacity: 0.5 }}>|</span>
+                                                            <span>수익률: {doc.roi}</span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                <div style={{ fontSize: '0.74rem', color: 'var(--admin-text-muted)' }}>
+                                                    문서 ID: {doc.imDocumentId}
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                onClick={() => handleImportExitwisePreset(doc)}
+                                                style={{
+                                                    padding: '9px 18px',
+                                                    borderRadius: '8px',
+                                                    background: isImported 
+                                                        ? 'rgba(16, 185, 129, 0.15)' 
+                                                        : 'linear-gradient(135deg, #0ea5e9, #3b82f6)',
+                                                    color: isImported ? '#10b981' : 'white',
+                                                    border: isImported ? '1px solid rgba(16, 185, 129, 0.4)' : 'none',
+                                                    fontWeight: 700,
+                                                    fontSize: '0.84rem',
+                                                    cursor: 'pointer',
+                                                    whiteSpace: 'nowrap',
+                                                    flexShrink: 0,
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                {isImported ? '최신 갱신' : '+ 등록하기'}
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {/* Tab 2: Manual JSON Payload */}
+                        {exitwiseModalTab === 'manual' && (
+                            <form onSubmit={handleImportManualJson} style={{ marginBottom: '20px' }}>
+                                <p style={{ color: 'var(--admin-text-sub)', fontSize: '0.88rem', marginBottom: '12px' }}>
+                                    ExitWise 플랫폼에서 발급받은 JSON 데이터 규격을 아래에 붙여넣으면 가자에셋 리스팅에 즉시 등록됩니다.
+                                </p>
+                                <textarea
+                                    value={manualPayloadJson}
+                                    onChange={(e) => setManualPayloadJson(e.target.value)}
+                                    placeholder='{"title": "여의도 프라임 오피스", "category": "오피스빌딩", "salePrice": "2,850억", "location": "서울 영등포구 여의대로 24", ...}'
+                                    rows={8}
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        borderRadius: '8px',
+                                        background: 'var(--admin-input-bg)',
+                                        border: '1px solid var(--admin-input-border)',
+                                        color: 'var(--admin-input-text)',
+                                        fontFamily: 'monospace',
+                                        fontSize: '0.82rem',
+                                        marginBottom: '16px',
+                                        resize: 'vertical'
+                                    }}
+                                />
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setManualPayloadJson('')}
+                                        className="btn-outline"
+                                        style={{ padding: '8px 16px' }}
+                                    >
+                                        초기화
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="btn-primary"
+                                        style={{ padding: '8px 20px', fontWeight: 700 }}
+                                    >
+                                        매물 등록 실행
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        {/* Modal Footer */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid var(--admin-border)' }}>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <Link to="/exitwise-bridge" target="_blank" style={{ color: '#0ea5e9', fontSize: '0.85rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <i className="fas fa-desktop"></i> 연동 시뮬레이터 열기 ↗
+                                </Link>
+                                <Link to="/listings" target="_blank" style={{ color: 'var(--admin-text-sub)', fontSize: '0.85rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <i className="fas fa-external-link-alt"></i> 사용자 매물 목록 보기 ↗
+                                </Link>
+                            </div>
+                            <button onClick={() => setShowExitwiseModal(false)} className="btn-outline" style={{ padding: '8px 20px' }}>
+                                닫기
+                            </button>
                         </div>
                     </motion.div>
                 </div>
