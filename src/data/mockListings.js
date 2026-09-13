@@ -149,6 +149,11 @@ export const mockListings = [
 {"listingId":"exitwise-zenith-npl","address":"부산 해운대구 마린시티2로 33 (우동 1407)","lat":35.157204,"lng":129.144817,"caption":"해운대 두산위브더제니스 80층 초고층 랜드마크 입지","zoom":3}
 \`\`\`
 
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"exitwise-zenith-npl","address":"부산 해운대구 마린시티2로 33 (우동 1407)","lat":35.157204,"lng":129.144817,"caption":"해운대 두산위브더제니스 80층 초고층 랜드마크 입지 360° 현장 로드뷰"}
+\`\`\`
+
 | 층수 | 용도 및 주요 시설 | 특장점 / 비고 |
 |---|---|---|
 | 80F | 초호화 펜트하우스 스카이라운지 | 파노라마 오션뷰 독점 |
@@ -313,6 +318,11 @@ export const mockListings = [
 ## Chapter 4. 자산 입지 및 층별 프로그램 (Location & Program)
 \`\`\`kakao-map
 {"listingId":"exitwise-haeundae","address":"부산 해운대구 해운대해변로 292 (중동 1405-16)","lat":35.160066,"lng":129.163128,"caption":"그랜드조선 부산 5성급 오션프론트 호텔 입지","zoom":3}
+\`\`\`
+
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"exitwise-haeundae","address":"부산 해운대구 해운대해변로 292 (중동 1405-16)","lat":35.160066,"lng":129.163128,"caption":"그랜드조선 부산 5성급 오션프론트 호텔 입지 360° 현장 로드뷰"}
 \`\`\`
 
 | 층수 | 용도 및 주요 시설 | 특장점 / 비고 |
@@ -487,6 +497,11 @@ export const mockListings = [
 {"listingId":"exitwise-yangju","address":"경기 양주시 남면 상수리 일반공업지역","lat":37.861053,"lng":127.002114,"caption":"양주시 남면 상수리 일반공업지역 스마트 플랜트 입지","zoom":3}
 \`\`\`
 
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"exitwise-yangju","address":"경기 양주시 남면 상수리 일반공업지역","lat":37.861053,"lng":127.002114,"caption":"양주시 남면 상수리 일반공업지역 스마트 플랜트 입지 360° 현장 로드뷰"}
+\`\`\`
+
 | 층수 | 용도 및 주요 시설 | 특장점 / 비고 |
 |---|---|---|
 | 3F | 스마트 R&D 연구소, 설계실, 대회의실, 구내식당, 옥상정원 | 첨단 연구개발 및 사무공간 완비 |
@@ -654,6 +669,11 @@ export const mockListings = [
 \`\`\`kakao-map
 {"listingId":"exitwise-fki","address":"서울 영등포구 여의대로 24 (여의도동 28-1)","lat":37.522180,"lng":126.919917,"caption":"여의도 FKI타워 (전경련회관) 프라임 랜드마크 입지","zoom":3}
 \`\`\`
+
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"exitwise-fki","address":"서울 영등포구 여의대로 24 (여의도동 28-1)","lat":37.52218,"lng":126.919917,"caption":"여의도 FKI타워 (전경련회관) 프라임 랜드마크 입지 360° 현장 로드뷰"}
+\`\`\`
 | 층수 | 용도 및 주요 시설 | 특장점 / 비고 |
 |---|---|---|
 | 40F ~ 50F | 하이엔드 스카이라운지, VIP 콘퍼런스홀, 글로벌 IB 본사 | 한강 파노라마 조망 |
@@ -761,6 +781,11 @@ export const mockListings = [
 {"listingId":"102","address":"서울 강남구 테헤란로 152 (역삼동 737)","lat":37.500024,"lng":127.036509,"caption":"강남 테헤란로 프라임 오피스 사옥 입지","zoom":3}
 \`\`\`
 
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"102","address":"서울 강남구 테헤란로 152 (역삼동 737)","lat":37.500024,"lng":127.036509,"caption":"강남 테헤란로 프라임 오피스 사옥 입지 360° 현장 로드뷰"}
+\`\`\`
+
 - 10F ~ 14F: 대기업 지사 및 IT 헤드쿼터 전용 오피스
 - 4F ~ 9F: 스타트업 및 전문직(세무/회계) 임대 오피스
 - 1F ~ 3F: 메인 로비, 프리미엄 쇼룸, 카페 및 금융 점포
@@ -857,6 +882,11 @@ export const mockListings = [
 {"listingId":"103","address":"서울 용산구 한남대로20길 1-120","lat":37.534998,"lng":127.008640,"caption":"한남동 유엔빌리지 최고급 하이엔드 주택 입지","zoom":3}
 \`\`\`
 
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"103","address":"서울 용산구 한남대로20길 1-120","lat":37.534998,"lng":127.00864,"caption":"한남동 유엔빌리지 최고급 하이엔드 주택 입지 360° 현장 로드뷰"}
+\`\`\`
+
 - 3F: 마스터 침실, 루프탑 테라스, 한강 파노라마 전망 라운지
 - 2F: 서브 침실 3실, 가족실, 프라이빗 드레스룸
 - 1F: 웅장한 거실, 프라이빗 다이닝룸, 아일랜드 키친, 정원
@@ -944,6 +974,11 @@ export const mockListings = [
 {"listingId":"201","address":"서울 서초구 서초중앙로 125","lat":37.493009,"lng":127.013419,"caption":"서초동 법조타운 근린상가 NPL 담보부동산 입지","zoom":3}
 \`\`\`
 
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"201","address":"서울 서초구 서초중앙로 125","lat":37.493009,"lng":127.013419,"caption":"서초동 법조타운 근린상가 NPL 담보부동산 입지 360° 현장 로드뷰"}
+\`\`\`
+
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)
 - [확인 - 근저당 순위] 1순위 단독 근저당권 확인 완료.
 - [확인 - 선순위 조세채권 전무] 당해세 및 체납 세금 전수 조사 결과 배당 저해 요인 0건.`
@@ -1024,6 +1059,11 @@ export const mockListings = [
 ## Chapter 4. 담보 부동산 입지 (Location)
 \`\`\`kakao-map
 {"listingId":"202","address":"제주특별자치도 제주시 애월읍 애월해안로 512","lat":33.465500,"lng":126.319500,"caption":"제주 애월 해안도로 오션프론트 리조트 NPL 입지","zoom":3}
+\`\`\`
+
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"202","address":"제주특별자치도 제주시 애월읍 애월해안로 512","lat":33.4655,"lng":126.3195,"caption":"제주 애월 해안도로 오션프론트 리조트 NPL 입지 360° 현장 로드뷰"}
 \`\`\`
 
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)
@@ -1108,6 +1148,11 @@ export const mockListings = [
 {"listingId":"1","address":"서울 강남구 테헤란로25길 20 (역삼동 670-1)","lat":37.502120,"lng":127.038100,"caption":"역삼동 테헤란로 코너빌딩 법원경매 입지","zoom":3}
 \`\`\`
 
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"1","address":"서울 강남구 테헤란로25길 20 (역삼동 670-1)","lat":37.50212,"lng":127.0381,"caption":"역삼동 테헤란로 코너빌딩 법원경매 입지 360° 현장 로드뷰"}
+\`\`\`
+
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)
 - [확인 - 권리분석 완료] 낙찰자 인수 권리 0건 (100% 클린 권리).
 - [확인 - 명도 난이도 하] 소액임차인 우선변제금 지급으로 원활한 명도 합의 예상.`
@@ -1188,6 +1233,11 @@ export const mockListings = [
 ## Chapter 4. 물건 입지 및 접근성 (Location)
 \`\`\`kakao-map
 {"listingId":"2","address":"경기 성남시 분당구 판교역로 146 (삼평동)","lat":37.400544,"lng":127.106839,"caption":"판교테크노밸리 스마트오피스 2개층 입지","zoom":3}
+\`\`\`
+
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"2","address":"경기 성남시 분당구 판교역로 146 (삼평동)","lat":37.400544,"lng":127.106839,"caption":"판교테크노밸리 스마트오피스 2개층 입지 360° 현장 로드뷰"}
 \`\`\`
 
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)
@@ -1271,6 +1321,11 @@ export const mockListings = [
 {"listingId":"3","address":"부산 해운대구 마린시티2로 33 (우동 1407)","lat":35.157204,"lng":129.144817,"caption":"해운대 마린시티 오션프론트 펜트하우스 입지","zoom":3}
 \`\`\`
 
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"3","address":"부산 해운대구 마린시티2로 33 (우동 1407)","lat":35.157204,"lng":129.144817,"caption":"해운대 마린시티 오션프론트 펜트하우스 입지 360° 현장 로드뷰"}
+\`\`\`
+
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)
 - [확인 - 권리분석 완료] 낙찰자 인수 권리 및 유치권 0건 확인.
 - [확인 - 점유 현황 실사] 소유자 점유 중 확인 (신속한 인도명령 대상).`
@@ -1351,6 +1406,11 @@ export const mockListings = [
 ## Chapter 4. 물건 입지 및 상권 분석 (Location)
 \`\`\`kakao-map
 {"listingId":"5","address":"경기 성남시 분당구 정자일로 135 (정자동)","lat":37.365410,"lng":127.107250,"caption":"정자동 카페거리 1층 테라스 코너상가 입지","zoom":3}
+\`\`\`
+
+### 현장 360° 로드뷰
+\`\`\`roadview
+{"listingId":"5","address":"경기 성남시 분당구 정자일로 135 (정자동)","lat":37.36541,"lng":127.10725,"caption":"정자동 카페거리 1층 테라스 코너상가 입지 360° 현장 로드뷰"}
 \`\`\`
 
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)

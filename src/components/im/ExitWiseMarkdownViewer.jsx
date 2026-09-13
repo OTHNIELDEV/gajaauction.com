@@ -1,5 +1,6 @@
 import React from 'react';
 import KakaoMapEmbed from './KakaoMapEmbed';
+import KakaoRoadviewEmbed from './KakaoRoadviewEmbed';
 import SensitivitySimulator from './SensitivitySimulator';
 import FinancialChart from './FinancialChart';
 import KpiStatCards from './KpiStatCards';
@@ -227,6 +228,9 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                     }
                 };
 
+                let lastSubTitle = '';
+                let lastNonEmptyLine = '';
+
                 for (let i = 0; i < sec.lines.length; i++) {
                     const line = sec.lines[i];
                     const trimmedLine = line.trim();
@@ -236,6 +240,8 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                         flushTable();
                         flushSpecs();
                         const subTitle = trimmedLine.replace(/^#+\s+/, '');
+                        lastSubTitle = subTitle;
+                        lastNonEmptyLine = subTitle;
                         renderedBlocks.push(
                             <div
                                 key={`sub-${renderedBlocks.length}`}
@@ -257,7 +263,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                         continue;
                     }
 
-                    // 1. 커스텀 코드 블록 (kakao-map, sensitivity, recharts, chart, kpi, floorstack 등) 감지
+                    // 1. 커스텀 코드 블록 (roadview, kakao-map, sensitivity, recharts, chart, kpi, floorstack 등) 감지
                     if (trimmedLine.startsWith('```')) {
                         flushTable();
                         flushSpecs();
@@ -271,6 +277,60 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                         }
                         const blockContent = codeBuffer.join('\n').trim();
 
+                        // 1-A. 현장 360° 로드뷰 블록 감지 (roadview, kakao-roadview, streetview 등 또는 제목/내용에 로드뷰가 명시된 경우)
+                        const isRoadviewLang = 
+                            lang === 'roadview' || 
+                            lang === 'kakao-roadview' || 
+                            lang === 'road-view' || 
+                            lang === 'kakaoroadview' || 
+                            lang === 'streetview' || 
+                            lang === 'street-view' || 
+                            lang === 'panorama' || 
+                            lang === 'pano' ||
+                            lang === 'rv';
+
+                        const prevLineHadRoadview = lastNonEmptyLine.includes('로드뷰') || lastNonEmptyLine.includes('Roadview') || lastNonEmptyLine.includes('roadview');
+
+                        const isRoadviewContext = isRoadviewLang || (
+                            (lastSubTitle.includes('로드뷰') || lastSubTitle.includes('Roadview') || prevLineHadRoadview || blockContent.includes('로드뷰') || blockContent.includes('roadview')) &&
+                            (blockContent.includes('"lat"') || blockContent.includes('lat') || lang === 'json' || lang === 'map' || lang === '')
+                        );
+
+                        if (isRoadviewContext) {
+                            let roadviewProps = { address: '', title: '' };
+                            try {
+                                if (blockContent.startsWith('{')) {
+                                    roadviewProps = JSON.parse(blockContent);
+                                } else if (blockContent.includes(',')) {
+                                    const parts = blockContent.split(',').map(s => s.trim());
+                                    if (parts.length >= 2 && !isNaN(parseFloat(parts[0]))) {
+                                        roadviewProps.lat = parseFloat(parts[0]);
+                                        roadviewProps.lng = parseFloat(parts[1]);
+                                        roadviewProps.title = parts[2] || '';
+                                    } else {
+                                        roadviewProps.address = blockContent;
+                                    }
+                                } else {
+                                    roadviewProps.address = blockContent;
+                                }
+                            } catch (e) {
+                                roadviewProps.address = blockContent;
+                            }
+                            renderedBlocks.push(
+                                <KakaoRoadviewEmbed
+                                    key={`rv-${renderedBlocks.length}`}
+                                    listingId={roadviewProps.listingId || listingId}
+                                    address={roadviewProps.address}
+                                    title={roadviewProps.caption || roadviewProps.title || lastSubTitle || '현장 로드뷰'}
+                                    lat={roadviewProps.lat}
+                                    lng={roadviewProps.lng}
+                                    caption={roadviewProps.caption}
+                                />
+                            );
+                            continue;
+                        }
+
+                        // 1-B. 카카오 지도 블록 감지 (kakao-map, map)
                         if (lang === 'kakao-map' || lang === 'map') {
                             let mapProps = { address: '', title: '' };
                             try {
@@ -337,6 +397,49 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                             );
                             continue;
                         } else {
+                            // 안전 장치: 일반 json 코드 블록으로 떨어졌으나 위경도 좌표가 포함된 경우 스마트 변환
+                            if (blockContent.startsWith('{') && blockContent.includes('"lat"') && blockContent.includes('"lng"')) {
+                                try {
+                                    const parsed = JSON.parse(blockContent);
+                                    if (parsed.lat && parsed.lng) {
+                                        const isRv = (parsed.caption && (parsed.caption.includes('로드뷰') || parsed.caption.includes('Roadview'))) || 
+                                                     lastSubTitle.includes('로드뷰') || 
+                                                     lastSubTitle.includes('Roadview') || 
+                                                     prevLineHadRoadview || 
+                                                     lang.includes('road') || 
+                                                     lang.includes('rv');
+                                        if (isRv) {
+                                            renderedBlocks.push(
+                                                <KakaoRoadviewEmbed
+                                                    key={`rv-${renderedBlocks.length}`}
+                                                    listingId={parsed.listingId || listingId}
+                                                    address={parsed.address}
+                                                    title={parsed.caption || parsed.title || lastSubTitle || '현장 로드뷰'}
+                                                    lat={parsed.lat}
+                                                    lng={parsed.lng}
+                                                    caption={parsed.caption}
+                                                />
+                                            );
+                                            continue;
+                                        } else {
+                                            renderedBlocks.push(
+                                                <KakaoMapEmbed
+                                                    key={`map-${renderedBlocks.length}`}
+                                                    listingId={parsed.listingId || listingId}
+                                                    address={parsed.address}
+                                                    title={parsed.caption || parsed.title || '자산 위치'}
+                                                    lat={parsed.lat}
+                                                    lng={parsed.lng}
+                                                    zoom={parsed.zoom}
+                                                    caption={parsed.caption}
+                                                />
+                                            );
+                                            continue;
+                                        }
+                                    }
+                                } catch (e) {}
+                            }
+
                             // 일반 코드 블록 폴백
                             renderedBlocks.push(
                                 <pre
@@ -472,6 +575,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                     }
 
                     // 7. 일반 문단
+                    lastNonEmptyLine = trimmedLine;
                     renderedBlocks.push(
                         <p
                             key={`p-${renderedBlocks.length}`}
