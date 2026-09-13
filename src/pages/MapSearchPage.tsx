@@ -110,24 +110,24 @@ const MapSearchPage = () => {
     }, []);
 
     return (
-        <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 80px)', marginTop: '80px', overflow: 'hidden' }}>
+        <div style={{ position: 'relative', width: '100%', height: 'calc(100dvh - 72px)', marginTop: '72px', overflow: 'hidden' }}>
 
             {/* Sidebar / Overlay */}
             <div style={{
                 position: 'absolute',
-                top: '20px',
-                left: '20px',
+                top: '14px',
+                left: '14px',
                 zIndex: 1000,
-                width: '350px',
-                maxWidth: 'calc(100vw - 40px)',
+                width: '340px',
+                maxWidth: 'calc(100vw - 28px)',
                 pointerEvents: 'none'
             }}>
-                <div className="glass-card" style={{ padding: '20px', pointerEvents: 'auto' }}>
-                    <h2 style={{ fontSize: '1.5rem', marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
-                        <i className="fas fa-map-marked-alt text-gold" style={{ marginRight: '10px' }}></i>
+                <div className="glass-card" style={{ padding: '16px', pointerEvents: 'auto' }}>
+                    <h2 style={{ fontSize: 'clamp(1.15rem, 3vw, 1.4rem)', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                        <i className="fas fa-map-marked-alt text-gold" style={{ marginRight: '8px' }}></i>
                         NPL Map Search
                     </h2>
-                    <p style={{ color: 'var(--text-gray)', fontSize: '0.9rem' }}>
+                    <p style={{ color: 'var(--text-gray)', fontSize: '0.85rem', margin: 0, lineHeight: 1.4 }}>
                         붉은색 영역은 최근 경매 낙찰가율이 급상승 중인 <strong>Hot Investment Zone</strong>입니다.
                     </p>
                 </div>

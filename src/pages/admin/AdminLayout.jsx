@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from '../../components/ThemeToggle';
 import './AdminResponsive.css';
 
@@ -47,20 +46,8 @@ const AdminLayout = () => {
             />
 
             {/* Sidebar */}
-            <motion.aside
-                className={`admin-aside ${isMobileMenuOpen ? 'mobile-open' : 'mobile-closed'}`}
-                initial={{ width: 260 }}
-                animate={{ width: isSidebarOpen ? 260 : 80 }}
-                transition={{ duration: 0.3 }}
-                style={{
-                    background: 'var(--admin-sidebar-bg)',
-                    borderRight: '1px solid var(--admin-sidebar-border)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'fixed',
-                    height: '100vh',
-                    zIndex: 100
-                }}
+            <aside
+                className={`admin-aside ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'} ${isMobileMenuOpen ? 'mobile-open' : 'mobile-closed'}`}
             >
                 {/* Logo Area */}
                 <div style={{ padding: '20px 25px', display: 'flex', alignItems: 'center', justifyContent: isSidebarOpen ? 'space-between' : 'center', borderBottom: '1px solid var(--admin-sidebar-border)' }}>
@@ -149,10 +136,10 @@ const AdminLayout = () => {
                         </button>
                     )}
                 </div>
-            </motion.aside>
+            </aside>
 
             {/* Main Content Area */}
-            <div className="admin-main-wrapper" style={{ flex: 1, marginLeft: isSidebarOpen ? 260 : 80, transition: 'margin-left 0.3s ease', minWidth: 0 }}>
+            <div className={`admin-main-wrapper ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
                 {/* Top Header */}
                 <header
                     className="admin-header"

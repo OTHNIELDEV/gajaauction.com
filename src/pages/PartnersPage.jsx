@@ -20,16 +20,16 @@ const PartnersPage = () => {
         : partnersList.filter(p => p.category === filter);
 
     return (
-        <div className="partners-page" style={{ paddingTop: '80px', minHeight: '100vh', background: 'var(--bg-dark)' }}>
-            <SEO title="Partners" description="가자경매NPL컨설팅 파트너사 소개" />
+        <div className="partners-page" style={{ paddingTop: '70px', minHeight: '100vh', background: 'var(--bg-dark)' }}>
+            <SEO title="Partners" description="가자에셋파트너스 파트너사 소개" />
 
-            <div className="container" style={{ paddingBottom: '100px' }}>
-                <section className="page-header text-center" style={{ padding: '80px 0 60px' }}>
+            <div className="container" style={{ paddingBottom: '80px' }}>
+                <section className="page-header text-center" style={{ padding: 'clamp(40px, 7vw, 80px) 0 35px' }}>
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
-                        style={{ fontSize: '3rem', fontFamily: '"Playfair Display", serif', marginBottom: '20px', color: 'var(--text-white)' }}
+                        style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', fontFamily: '"Playfair Display", serif', marginBottom: '16px', color: 'var(--text-white)', wordBreak: 'keep-all' }}
                     >
                         Our Trusted Partners
                     </motion.h1>
@@ -37,7 +37,7 @@ const PartnersPage = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.6 }}
-                        style={{ maxWidth: '600px', margin: '0 auto', color: 'var(--text-gray)', fontSize: '1.1rem' }}
+                        style={{ maxWidth: '600px', margin: '0 auto', color: 'var(--text-gray)', fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)' }}
                     >
                         최고의 전문가들과 함께 고객님의 성공적인 투자를 지원합니다.
                     </motion.p>

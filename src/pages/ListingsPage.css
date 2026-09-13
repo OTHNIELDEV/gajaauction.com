@@ -287,3 +287,24 @@
         justify-content: flex-end;
     }
 }
+
+@media (max-width: 480px) {
+    .listings-header {
+        padding-top: 90px;
+        padding-bottom: 12px;
+    }
+
+    .listings-badge {
+        font-size: 0.76rem;
+        padding: 4px 12px;
+    }
+
+    .listings-title {
+        font-size: 1.75rem;
+    }
+
+    .listings-subtitle {
+        font-size: 0.88rem;
+        padding: 0 8px;
+    }
+}

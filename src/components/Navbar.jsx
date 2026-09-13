@@ -32,6 +32,29 @@ const Navbar = ({ onConsultingClick }) => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // Lock body scroll when mobile menu is open
+    useEffect(() => {
+        if (isMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isMenuOpen]);
+
+    // Close on resize to desktop (width > 992)
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth > 992) {
+                setIsMenuOpen(false);
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     // Close on actual route navigation
     useEffect(() => {
         if (prevPathRef.current !== location.pathname) {

@@ -27,10 +27,10 @@ const AboutPage = ({ onConsultingClick }) => {
     };
 
     return (
-        <div className="about-page" style={{ paddingTop: '80px', minHeight: '100vh', background: 'var(--bg-dark)' }}>
+        <div className="about-page" style={{ paddingTop: '70px', minHeight: '100vh', background: 'var(--bg-dark)' }}>
             <main>
                 {/* Hero / Intro Section */}
-                <section className="about-hero" style={{ padding: '80px 0', textAlign: 'center' }}>
+                <section className="about-hero" style={{ padding: 'clamp(40px, 7vw, 80px) 0 40px', textAlign: 'center' }}>
                     <div className="container">
                         <motion.div
                             initial="hidden"
@@ -40,18 +40,19 @@ const AboutPage = ({ onConsultingClick }) => {
                         >
                             <motion.span variants={itemVariants} className="text-gold" style={{
                                 display: 'block',
-                                fontSize: '1.2rem',
-                                letterSpacing: '4px',
-                                marginBottom: '20px',
+                                fontSize: 'clamp(0.9rem, 2.5vw, 1.2rem)',
+                                letterSpacing: '3px',
+                                marginBottom: '14px',
                                 fontWeight: '600'
                             }}>
-                                ABOUT GAJA AUCTION
+                                ABOUT GAJA ASSET
                             </motion.span>
                             <motion.h1 variants={itemVariants} style={{
-                                fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-                                lineHeight: '1.2',
-                                marginBottom: '40px',
-                                fontFamily: '"Playfair Display", serif'
+                                fontSize: 'clamp(1.6rem, 5vw, 3.5rem)',
+                                lineHeight: '1.25',
+                                marginBottom: '24px',
+                                fontFamily: '"Playfair Display", serif',
+                                wordBreak: 'keep-all'
                             }}>
                                 "부실채권에는<br />
                                 <span className="text-gold">숨겨진 기회</span>가 있습니다."

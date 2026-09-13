@@ -204,7 +204,7 @@ const ListingDetailPage = () => {
             <SEO title={`${listing.title} | GAJA ASSET`} description={`${listing.location}에 위치한 프리미엄 ${listing.category} 자산입니다.`} />
 
             {/* Hero Section */}
-            <section style={{ height: '62vh', position: 'relative', overflow: 'hidden' }}>
+            <section style={{ minHeight: '420px', height: 'auto', position: 'relative', overflow: 'hidden', padding: '130px 0 50px', display: 'flex', alignItems: 'flex-end' }}>
                 <motion.div
                     initial={{ scale: 1.08 }}
                     animate={{ scale: 1 }}
@@ -226,28 +226,28 @@ const ListingDetailPage = () => {
                     bottom: 0,
                     left: 0,
                     width: '100%',
-                    height: '60%',
+                    height: '75%',
                     background: isDark
-                        ? 'linear-gradient(to top, var(--primary-navy), transparent)'
-                        : 'linear-gradient(to top, var(--primary-navy) 20%, rgba(248,249,252,0.8) 60%, transparent 100%)'
+                        ? 'linear-gradient(to top, var(--primary-navy) 20%, rgba(2, 6, 11, 0.8) 60%, transparent 100%)'
+                        : 'linear-gradient(to top, var(--primary-navy) 20%, rgba(248,249,252,0.85) 60%, transparent 100%)'
                 }} />
 
-                <div className="container" style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'flex-end', paddingBottom: '60px' }}>
+                <div className="container" style={{ position: 'relative', width: '100%', zIndex: 2 }}>
                     <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ maxWidth: '900px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
                             {/* Type Badge */}
                             {isGeneral && (
-                                <span style={{ background: '#10b981', color: 'white', padding: '5px 12px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                                <span style={{ background: '#10b981', color: 'white', padding: '5px 12px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 'bold' }}>
                                     일반매물 (매매/급매)
                                 </span>
                             )}
                             {isNpl && (
-                                <span style={{ background: '#a855f7', color: 'white', padding: '5px 12px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                                <span style={{ background: '#a855f7', color: 'white', padding: '5px 12px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 'bold' }}>
                                     NPL (부실채권 론세일)
                                 </span>
                             )}
                             {isAuction && (
-                                <span style={{ background: 'var(--accent-gold)', color: '#000', padding: '5px 12px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                                <span style={{ background: 'var(--accent-gold)', color: '#000', padding: '5px 12px', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 'bold' }}>
                                     법원 경매
                                 </span>
                             )}
@@ -258,7 +258,7 @@ const ListingDetailPage = () => {
                                 color: 'white',
                                 padding: '5px 12px',
                                 borderRadius: '6px',
-                                fontSize: '0.85rem',
+                                fontSize: '0.82rem',
                                 fontWeight: 'bold'
                             }}>
                                 {listing.category}
@@ -271,7 +271,7 @@ const ListingDetailPage = () => {
                                     color: 'white',
                                     padding: '5px 14px',
                                     borderRadius: '20px',
-                                    fontSize: '0.85rem',
+                                    fontSize: '0.82rem',
                                     fontWeight: 'bold',
                                     display: 'inline-flex',
                                     alignItems: 'center',
@@ -285,18 +285,35 @@ const ListingDetailPage = () => {
                             <TrustBadge />
                         </div>
 
-                        <h1 style={{ fontSize: '2.8rem', fontWeight: '800', marginBottom: '12px', lineHeight: '1.2', color: 'var(--text-white)' }}>
+                        <h1 style={{
+                            fontSize: 'clamp(1.5rem, 4.5vw, 2.6rem)',
+                            fontWeight: '800',
+                            marginBottom: '10px',
+                            lineHeight: '1.25',
+                            color: 'var(--text-white)',
+                            wordBreak: 'keep-all',
+                            overflowWrap: 'break-word'
+                        }}>
                             {listing.title}
                         </h1>
-                        <p style={{ fontSize: '1.2rem', color: 'var(--text-gray)', margin: 0 }}>
-                            <i className="fas fa-map-marker-alt" style={{ color: 'var(--accent-gold)', marginRight: '10px' }}></i>{listing.location}
+                        <p style={{
+                            fontSize: 'clamp(0.92rem, 2.4vw, 1.15rem)',
+                            color: 'var(--text-gray)',
+                            margin: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: '6px'
+                        }}>
+                            <i className="fas fa-map-marker-alt" style={{ color: 'var(--accent-gold)' }}></i>
+                            <span>{listing.location}</span>
                         </p>
                     </motion.div>
                 </div>
             </section>
 
             {/* Content Section */}
-            <section style={{ padding: '60px 0 150px' }}>
+            <section style={{ padding: '40px 0 120px' }}>
                 <div className="container">
                     <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
 

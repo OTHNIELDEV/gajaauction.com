@@ -63,26 +63,26 @@ const ServicesPage = () => {
     };
 
     return (
-        <div className="services-page" style={{ paddingTop: '80px', minHeight: '100vh', background: 'var(--bg-dark)' }}>
+        <div className="services-page" style={{ paddingTop: '70px', minHeight: '100vh', background: 'var(--bg-dark)' }}>
             <SEO title="Services" description="NPL 투자 컨설팅" />
 
-            <main style={{ paddingBottom: '100px' }}>
-                <section className="page-header text-center" style={{ padding: '80px 0 60px' }}>
+            <main style={{ paddingBottom: '80px' }}>
+                <section className="page-header text-center" style={{ padding: 'clamp(40px, 7vw, 80px) 0 35px' }}>
                     <div className="container">
                         <motion.span
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-                            className="text-gold" style={{ letterSpacing: '3px', fontWeight: '600', display: 'block', marginBottom: '15px' }}>
+                            className="text-gold" style={{ letterSpacing: '3px', fontWeight: '600', display: 'block', marginBottom: '12px', fontSize: 'clamp(0.85rem, 2.2vw, 1.1rem)' }}>
                             OUR EXPERTISE
                         </motion.span>
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                            style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontFamily: '"Playfair Display", serif', marginBottom: '20px', color: 'var(--text-white)' }}>
+                            style={{ fontSize: 'clamp(1.6rem, 5vw, 3.5rem)', fontFamily: '"Playfair Display", serif', marginBottom: '16px', color: 'var(--text-white)', wordBreak: 'keep-all' }}>
                             World Class Financial Solutions
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-                            style={{ maxWidth: '600px', margin: '0 auto', color: 'var(--text-gray)', fontSize: '1.1rem' }}>
-                            가자경매NPL컨설팅은 데이터와 경험이 결합된<br />최상의 솔루션을 제공합니다.
+                            style={{ maxWidth: '600px', margin: '0 auto', color: 'var(--text-gray)', fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)', lineHeight: '1.6' }}>
+                            가자에셋파트너스는 데이터와 경험이 결합된<br />최상의 솔루션을 제공합니다.
                         </motion.p>
                     </div>
                 </section>

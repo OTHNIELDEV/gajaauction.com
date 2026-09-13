@@ -20,7 +20,7 @@ const DashboardHome = () => {
     return (
         <div className="dashboard-home">
             {/* Stats Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '30px' }}>
+            <div className="admin-stats-summary-grid" style={{ marginBottom: '25px' }}>
                 {stats.map((stat, index) => (
                     <motion.div
                         key={index}

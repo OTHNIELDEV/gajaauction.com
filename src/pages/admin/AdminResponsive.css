@@ -21,6 +21,12 @@
     border-radius: 3px;
 }
 
+.admin-stats-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
 /* Dashboard Grid Layouts */
 .admin-dashboard-grid {
     display: grid;
@@ -91,8 +97,47 @@
     border-radius: 2px;
 }
 
+/* Sidebar & Main Layout - Desktop & Universal */
+.admin-aside {
+    background: var(--admin-sidebar-bg);
+    border-right: 1px solid var(--admin-sidebar-border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    z-index: 100;
+    width: 260px;
+    transition: width 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-aside.sidebar-closed {
+    width: 80px;
+}
+
+.admin-main-wrapper {
+    flex: 1;
+    min-width: 0;
+    transition: margin-left 0.3s ease;
+}
+
+.admin-main-wrapper.sidebar-open {
+    margin-left: 260px;
+}
+
+.admin-main-wrapper.sidebar-closed {
+    margin-left: 80px;
+}
+
 /* Responsive Breakpoints (Tablet & Mobile: <= 992px) */
 @media (max-width: 992px) {
+    .admin-stats-summary-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+
     .admin-dashboard-grid {
         grid-template-columns: 1fr !important;
         gap: 20px !important;
@@ -110,22 +155,24 @@
     }
 
     /* Sidebar Drawer Transformation */
-    .admin-aside {
+    .admin-aside,
+    .admin-aside.sidebar-open,
+    .admin-aside.sidebar-closed {
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
         bottom: 0 !important;
         height: 100vh !important;
         height: 100dvh !important;
+        width: 270px !important;
         z-index: 1000 !important;
-        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6) !important;
-        transform: translateX(-100%);
+        box-shadow: 10px 0 35px rgba(0, 0, 0, 0.7) !important;
+        transform: translateX(-100%) !important;
         transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
 
     .admin-aside.mobile-open {
         transform: translateX(0) !important;
-        width: 270px !important;
     }
 
     .admin-aside.mobile-closed {
@@ -138,7 +185,9 @@
     }
 
     /* Main Container resets for Mobile */
-    .admin-main-wrapper {
+    .admin-main-wrapper,
+    .admin-main-wrapper.sidebar-open,
+    .admin-main-wrapper.sidebar-closed {
         margin-left: 0 !important;
         width: 100% !important;
     }
@@ -174,8 +223,12 @@
     }
 }
 
-/* Small Smartphone Breakpoints (<= 576px) */
 @media (max-width: 576px) {
+    .admin-stats-summary-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
     .admin-filter-bar {
         flex-direction: column !important;
         align-items: stretch !important;
