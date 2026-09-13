@@ -142,11 +142,11 @@ const ListingCard = ({ item }) => {
                             <div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
                                     <span style={{ fontSize: '0.85rem', color: 'var(--text-gray)' }}>매각 희망가</span>
-                                    <span style={{ fontSize: '1.3rem', fontWeight: '800', color: isDark ? '#c084fc' : '#7c3aed' }}>{item.nplTargetPrice || item.minPrice}</span>
+                                    <span style={{ fontSize: '1.3rem', fontWeight: '800', color: isDark ? '#c084fc' : '#7c3aed' }}>{item.nplTargetPrice || item.salePrice || item.minPrice || '협의'}</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-off-white)' }}>
                                     <span>채권최고액</span>
-                                    <span style={{ color: 'var(--text-gray)' }}>{item.claimMax || item.appraisal} ({item.rate || '60%'} 수준)</span>
+                                    <span style={{ color: 'var(--text-gray)' }}>{item.claimMax || item.appraisal || '협의'}{item.rate ? ` (할인율 ${item.rate})` : ''}</span>
                                 </div>
                             </div>
                         )}

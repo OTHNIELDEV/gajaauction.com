@@ -80,15 +80,19 @@ const FeaturedListings = () => {
                         const isNpl = item.type === 'npl' || item.category === 'NPL' || item.category === '부실채권';
                         const isAuction = item.type === 'auction' || item.category === '경매';
                         
-                        const primaryPrice = item.salePrice || item.targetPrice || item.nplTargetPrice || (item.minPrice ? `최저 ${item.minPrice}` : '협의');
-                        const secondaryMetricLabel = isNpl ? '채권최고액' : isAuction ? '감정가' : '수익률 (Cap Rate)';
+                        const primaryPrice = isNpl 
+                            ? (item.nplTargetPrice || item.salePrice || (item.minPrice ? `최저 ${item.minPrice}` : '협의'))
+                            : (item.salePrice || item.targetPrice || item.nplTargetPrice || (item.minPrice ? `최저 ${item.minPrice}` : '협의'));
+                        const secondaryMetricLabel = isNpl ? '담보 감정가' : isAuction ? '감정가' : '수익률 (Cap Rate)';
                         const secondaryMetricValue = isNpl 
-                            ? (item.claimMax || item.exitwiseData?.keyMetrics?.claimMax || '1,850억') 
+                            ? (item.collateralValue || item.appraisal || item.claimMax || '2,200억') 
                             : isAuction 
                             ? (item.appraisal || item.salePrice || '150억') 
                             : (item.roi || item.exitwiseData?.capRate || '5.8%');
 
-                        const pricePerPyung = item.pricePerPyung ? `평당 ${item.pricePerPyung}` : (item.rate ? `할인율 ${item.rate}` : '프라임급');
+                        const pricePerPyung = isNpl 
+                            ? (item.rate ? `할인율 ${item.rate}` : (item.exitwiseData?.keyMetrics?.ltv ? `LTV ${item.exitwiseData.keyMetrics.ltv}` : 'NPL 선순위'))
+                            : (item.pricePerPyung ? `평당 ${item.pricePerPyung}` : (item.rate ? `할인율 ${item.rate}` : '프라임급'));
 
                         return (
                             <Link 

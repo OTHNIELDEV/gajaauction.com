@@ -9,7 +9,7 @@ const STORAGE_KEYS = {
     VIPS: 'gaja_vips'
 };
 
-// ExitWise 전 매물의 IM 전문 및 제원 최신 동기화 헬퍼 (서문, 지도, 도표 자가치유)
+// ExitWise 전 매물의 IM 전문 및 제원 최신 동기화 헬퍼 (서문, 지도, 도표, 가격 자가치유)
 function syncExitwiseIMData(list) {
     if (!Array.isArray(list)) return { synced: list, changed: false };
     let changed = false;
@@ -27,9 +27,18 @@ function syncExitwiseIMData(list) {
             // 3. 구형 데이터 또는 마크다운 부재 검사
             const missingMd = !item.exitwiseData?.markdownContent && Boolean(seedMatch.exitwiseData?.markdownContent);
             const isOldZenith = (item.id === 'exitwise-zenith-npl' || item.title?.includes('두산위브')) && 
-                                (item.img?.includes('photo-1450133064473') || item.location?.includes('역삼'));
+                                (item.img?.includes('photo-1450133064473') || item.location?.includes('역삼') || item.salePrice === '1,850억');
+            // 4. 가격 또는 핵심 메트릭 불일치 검사 (카드 가격 vs 시드 가격 자가치유)
+            const priceMismatch = (seedMatch.salePrice && item.salePrice !== seedMatch.salePrice) ||
+                                  (seedMatch.minPrice && item.minPrice !== seedMatch.minPrice) ||
+                                  (seedMatch.nplTargetPrice && item.nplTargetPrice !== seedMatch.nplTargetPrice) ||
+                                  (seedMatch.claimMax && item.claimMax !== seedMatch.claimMax) ||
+                                  (seedMatch.collateralValue && item.collateralValue !== seedMatch.collateralValue);
+            // 5. 마크다운 내용 최신 버전 일치 검사
+            const markdownVersionMismatch = seedMatch.exitwiseData?.markdownContent && 
+                                            item.exitwiseData?.markdownContent !== seedMatch.exitwiseData?.markdownContent;
 
-            if (missingCoverLetter || missingMap || missingCharts || missingMd || isOldZenith || !item.isExitwiseLinked) {
+            if (missingCoverLetter || missingMap || missingCharts || missingMd || isOldZenith || !item.isExitwiseLinked || priceMismatch || markdownVersionMismatch) {
                 changed = true;
                 return {
                     ...item,
@@ -187,6 +196,9 @@ const DataManager = {
                             const { healed, hasChanged: aiChanged } = AiAssetImageMatcher.healListings(currentList);
                             if (listModified || aiChanged) {
                                 localStorage.setItem(key, JSON.stringify(healed));
+                                if (typeof window !== 'undefined') {
+                                    window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings: healed } }));
+                                }
                                 return;
                             }
                         }
@@ -199,6 +211,9 @@ const DataManager = {
             if (!isValid) {
                 console.warn(`[DataManager] Auto-repairing corrupted data for ${key}`);
                 localStorage.setItem(key, JSON.stringify(seedData));
+                if (typeof window !== 'undefined' && key === STORAGE_KEYS.LISTINGS) {
+                    window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings: seedData } }));
+                }
             }
         };
 
@@ -242,6 +257,9 @@ const DataManager = {
         const { healed, hasChanged: aiChanged } = AiAssetImageMatcher.healListings(raw);
         if (hasChangedAny || aiChanged) {
             localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(healed));
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings: healed } }));
+            }
         }
         return healed;
     },
@@ -268,6 +286,9 @@ const DataManager = {
             listings.unshift(listing);
         }
         localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings } }));
+        }
         return listings;
     },
     updateListingFromExitwise: (docId, freshData) => {
@@ -300,6 +321,9 @@ const DataManager = {
 
             listings[index] = updatedListing;
             localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings } }));
+            }
             console.log(`[DataManager] Successfully live-synced listing ${current.id} (${docId})`);
             return updatedListing;
         }
@@ -318,53 +342,53 @@ const DataManager = {
         const finalCategory = aiMatched.category || imData.category || '오피스빌딩';
         const isHotel = finalCategory === '호텔';
         const finalLocation = imData.location?.trim() || aiMatched.location || (isHotel ? '부산 해운대구 우동' : '서울 영등포구 여의대로 24');
-        const finalImg = imData.img || aiMatched.img;
-        const finalSalePrice = imData.salePrice || imData.targetPrice || aiMatched.salePrice || '2,850억';
+        const finalTitle = imData.title || imData.imTitle || `${aiMatched.cleanTitle} 자산 매각`;
+        const finalSalePrice = imData.salePrice || (isHotel ? '1,850억' : '2,850억');
+        const finalLandArea = imData.landArea || (isHotel ? '4,158.4㎡ (1,257.9평)' : '3,305.8㎡ (1,000평)');
+        const finalTotalFloorArea = imData.totalFloorArea || (isHotel ? '36,837.2㎡ (11,143.2평)' : '52,890.0㎡ (16,000평)');
+        const finalFloors = imData.floors || (isHotel ? '지하 6층 / 지상 16층' : '지하 7층 / 지상 50층');
+        const finalParking = imData.parking || (isHotel ? '240대 (자주식 180대)' : '450대 (자주식 380대)');
+        const finalSummary = imData.summary || imData.executiveSummary || `${finalTitle}은(는) ExitWise AI를 통해 가치평가 및 출구전략 수립이 완료된 프리미엄 핵심 자산입니다.`;
+        const finalRiskWarning = imData.riskWarning || '본 IM 자료는 투자 의사결정 참고용이며 최종 거래 조건은 법률 및 세무 실사에 따라 변동될 수 있습니다.';
 
-        const finalLandArea = imData.landArea || aiMatched.specs?.landArea || (isHotel ? '4,158.4㎡ (1,257.9평)' : '3,305.8㎡ (1,000평)');
-        const finalTotalFloorArea = imData.totalFloorArea || aiMatched.specs?.totalFloorArea || (isHotel ? '36,837.2㎡ (11,143.2평)' : '52,890.0㎡ (16,000평)');
-        const finalFloors = imData.floors || aiMatched.floors || (isHotel ? '지하 6층 / 지상 16층' : '지하 7층 / 지상 50층');
-        const finalParking = imData.parking || aiMatched.parking || (isHotel ? '240대 (자주식 180대)' : '총 450대 (자주식 380대)');
-        const finalSummary = imData.executiveSummary || `${imData.assetName || titleForMatch || '해당'} 자산에 대한 ExitWise AI 종합 출구전략 및 매각 인텔리전스 IM 리포트입니다.`;
-        const finalRiskWarning = imData.riskWarning || '본 IM에 포함된 모든 정보는 투자 의사결정의 참고 자료로만 활용되어야 합니다.';
-
-        // 마크다운이 누락된 경우 즉시 자동 합성하여 완전성 보장
-        const finalMarkdown = imData.markdownContent || generateExitwiseMarkdown({
-            title: imData.title || imData.imTitle || `${titleForMatch} 자산 매각 IM`,
-            assetName: imData.assetName || titleForMatch,
-            category: finalCategory,
-            location: finalLocation,
-            salePrice: finalSalePrice,
-            capRate: imData.roi || '5.8%',
-            landArea: finalLandArea,
-            totalFloorArea: finalTotalFloorArea,
-            floors: finalFloors,
-            parking: finalParking,
-            summary: finalSummary,
-            riskWarning: finalRiskWarning
-        });
+        let finalMarkdown = imData.markdownContent;
+        if (!finalMarkdown) {
+            finalMarkdown = generateExitwiseMarkdown({
+                title: finalTitle,
+                assetName: imData.assetName || finalTitle,
+                category: finalCategory,
+                location: finalLocation,
+                salePrice: finalSalePrice,
+                capRate: imData.roi || (isHotel ? '5.8%' : '5.4%'),
+                landArea: finalLandArea,
+                totalFloorArea: finalTotalFloorArea,
+                floors: finalFloors,
+                parking: finalParking,
+                summary: finalSummary,
+                riskWarning: finalRiskWarning,
+                docNumber: imData.docNumber
+            });
+        }
 
         const newListing = {
-            id: imData.id || `exitwise-${Date.now()}`,
-            type: imData.type || (finalCategory === 'NPL' ? 'npl' : 'general'),
-            title: imData.title || imData.imTitle || `${imData.assetName || '자산'} 매각 IM`,
+            id: `exitwise-${Date.now()}`,
+            type: 'general',
+            img: aiMatched.img,
             location: finalLocation,
+            title: finalTitle,
             category: finalCategory,
             salePrice: finalSalePrice,
-            minPrice: finalSalePrice,
-            deposit: imData.deposit || '30억',
-            monthlyRent: imData.monthlyRent || '8.5억',
-            roi: imData.roi || '5.8%',
-            pricePerPyung: imData.pricePerPyung || (isHotel ? '1억 4,700만' : '3,800만'),
+            roi: imData.roi || (isHotel ? '5.8%' : '5.4%'),
             status: 'Active',
-            img: finalImg,
-            tags: ['ExitWise 연동', finalCategory, '투자분석완료'],
+            tags: ['ExitWise 연동', finalCategory, 'AI 분석'],
             isExitwiseLinked: true,
             exitwiseData: {
-                imDocumentId: imData.imDocumentId || `doc-${Date.now()}`,
-                imTitle: imData.imTitle || imData.title,
-                imDate: imData.imDate || new Date().toISOString().slice(0, 10),
-                assetName: imData.assetName || imData.title,
+                imDocumentId: imData.id || `doc-${Date.now()}`,
+                imDocNumber: imData.docNumber || `IM-2026-EW-${Date.now().toString().slice(-4)}`,
+                imTitle: finalTitle,
+                imDate: new Date().toISOString().split('T')[0],
+                assetName: imData.assetName || finalTitle,
+                assetClass: finalCategory,
                 category: finalCategory,
                 location: finalLocation,
                 salePrice: finalSalePrice,
@@ -387,6 +411,9 @@ const DataManager = {
     deleteListing: (id) => {
         const listings = DataManager.getListings().filter(item => String(item.id) !== String(id));
         localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings } }));
+        }
         return listings;
     },
 
@@ -443,6 +470,7 @@ const DataManager = {
 
         if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('exitwise_im_revalidated', { detail: { id, listing: listings[index] } }));
+            window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings } }));
         }
         return listings[index];
     },
@@ -495,6 +523,7 @@ const DataManager = {
 
         if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('exitwise_all_im_revalidated', { detail: { count: healed.length } }));
+            window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings: healed } }));
         }
         return healed;
     },

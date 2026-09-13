@@ -404,34 +404,34 @@ const ListingDetailPage = () => {
                                             {/* Dynamic Metrics by Transaction Type */}
                                             {isGeneral && (
                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '25px', marginBottom: '40px' }}>
-                                                    <InfoItem label="희망 매매가" value={listing.salePrice || listing.minPrice} highlight icon="fa-coins" />
-                                                    <InfoItem label="연 예상 수익률" value={listing.roi || '5.8%'} highlight icon="fa-chart-line" />
-                                                    <InfoItem label="임대 보증금" value={listing.deposit || '30억'} icon="fa-wallet" />
-                                                    <InfoItem label="월 임대료" value={listing.monthlyRent || '8.5억'} icon="fa-money-bill-wave" />
-                                                    <InfoItem label="평당가" value={listing.pricePerPyung || '1억 4,700만'} icon="fa-vector-square" />
-                                                    <InfoItem label="자산 용도" value={listing.category} icon="fa-building" />
+                                                    <InfoItem label="희망 매매가" value={listing.salePrice || listing.minPrice || '협의'} highlight icon="fa-coins" />
+                                                    <InfoItem label="연 예상 수익률" value={listing.roi || listing.exitwiseData?.capRate || '협의'} highlight icon="fa-chart-line" />
+                                                    <InfoItem label="임대 보증금" value={listing.deposit || (listing.exitwiseData?.financials ? '협의' : '상담 문의')} icon="fa-wallet" />
+                                                    <InfoItem label="월 임대료" value={listing.monthlyRent ? `월 ${listing.monthlyRent}` : (listing.roi ? `수익률 ${listing.roi}` : '직접 운영')} icon="fa-money-bill-wave" />
+                                                    <InfoItem label="평당가" value={listing.pricePerPyung ? `평당 ${listing.pricePerPyung}` : '시세 대비 우량'} icon="fa-vector-square" />
+                                                    <InfoItem label="자산 용도" value={listing.category || '수익형 부동산'} icon="fa-building" />
                                                 </div>
                                             )}
 
                                             {isNpl && (
                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '25px', marginBottom: '40px' }}>
-                                                    <InfoItem label="NPL 매각희망가" value={listing.nplTargetPrice || listing.minPrice} highlight icon="fa-hand-holding-usd" />
-                                                    <InfoItem label="채권최고액" value={listing.claimMax || '156억'} icon="fa-file-invoice-dollar" />
-                                                    <InfoItem label="채권원금(OPB)" value={listing.opb || '120억'} icon="fa-balance-scale" />
-                                                    <InfoItem label="담보 감정평가액" value={listing.collateralValue || '145억'} icon="fa-shield-alt" />
-                                                    <InfoItem label="예상 배당회수금" value={listing.expectedDividend || '118억'} highlight icon="fa-chart-pie" />
-                                                    <InfoItem label="할인율" value={listing.rate || '61%'} icon="fa-percentage" />
+                                                    <InfoItem label="NPL 매각희망가" value={listing.nplTargetPrice || listing.salePrice || listing.minPrice || '협의'} highlight icon="fa-hand-holding-usd" />
+                                                    <InfoItem label="채권최고액" value={listing.claimMax || listing.exitwiseData?.keyMetrics?.claimMax || '협의'} icon="fa-file-invoice-dollar" />
+                                                    <InfoItem label="채권원금(OPB)" value={listing.opb || listing.exitwiseData?.keyMetrics?.opb || '협의'} icon="fa-balance-scale" />
+                                                    <InfoItem label="담보 감정평가액" value={listing.collateralValue || listing.appraisal || listing.exitwiseData?.keyMetrics?.appraisalValue || '감정가 확인'} icon="fa-shield-alt" />
+                                                    <InfoItem label="예상 배당회수금" value={listing.expectedDividend || listing.exitwiseData?.keyMetrics?.expectedReturn || '배당 시뮬레이션 참조'} highlight icon="fa-chart-pie" />
+                                                    <InfoItem label="할인율 / LTV" value={listing.rate ? `할인율 ${listing.rate}` : (listing.exitwiseData?.keyMetrics?.ltv ? `LTV ${listing.exitwiseData.keyMetrics.ltv}` : '선순위 담보')} icon="fa-percentage" />
                                                 </div>
                                             )}
 
                                             {isAuction && (
                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '25px', marginBottom: '40px' }}>
-                                                    <InfoItem label="감정가" value={listing.appraisal} icon="fa-balance-scale" />
-                                                    <InfoItem label="최저입찰가" value={listing.minPrice} highlight icon="fa-tag" />
-                                                    <InfoItem label="최저가율" value={listing.rate} icon="fa-chart-pie" />
-                                                    <InfoItem label="사건번호" value={listing.caseNumber || '2025타경10482'} icon="fa-gavel" />
-                                                    <InfoItem label="입찰기일" value={listing.auctionDate || '2026-10-22'} icon="fa-calendar-alt" />
-                                                    <InfoItem label="관할법원" value={listing.court || '서울중앙지방법원'} icon="fa-landmark" />
+                                                    <InfoItem label="감정가" value={listing.appraisal || '감정가 확인'} icon="fa-balance-scale" />
+                                                    <InfoItem label="최저입찰가" value={listing.minPrice || '최저가 확인'} highlight icon="fa-tag" />
+                                                    <InfoItem label="최저가율" value={listing.rate || '70%'} icon="fa-chart-pie" />
+                                                    <InfoItem label="사건번호" value={listing.caseNumber || '진행사건 확인'} icon="fa-gavel" />
+                                                    <InfoItem label="입찰기일" value={listing.auctionDate || '입찰기일 확인'} icon="fa-calendar-alt" />
+                                                    <InfoItem label="관할법원" value={listing.court || '관할법원 확인'} icon="fa-landmark" />
                                                 </div>
                                             )}
 
@@ -441,15 +441,21 @@ const ListingDetailPage = () => {
                                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
                                                     <div>
                                                         <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>대지면적: </span>
-                                                        <strong style={{ color: 'var(--text-white)' }}>{listing.specs?.landArea || listing.exitwiseData?.landArea || '4,158.4㎡ (1,257.9평)'}</strong>
+                                                        <strong style={{ color: 'var(--text-white)' }}>
+                                                            {listing.landArea || listing.specs?.landArea || listing.exitwiseData?.landArea || (listing.area ? `${listing.area}평` : '실사 확인')}
+                                                        </strong>
                                                     </div>
                                                     <div>
                                                         <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>연면적: </span>
-                                                        <strong style={{ color: 'var(--text-white)' }}>{listing.specs?.totalFloorArea || listing.exitwiseData?.totalFloorArea || '36,837.2㎡ (11,143.2평)'}</strong>
+                                                        <strong style={{ color: 'var(--text-white)' }}>
+                                                            {listing.totalFloorArea || listing.specs?.totalFloorArea || listing.exitwiseData?.totalFloorArea || '실사 확인'}
+                                                        </strong>
                                                     </div>
                                                     <div>
                                                         <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>규모/층수: </span>
-                                                        <strong style={{ color: 'var(--text-white)' }}>{listing.specs?.floors || listing.exitwiseData?.floors || (isFactory ? '지상 3층 (공장 2개동 및 R&D동)' : (isOffice ? '지하 7층 / 지상 50층' : '지하 6층 / 지상 16층'))}</strong>
+                                                        <strong style={{ color: 'var(--text-white)' }}>
+                                                            {listing.floors || listing.specs?.floors || listing.exitwiseData?.floors || '실사 확인'}
+                                                        </strong>
                                                     </div>
                                                     <div>
                                                         <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>
@@ -462,7 +468,7 @@ const ListingDetailPage = () => {
                                                                     ? (listing.exitwiseData?.power || '3,000 kW (특고압)')
                                                                     : (isOffice
                                                                         ? (listing.exitwiseData?.efficiency || '58.4%')
-                                                                        : (listing.specs?.parking || listing.exitwiseData?.parking || '자주식 완비')))}
+                                                                        : (listing.parking || listing.specs?.parking || listing.exitwiseData?.parking || '자주식 완비')))}
                                                         </strong>
                                                     </div>
                                                 </div>
