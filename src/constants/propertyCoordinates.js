@@ -22,6 +22,22 @@ export const PROPERTY_MASTER_COORDINATES = {
         district: '해운대구 우동 (마린시티)'
     },
 
+    // 2-B. [특급 호텔] 포시즌스호텔 서울 (서울 종로구 새문안로 97 / 당주동 29, 광화문 5성급 럭셔리 호텔)
+    'exitwise-fourseasons-hotel': {
+        lat: 37.570705,
+        lng: 126.975411,
+        name: '종로구 당주동 포시즌스호텔 서울 317실',
+        address: '서울 종로구 새문안로 97 (당주동 29)',
+        district: '서울 종로구 당주동 (광화문)'
+    },
+    'fourseasons-hotel': {
+        lat: 37.570705,
+        lng: 126.975411,
+        name: '종로구 당주동 포시즌스호텔 서울 317실',
+        address: '서울 종로구 새문안로 97 (당주동 29)',
+        district: '서울 종로구 당주동 (광화문)'
+    },
+
     // 3. [스마트 팩토리] 양주시 남면 상수리 일반공업지역 스마트 플랜트 (경기 양주시 남면 상수리 100-1 일원)
     'exitwise-yangju': {
         lat: 37.861053,
@@ -172,6 +188,9 @@ export const PROPERTY_MASTER_COORDINATES = {
 export const LANDMARK_PINPOINT_MAP = [
     // 1순위: 그랜드조선 부산 (중동 1405-16, 해운대해변로 292, 해수욕장 백사장) - 제니스와 철저히 분리
     { matchers: ['그랜드조선', '조선호텔', '해운대해변로 292', '중동 1405', '해운대 관광호텔'], coords: PROPERTY_MASTER_COORDINATES['exitwise-haeundae'] },
+
+    // 1-B순위: 포시즌스호텔 서울 (종로구 새문안로 97, 당주동 29, 광화문 5성급 호텔)
+    { matchers: ['포시즌스', '포시즌스호텔', '당주동 29', '새문안로 97', '당주동 포시즌스', '종로구 당주동', '당주동 호텔'], coords: PROPERTY_MASTER_COORDINATES['exitwise-fourseasons-hotel'] },
 
     // 2순위: 마린시티 두산위브더제니스 (우동 1407, 마린시티2로 33)
     { matchers: ['두산위브더제니스', '위브더제니스', '제니스', '마린시티2로 33', '우동 1407', '마린시티 펜트하우스'], coords: PROPERTY_MASTER_COORDINATES['exitwise-zenith-npl'] },

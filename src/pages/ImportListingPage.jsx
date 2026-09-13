@@ -15,24 +15,36 @@ export default function ImportListingPage() {
     const [errorMessage, setErrorMessage] = useState('');
     const [manualJson, setManualJson] = useState('');
 
+    const redirectScheduledRef = React.useRef(false);
+    const lastProcessedIdRef = React.useRef(null);
+
     const processImport = (data, autoRedirect) => {
         if (!data) return;
 
-        // 매물 등록 처리
-        const listingId = data.imDocumentId 
+        // 매물 등록 처리 및 랜드마크 고유 ID 식별
+        const rawName = (data.assetName || data.imTitle || '').toLowerCase();
+        const rawLoc = (data.location || '').toLowerCase();
+        
+        let finalId = data.imDocumentId 
             ? (data.imDocumentId.startsWith('exitwise-') ? data.imDocumentId : `exitwise-${data.imDocumentId.slice(0, 8)}`) 
             : `exitwise-${Date.now()}`;
 
-        // 해운대 조선호텔 특정 ID 정합 보장
-        const finalId = (data.assetName?.includes('그랜드조선') || data.imTitle?.includes('그랜드조선'))
-            ? 'exitwise-haeundae'
-            : listingId;
+        if (rawName.includes('포시즌스') || rawLoc.includes('당주동') || rawLoc.includes('새문안로')) {
+            finalId = 'exitwise-fourseasons-hotel';
+        } else if (rawName.includes('그랜드조선') || rawName.includes('조선호텔') || rawLoc.includes('해운대')) {
+            finalId = 'exitwise-haeundae';
+        } else if (rawName.includes('제니스') || rawName.includes('마린시티')) {
+            finalId = 'exitwise-zenith-npl';
+        }
+
+        const isHotel = rawName.includes('호텔') || data.category === '호텔';
+        const finalCategory = isHotel ? '호텔' : (data.category || '오피스빌딩');
 
         const saved = DataManager.importFromExitwise({
             id: finalId,
-            type: data.type || (data.category === 'NPL' ? 'npl' : 'general'),
+            type: isHotel ? 'general' : (data.type || (data.category === 'NPL' ? 'npl' : 'general')),
             title: data.imTitle || `${data.assetName || '자산'} 매각 IM`,
-            category: data.category || '오피스빌딩',
+            category: finalCategory,
             location: data.location,
             salePrice: data.salePrice || data.targetPrice,
             targetPrice: data.targetPrice || data.salePrice,
@@ -40,11 +52,11 @@ export default function ImportListingPage() {
             monthlyRent: data.monthlyRent,
             roi: data.roi,
             pricePerPyung: data.pricePerPyung,
-            imDocumentId: data.imDocumentId,
+            imDocumentId: data.imDocumentId || finalId,
             imTitle: data.imTitle,
             imDate: data.imDate || new Date().toISOString().slice(0, 10),
             assetName: data.assetName,
-            rooms: data.rooms,
+            rooms: data.rooms || (finalId === 'exitwise-fourseasons-hotel' ? '317실' : undefined),
             parking: data.parking,
             landArea: data.landArea,
             totalFloorArea: data.totalFloorArea,
@@ -55,15 +67,16 @@ export default function ImportListingPage() {
             htmlContent: data.htmlContent || ''
         });
 
+        lastProcessedIdRef.current = finalId;
         setImportedListing(saved);
         setStatus('success');
 
-        // auto=true 인 경우 1.8초 후 자동 상세 페이지 이동
-        if (autoRedirect) {
-            const timer = setTimeout(() => {
+        // auto=true 인 경우 단 1회만 1.8초 후 자동 상세 페이지 이동 (중복 타이머 방지)
+        if (autoRedirect && !redirectScheduledRef.current) {
+            redirectScheduledRef.current = true;
+            setTimeout(() => {
                 navigate(`/listings/${finalId}`);
             }, 1800);
-            return () => clearTimeout(timer);
         }
     };
 

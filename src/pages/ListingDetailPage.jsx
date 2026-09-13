@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useOutletContext } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { YieldCalculator } from '../components/calculator/YieldCalculator';
@@ -10,6 +10,11 @@ import ExitWiseSyncManager from '../utils/ExitWiseSyncManager';
 import { useTheme } from '../context/ThemeContext';
 import ExitWiseMarkdownViewer from '../components/im/ExitWiseMarkdownViewer';
 import KakaoMapEmbed from '../components/im/KakaoMapEmbed';
+import KakaoRoadviewEmbed from '../components/im/KakaoRoadviewEmbed';
+import KpiStatCards from '../components/im/KpiStatCards';
+import SensitivitySimulator from '../components/im/SensitivitySimulator';
+import FinancialChart from '../components/im/FinancialChart';
+import { unescapeMarkdown, extractMetricsFromIM, cleanExecutiveSummary } from '../utils/markdownUtils';
 
 const parseKoreanCurrency = (str) => {
     if (!str) return 0;
@@ -23,6 +28,7 @@ const ListingDetailPage = () => {
     const { id } = useParams();
     const [listing, setListing] = useState(null);
     const [activeTab, setActiveTab] = useState('overview');
+    const [locationViewMode, setLocationViewMode] = useState('map'); // 'map' | 'roadview'
     const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
     const [deckPage, setDeckPage] = useState(1);
     const [copiedNotice, setCopiedNotice] = useState(false);
@@ -30,6 +36,16 @@ const ListingDetailPage = () => {
     const [isCardModalOpen, setIsCardModalOpen] = useState(false);
     const { openConsulting } = useOutletContext() || {};
     const { isDark } = useTheme();
+
+    // ExitWise IM 마크다운 본문으로부터 최신 지표, 제원, KPI, 시뮬레이션 데이터 역추출 (자동 정합)
+    const imMetrics = useMemo(() => {
+        if (!listing) return null;
+        const md = listing.exitwiseData?.markdownContent;
+        if (md) {
+            return extractMetricsFromIM(md, listing);
+        }
+        return null;
+    }, [listing]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -405,18 +421,30 @@ const ListingDetailPage = () => {
                                             {/* Dynamic Metrics by Transaction Type */}
                                             {isGeneral && (
                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '25px', marginBottom: '40px' }}>
-                                                    <InfoItem label="희망 매매가" value={listing.salePrice || listing.minPrice || '협의'} highlight icon="fa-coins" />
-                                                    <InfoItem label="연 예상 수익률" value={listing.roi || listing.exitwiseData?.capRate || '협의'} highlight icon="fa-chart-line" />
-                                                    <InfoItem label="임대 보증금" value={listing.deposit || (listing.exitwiseData?.financials ? '협의' : '상담 문의')} icon="fa-wallet" />
-                                                    <InfoItem label="월 임대료" value={listing.monthlyRent ? `월 ${listing.monthlyRent}` : (listing.roi ? `수익률 ${listing.roi}` : '직접 운영')} icon="fa-money-bill-wave" />
-                                                    <InfoItem label="평당가" value={listing.pricePerPyung ? `평당 ${listing.pricePerPyung}` : '시세 대비 우량'} icon="fa-vector-square" />
+                                                    <InfoItem label="희망 매매가" value={imMetrics?.salePrice || listing.salePrice || listing.minPrice || '협의'} highlight icon="fa-coins" />
+                                                    <InfoItem label="연 예상 수익률" value={imMetrics?.roi || listing.roi || listing.exitwiseData?.capRate || '협의'} highlight icon="fa-chart-line" />
+                                                    <InfoItem label="임대 보증금" value={imMetrics?.deposit || listing.deposit || '협의 (실사 확인)'} icon="fa-wallet" />
+                                                    <InfoItem label="월 임대료" value={
+                                                        (() => {
+                                                            const r = imMetrics?.monthlyRent || listing.monthlyRent;
+                                                            if (!r) return '직접 운영 / 협의';
+                                                            return r.startsWith('월') ? r : `월 ${r}`;
+                                                        })()
+                                                    } icon="fa-money-bill-wave" />
+                                                    <InfoItem label="평당가" value={
+                                                        (() => {
+                                                            const p = imMetrics?.pricePerPyung || listing.pricePerPyung;
+                                                            if (!p) return '시세 대비 우량';
+                                                            return p.startsWith('평당') ? p : `평당 ${p}`;
+                                                        })()
+                                                    } icon="fa-vector-square" />
                                                     <InfoItem label="자산 용도" value={listing.category || '수익형 부동산'} icon="fa-building" />
                                                 </div>
                                             )}
 
                                             {isNpl && (
                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '25px', marginBottom: '40px' }}>
-                                                    <InfoItem label="NPL 매각희망가" value={listing.nplTargetPrice || listing.salePrice || listing.minPrice || '협의'} highlight icon="fa-hand-holding-usd" />
+                                                    <InfoItem label="NPL 매각희망가" value={listing.nplTargetPrice || imMetrics?.salePrice || listing.salePrice || listing.minPrice || '협의'} highlight icon="fa-hand-holding-usd" />
                                                     <InfoItem label="채권최고액" value={listing.claimMax || listing.exitwiseData?.keyMetrics?.claimMax || '협의'} icon="fa-file-invoice-dollar" />
                                                     <InfoItem label="채권원금(OPB)" value={listing.opb || listing.exitwiseData?.keyMetrics?.opb || '협의'} icon="fa-balance-scale" />
                                                     <InfoItem label="담보 감정평가액" value={listing.collateralValue || listing.appraisal || listing.exitwiseData?.keyMetrics?.appraisalValue || '감정가 확인'} icon="fa-shield-alt" />
@@ -436,26 +464,26 @@ const ListingDetailPage = () => {
                                                 </div>
                                             )}
 
-                                            {/* Specs: 오피스빌딩, 호텔 맞춤 상세 제원 */}
+                                            {/* Specs: 오피스빌딩, 호텔 맞춤 상세 제원 (백슬래시 완전 제거) */}
                                             <div style={{ marginTop: '20px', paddingTop: '30px', borderTop: `1px solid ${subCardBorder}` }}>
                                                 <h4 style={{ color: 'var(--text-white)', marginBottom: '20px', fontSize: '1.15rem' }}>자산 상세 제원 (Property Specs)</h4>
                                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
                                                     <div>
                                                         <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>대지면적: </span>
                                                         <strong style={{ color: 'var(--text-white)' }}>
-                                                            {listing.landArea || listing.specs?.landArea || listing.exitwiseData?.landArea || (listing.area ? `${listing.area}평` : '실사 확인')}
+                                                            {unescapeMarkdown(imMetrics?.landArea || listing.landArea || listing.specs?.landArea || listing.exitwiseData?.landArea || (listing.area ? `${listing.area}평` : '실사 확인'))}
                                                         </strong>
                                                     </div>
                                                     <div>
                                                         <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>연면적: </span>
                                                         <strong style={{ color: 'var(--text-white)' }}>
-                                                            {listing.totalFloorArea || listing.specs?.totalFloorArea || listing.exitwiseData?.totalFloorArea || '실사 확인'}
+                                                            {unescapeMarkdown(imMetrics?.totalFloorArea || listing.totalFloorArea || listing.specs?.totalFloorArea || listing.exitwiseData?.totalFloorArea || '실사 확인')}
                                                         </strong>
                                                     </div>
                                                     <div>
                                                         <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>규모/층수: </span>
                                                         <strong style={{ color: 'var(--text-white)' }}>
-                                                            {listing.floors || listing.specs?.floors || listing.exitwiseData?.floors || '실사 확인'}
+                                                            {unescapeMarkdown(imMetrics?.floors || listing.floors || listing.specs?.floors || listing.exitwiseData?.floors || '실사 확인')}
                                                         </strong>
                                                     </div>
                                                     <div>
@@ -463,24 +491,29 @@ const ListingDetailPage = () => {
                                                             {isHotel ? '객실 수: ' : (isFactory ? '수전/전력: ' : (isOffice ? '기준층 전용률: ' : '주차 대수: '))}
                                                         </span>
                                                         <strong style={{ color: 'var(--text-white)' }}>
-                                                            {isHotel
+                                                            {unescapeMarkdown(isHotel
                                                                 ? (listing.exitwiseData?.rooms || '330실')
                                                                 : (isFactory
                                                                     ? (listing.exitwiseData?.power || '3,000 kW (특고압)')
                                                                     : (isOffice
                                                                         ? (listing.exitwiseData?.efficiency || '58.4%')
-                                                                        : (listing.parking || listing.specs?.parking || listing.exitwiseData?.parking || '자주식 완비')))}
+                                                                        : (imMetrics?.parking || listing.parking || listing.specs?.parking || listing.exitwiseData?.parking || '자주식 완비'))))}
                                                         </strong>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Description */}
+                                            {/* Description & KPI Stat Cards */}
                                             <div style={{ marginTop: '30px', lineHeight: '1.8', color: 'var(--text-gray)' }}>
-                                                <h4 style={{ color: 'var(--text-white)', marginBottom: '10px', fontSize: '1.1rem' }}>투자 포인트 요약</h4>
-                                                <p style={{ color: 'var(--text-off-white)' }}>
-                                                    {listing.exitwiseData?.executiveSummary ||
-                                                        `본 물건은 ${listing.location} 핵심 상권 및 업무지구에 위치한 우량 실물자산입니다. 우수한 입지 조건과 자산 가치 상승 모멘텀을 보유하고 있으며, 전문 실사 및 권리분석을 완료하여 안정적인 현금흐름 창출이 가능합니다.`}
+                                                <h4 style={{ color: 'var(--text-white)', marginBottom: '14px', fontSize: '1.1rem' }}>투자 포인트 요약</h4>
+                                                {(imMetrics?.kpiItems || imMetrics?.kpiRaw || listing.exitwiseData?.kpiRaw || listing.exitwiseData?.kpiItems) && (
+                                                    <div style={{ marginBottom: '16px' }}>
+                                                        <KpiStatCards raw={imMetrics?.kpiRaw || listing.exitwiseData?.kpiRaw} items={imMetrics?.kpiItems || listing.exitwiseData?.kpiItems} />
+                                                    </div>
+                                                )}
+                                                <p style={{ color: 'var(--text-off-white)', lineHeight: '1.75', marginTop: '8px' }}>
+                                                    {unescapeMarkdown(imMetrics?.executiveSummary || cleanExecutiveSummary(listing.exitwiseData?.executiveSummary || listing.summary || '') ||
+                                                        `본 물건은 ${listing.location} 핵심 상권 및 업무지구에 위치한 우량 실물자산입니다. 우수한 입지 조건과 자산 가치 상승 모멘텀을 보유하고 있으며, 전문 실사 및 권리분석을 완료하여 안정적인 현금흐름 창출이 가능합니다.`)}
                                                 </p>
                                             </div>
                                         </div>
@@ -1313,32 +1346,119 @@ const ListingDetailPage = () => {
                                         </div>
                                     )}
 
-                                    {/* Tab 3: Yield Calculator & Wealth Simulator */}
+                                    {/* Tab 3: Yield Calculator & Wealth Simulator (IM 감응도 & 재무차트 연동) */}
                                     {activeTab === 'analysis' && (
-                                        <div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+                                            {/* ExitWise IM 정밀 시뮬레이터 & 재무 성과 차트 */}
+                                            {(listing.isExitwiseLinked || imMetrics || listing.exitwiseData?.markdownContent) && (
+                                                <div className="glass-card listing-detail-card" style={{ padding: '30px 32px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '22px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                            <span style={{ fontSize: '1.25rem', color: 'var(--accent-gold)' }}>📈</span>
+                                                            <h3 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--text-white)', fontWeight: '800' }}>
+                                                                ExitWise AI 감응도 분석 & 재무 성과 시뮬레이션
+                                                            </h3>
+                                                        </div>
+                                                        <span style={{ fontSize: '0.82rem', color: '#0ea5e9', background: isDark ? 'rgba(14, 165, 233, 0.12)' : '#e0f2fe', padding: '4px 12px', borderRadius: '20px', fontWeight: '700' }}>
+                                                            ⚡ 결정론 알고리즘 기반
+                                                        </span>
+                                                    </div>
+
+                                                    {/* 1. Sensitivity Simulator */}
+                                                    <SensitivitySimulator
+                                                        raw={imMetrics?.sensitivityRaw || listing.exitwiseData?.sensitivityRaw}
+                                                        basePrice={imMetrics?.numPrice || parseKoreanCurrency(listing.salePrice)}
+                                                        annualNoi={imMetrics?.annualNoiWon || Math.round(parseKoreanCurrency(listing.salePrice) * 0.055)}
+                                                        title={`${listing.exitwiseData?.assetName || listing.title} 매입가 및 Cap Rate 민감도 시뮬레이터`}
+                                                    />
+
+                                                    {/* 2. Financial Chart */}
+                                                    {(imMetrics?.rechartsRaw || listing.exitwiseData?.rechartsRaw || listing.exitwiseData?.financials) && (
+                                                        <div style={{ marginTop: '24px' }}>
+                                                            <FinancialChart raw={imMetrics?.rechartsRaw || listing.exitwiseData?.rechartsRaw} />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* 가자에셋 커스텀 분석 시뮬레이터 */}
                                             <YieldCalculator
-                                                appraisalPrice={parseKoreanCurrency(listing.salePrice || listing.minPrice || listing.appraisal)}
-                                                minPrice={parseKoreanCurrency(listing.minPrice || listing.salePrice)}
+                                                appraisalPrice={parseKoreanCurrency(imMetrics?.salePrice || listing.salePrice || listing.minPrice || listing.appraisal)}
+                                                minPrice={parseKoreanCurrency(listing.minPrice || imMetrics?.salePrice || listing.salePrice)}
                                             />
 
                                             <WealthSimulator
-                                                initialInvestment={parseKoreanCurrency(listing.salePrice || listing.minPrice)}
-                                                growthRate={listing.roi ? parseFloat(listing.roi) : 6.5}
+                                                initialInvestment={parseKoreanCurrency(imMetrics?.salePrice || listing.salePrice || listing.minPrice)}
+                                                growthRate={imMetrics?.roi ? parseFloat(imMetrics.roi) : (listing.roi ? parseFloat(listing.roi) : 6.5)}
                                             />
                                         </div>
                                     )}
 
-                                    {/* Tab 4: Location */}
+                                    {/* Tab 4: Location (실시간 지도 + 360° 로드뷰 듀얼 뷰) */}
                                     {activeTab === 'location' && (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                            <KakaoMapEmbed
-                                                listingId={listing.id}
-                                                address={listing.location}
-                                                title={listing.title}
-                                                lat={listing.lat || listing.locationCoords?.lat}
-                                                lng={listing.lng || listing.locationCoords?.lng}
-                                                height={460}
-                                            />
+                                            {/* Top View Mode Switch: Map vs 360° Roadview */}
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: '12px', padding: '12px 18px', flexWrap: 'wrap', gap: '10px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <span style={{ fontSize: '1.1rem', color: '#0ea5e9' }}>📍</span>
+                                                    <span style={{ fontWeight: '700', color: 'var(--text-white)', fontSize: '0.95rem' }}>{listing.location}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '8px', background: isDark ? 'rgba(0,0,0,0.3)' : '#f1f5f9', padding: '4px', borderRadius: '8px' }}>
+                                                    <button
+                                                        onClick={() => setLocationViewMode('map')}
+                                                        style={{
+                                                            padding: '6px 14px',
+                                                            borderRadius: '6px',
+                                                            border: 'none',
+                                                            fontSize: '0.82rem',
+                                                            fontWeight: '700',
+                                                            cursor: 'pointer',
+                                                            background: locationViewMode === 'map' ? '#0ea5e9' : 'transparent',
+                                                            color: locationViewMode === 'map' ? '#ffffff' : (isDark ? '#94a3b8' : '#64748b'),
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                    >
+                                                        <i className="fas fa-map-marked-alt" style={{ marginRight: '6px' }}></i>실시간 지도
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setLocationViewMode('roadview')}
+                                                        style={{
+                                                            padding: '6px 14px',
+                                                            borderRadius: '6px',
+                                                            border: 'none',
+                                                            fontSize: '0.82rem',
+                                                            fontWeight: '700',
+                                                            cursor: 'pointer',
+                                                            background: locationViewMode === 'roadview' ? '#0ea5e9' : 'transparent',
+                                                            color: locationViewMode === 'roadview' ? '#ffffff' : (isDark ? '#94a3b8' : '#64748b'),
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                    >
+                                                        <i className="fas fa-street-view" style={{ marginRight: '6px' }}></i>360° 현장 로드뷰
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Map or Roadview Display */}
+                                            {locationViewMode === 'map' ? (
+                                                <KakaoMapEmbed
+                                                    listingId={listing.id}
+                                                    address={listing.location}
+                                                    title={listing.title}
+                                                    lat={listing.lat || listing.locationCoords?.lat}
+                                                    lng={listing.lng || listing.locationCoords?.lng}
+                                                    height={460}
+                                                />
+                                            ) : (
+                                                <KakaoRoadviewEmbed
+                                                    listingId={listing.id}
+                                                    address={listing.location}
+                                                    title={listing.title}
+                                                    lat={listing.lat || listing.locationCoords?.lat}
+                                                    lng={listing.lng || listing.locationCoords?.lng}
+                                                    height={460}
+                                                />
+                                            )}
 
                                             <div className="glass-card listing-detail-card" style={{ padding: '28px 32px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
@@ -1354,11 +1474,13 @@ const ListingDetailPage = () => {
                                                         <p style={{ margin: 0, fontSize: '0.88rem', color: isDark ? '#cbd5e1' : '#475569', lineHeight: '1.7' }}>
                                                             {isHotel
                                                                 ? '해운대역(부산 2호선) 도보 7분, 해운대 해변로 바로 연결, 김해국제공항 리무진 직결'
+                                                                : (listing.location?.includes('서초') || listing.title?.includes('서초'))
+                                                                ? '교대역(2·3호선 환승역) 및 서초역(2호선) 도보 역세권, 서초중앙로 16개 간선·지선 버스 노선 밀집'
                                                                 : isOffice
                                                                 ? '여의도역(5·9호선 환승역) 도보 3분 초역세권, 여의도 환승센터 32개 광역 버스 노선 집결'
                                                                 : isFactory
                                                                 ? '수도권 전철 1호선 덕정역 연계 광역 교통망, 양주테크노밸리 산업단지 셔틀 운행'
-                                                                : '인접 지하철역 도보 5분 이내 역세권, 간선/지선 버스 노선 12개 집결지'}
+                                                                : '인접 지하철역 도보 5분 이내 역세권, 주요 도심을 관통하는 간선·지선 버스 노선 집결지'}
                                                         </p>
                                                     </div>
 
@@ -1369,6 +1491,8 @@ const ListingDetailPage = () => {
                                                         <p style={{ margin: 0, fontSize: '0.88rem', color: isDark ? '#cbd5e1' : '#475569', lineHeight: '1.7' }}>
                                                             {isFactory
                                                                 ? '세종-포천고속도로 및 제2순환고속도로 IC 10분 내 진입, 40ft 대형 트레일러 진출입 최적화'
+                                                                : (listing.location?.includes('서초') || listing.title?.includes('서초'))
+                                                                ? '경부고속도로 서초IC 5분 진입, 남부순환로 및 테헤란로·강남대로 직결 도심 고속 이동 최적화'
                                                                 : isOffice
                                                                 ? '올림픽대로 및 강변북로, 여의대로 광폭 8차선 대로변 코너 입지, 도심/강남 20분대 쾌속 이동'
                                                                 : isHotel
@@ -1382,7 +1506,9 @@ const ListingDetailPage = () => {
                                                             <i className="fas fa-building" style={{ marginRight: '6px' }}></i>권역 특성 및 개발 호재
                                                         </div>
                                                         <p style={{ margin: 0, fontSize: '0.88rem', color: isDark ? '#cbd5e1' : '#475569', lineHeight: '1.7' }}>
-                                                            {isOffice
+                                                            {(listing.location?.includes('서초') || listing.title?.includes('서초'))
+                                                                ? '대법원·대검찰청 등 서초동 법조타운 핵심 상권, 탄탄한 법률·세무 전문직 유동인구 및 높은 임차 수요 보유'
+                                                                : isOffice
                                                                 ? '대한민국 금융 중심지 YBD 코어 블록, 신안산선(공사 중) 및 GTX-B 개통 예정으로 미래가치 상승'
                                                                 : isFactory
                                                                 ? '경기 북부 일반공업지역 희소 필지, 공장총량제 수혜 및 인근 산업클러스터 집적화 수혜'

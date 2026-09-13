@@ -1,7 +1,7 @@
 import { mockListings } from '../data/mockListings';
 import { partners } from '../data/partners';
 import AiAssetImageMatcher from './AiAssetImageMatcher';
-import { sanitizeMarkdownContent, unescapeMarkdown } from './markdownUtils';
+import { sanitizeMarkdownContent, unescapeMarkdown, extractMetricsFromIM, cleanExecutiveSummary, parseWonFromKorean } from './markdownUtils';
 
 const STORAGE_KEYS = {
     LISTINGS: 'gaja_listings',
@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
     VIPS: 'gaja_vips'
 };
 
-// ExitWise 전 매물의 IM 전문 및 제원 최신 동기화 헬퍼 (서문, 지도, 도표, 가격 자가치유)
+// ExitWise 전 매물의 IM 전문 및 제원 최신 동기화 헬퍼 (서문, 지도, 도표, 가격, 임대료, 보증금 자가치유)
 function syncExitwiseIMData(list) {
     if (!Array.isArray(list)) return { synced: list, changed: false };
     let changed = false;
@@ -59,16 +59,62 @@ function syncExitwiseIMData(list) {
             }
         }
 
-        // 7. 모든 매물(임포트 매물 포함)의 마크다운 백슬래시 이스케이프 잔존 검사 및 자가치유
-        if (item.exitwiseData?.markdownContent && /\\([.[\]()\-*_#:!~"'>+`]|(\d+)\\\.)/.test(item.exitwiseData.markdownContent)) {
-            changed = true;
-            return {
-                ...item,
-                exitwiseData: {
-                    ...(item.exitwiseData || {}),
-                    markdownContent: sanitizeMarkdownContent(item.exitwiseData.markdownContent)
-                }
-            };
+        // 7. 모든 ExitWise 연동 매물(임포트 매물 포함)의 데이터 무결성 및 IM 정합성 자가치유 검사
+        if (item.isExitwiseLinked || item.exitwiseData?.markdownContent) {
+            const md = item.exitwiseData?.markdownContent || '';
+            const hasBackslash = /\\([.[\]()\-*_#:!~"'>+`]|(\d+)\\\.)/.test(md) || 
+                                 /\\/.test(item.landArea || item.exitwiseData?.landArea || '');
+            const hasKpiInSummary = (item.exitwiseData?.executiveSummary && (
+                item.exitwiseData.executiveSummary.includes('```kpi') || 
+                item.exitwiseData.executiveSummary.includes('{"items":')
+            )) || (item.summary && (
+                item.summary.includes('```kpi') ||
+                item.summary.includes('{"items":')
+            ));
+
+            // 비정상적인 임대료/보증금 더미 데이터 감지 (예: 66억 건물에 8.5억 월세, 30억 보증금)
+            const numPrice = parseWonFromKorean(item.salePrice || item.targetPrice || item.minPrice);
+            const isRentMismatched = item.monthlyRent && numPrice > 0 && 
+                                     (parseWonFromKorean(item.monthlyRent) * 12 > numPrice * 0.25);
+            const isDepositMismatched = item.deposit && numPrice > 0 && 
+                                       (parseWonFromKorean(item.deposit) > numPrice * 0.4);
+            const isMissingMetrics = !item.deposit || !item.monthlyRent || !item.pricePerPyung;
+
+            if (hasBackslash || hasKpiInSummary || isRentMismatched || isDepositMismatched || isMissingMetrics) {
+                const extracted = extractMetricsFromIM(md, item);
+                changed = true;
+                return {
+                    ...item,
+                    salePrice: extracted.salePrice || item.salePrice,
+                    roi: extracted.roi || item.roi,
+                    deposit: extracted.deposit,
+                    monthlyRent: extracted.monthlyRent,
+                    pricePerPyung: extracted.pricePerPyung,
+                    landArea: extracted.landArea,
+                    totalFloorArea: extracted.totalFloorArea,
+                    floors: extracted.floors,
+                    parking: extracted.parking,
+                    summary: extracted.executiveSummary || item.summary,
+                    exitwiseData: {
+                        ...(item.exitwiseData || {}),
+                        salePrice: extracted.salePrice || item.exitwiseData?.salePrice,
+                        capRate: extracted.roi || item.exitwiseData?.capRate,
+                        deposit: extracted.deposit,
+                        monthlyRent: extracted.monthlyRent,
+                        pricePerPyung: extracted.pricePerPyung,
+                        landArea: extracted.landArea,
+                        totalFloorArea: extracted.totalFloorArea,
+                        floors: extracted.floors,
+                        parking: extracted.parking,
+                        executiveSummary: extracted.executiveSummary,
+                        kpiRaw: extracted.kpiRaw || item.exitwiseData?.kpiRaw,
+                        kpiItems: extracted.kpiItems || item.exitwiseData?.kpiItems,
+                        sensitivityRaw: extracted.sensitivityRaw || item.exitwiseData?.sensitivityRaw,
+                        rechartsRaw: extracted.rechartsRaw || item.exitwiseData?.rechartsRaw,
+                        markdownContent: sanitizeMarkdownContent(md)
+                    }
+                };
+            }
         }
 
         return item;
@@ -85,18 +131,35 @@ function generateExitwiseMarkdown({ title, assetName, category, location, salePr
 
     const parsedDocNo = docNumber || `IM-2026-EW-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
-    // 숫자 가격 파싱 (예: "620억" -> 62000000000)
-    let numPrice = 50000000000;
-    if (salePrice && typeof salePrice === 'string') {
-        const match = salePrice.replace(/,/g, '').match(/(\d+(\.\d+)?)/);
-        if (match) {
-            numPrice = parseFloat(match[1]) * 100000000;
-        }
-    }
+    // 숫자 가격 파싱 (예: "620억" -> 62000000000, "66억" -> 6600000000)
+    let numPrice = parseWonFromKorean(salePrice) || 50000000000;
     const numCap = parseFloat(capRate) || 5.5;
     const annualNoi = Math.round(numPrice * (numCap / 100));
     const noiEok = Math.round((annualNoi / 100000000) * 10) / 10;
     const revEok = Math.round(noiEok * 1.15 * 10) / 10;
+
+    // 현실적인 보증금 및 월 임대료 자동 산출
+    const depositWon = Math.round((numPrice * 0.05) / 10000000) * 10000000;
+    const depositEok = Math.round((depositWon / 100000000) * 10) / 10;
+    const depositStr = depositEok >= 1 ? `${depositEok}억원` : `${Math.round(depositWon / 10000).toLocaleString('ko-KR')}만원`;
+
+    const monthlyRentWon = Math.round(annualNoi / 12);
+    const monthlyRentStr = monthlyRentWon >= 100000000
+        ? `${(monthlyRentWon / 100000000).toFixed(1)}억원`
+        : `${Math.round(monthlyRentWon / 10000).toLocaleString('ko-KR')}만원`;
+
+    // 평당가 산출 (대지면적 또는 연면적 기준)
+    let pyungPriceStr = '시세 대비 우량';
+    const pyungMatch = (landArea || totalFloorArea || '').match(/(?:약\s*)?(\d+(?:\.\d+)?)\s*평/);
+    if (pyungMatch) {
+        const pyung = parseFloat(pyungMatch[1]);
+        if (pyung > 0) {
+            const perPyungMan = Math.round((numPrice / pyung) / 10000);
+            pyungPriceStr = `평당 약 ${perPyungMan.toLocaleString('ko-KR')}만원`;
+        }
+    }
+
+    const cleanSummaryText = cleanExecutiveSummary(summary || `${location}에 위치한 우량 ${category || '실물자산'} 매각 건으로, 전문 권리분석 및 ExitWise 결정론 검증을 완료하여 안정적인 현금흐름 창출과 높은 자산가치 보존성을 보유한 핵심 투자 자산입니다.`);
 
     const coverLetterBlock = `<<<COVER_LETTER_START>>>
 문서번호: ${parsedDocNo}
@@ -123,17 +186,24 @@ function generateExitwiseMarkdown({ title, assetName, category, location, salePr
 - 목표 수익률 (Cap Rate): ${capRate || '5.5% 내외'}
 - 자산 분류: ${category || '수익형 부동산'}
 - 소재지: ${location}
-- 대지면적: ${landArea || '실사 확인'}
-- 연면적: ${totalFloorArea || '실사 확인'}
-- 건축 규모: ${floors || '실사 확인'}
-- 주차 대수: ${parking || '자주식 완비'}
+- 대지면적: ${unescapeMarkdown(landArea) || '실사 확인'}
+- 연면적: ${unescapeMarkdown(totalFloorArea) || '실사 확인'}
+- 건축 규모: ${unescapeMarkdown(floors) || '실사 확인'}
+- 주차 대수: ${unescapeMarkdown(parking) || '자주식 완비'}
 
-[Executive Summary] ${summary || `${location}에 위치한 우량 ${category || '실물자산'} 매각 건으로, 전문 권리분석 및 ExitWise 결정론 검증을 완료하여 안정적인 현금흐름 창출과 높은 자산가치 보존성을 보유한 핵심 투자 자산입니다.`}
+\`\`\`kpi
+{"items":[{"label":"희망 매각가","value":"${salePrice || '협의'}","highlight":true},{"label":"목표 Cap Rate","value":"${capRate || '5.5%'}"},{"label":"월 예상 임대수익","value":"월 ${monthlyRentStr}"},{"label":"연간 순영업소득","value":"약 ${noiEok}억원"}]}
+\`\`\`
+
+[Executive Summary] ${cleanSummaryText}
 
 ## Chapter 2. 핵심 운영 및 임대 재무 실적 (Operating & Financials)
 - 가동률/임대율: ${isFactory ? '100.0% (장기 마스터리스 계약 체결)' : isOffice ? '98.2% 내외 (공실률 1.8%)' : isHotel ? '78.4%' : '95.0% 이상'}
 - 목표 수익률: ${capRate || '5.5%'}
 - 연간 순영업소득 (NOI): 약 ${noiEok}억원
+- 임대 보증금 총액: 약 ${depositStr} (실사 기준 변동 가능)
+- 월 임대수입(추정): 약 ${monthlyRentStr}
+- 3.3㎡당 매매가: ${pyungPriceStr}
 
 \`\`\`recharts
 {"type":"bar","title":"연도별 총 매출/수입 및 순영업소득(NOI) 추이 (단위: 억원)","data":[{"name":"2023년","총수입":${Math.round(revEok * 0.9 * 10) / 10},"NOI":${Math.round(noiEok * 0.9 * 10) / 10}},{"name":"2024년","총수입":${Math.round(revEok * 0.95 * 10) / 10},"NOI":${Math.round(noiEok * 0.95 * 10) / 10}},{"name":"2025년","총수입":${revEok},"NOI":${noiEok}},{"name":"2026년(추정)","총수입":${Math.round(revEok * 1.06 * 10) / 10},"NOI":${Math.round(noiEok * 1.05 * 10) / 10}}],"bars":[{"key":"총수입","name":"총 매출/수입","color":"#0ea5e9"},{"key":"NOI","name":"순영업소득 (NOI)","color":"#10b981"}]}
@@ -273,6 +343,74 @@ const DataManager = {
             hasChangedAny = true;
         }
 
+        // 2-B. 중복 매물 자동 제거 및 단일 정규화 (Self-Healing Deduplication)
+        // ExitWise 전송 재시도나 동시 호출로 생성된 동일 매물(포시즌스호텔 등)을 단 1개로 병합
+        const seenKeys = new Map();
+        const deduplicated = [];
+        for (const item of raw) {
+            const rawTitle = (item.title || item.exitwiseData?.imTitle || '').trim();
+            const normTitle = rawTitle.replace(/\s+/g, '');
+            const rawLoc = (item.location || '').toString();
+            const imDocId = item.exitwiseData?.imDocumentId || '';
+
+            let dedupeKey = null;
+            if (normTitle.includes('포시즌스') || rawLoc.includes('당주동') || String(item.id).includes('fourseasons')) {
+                dedupeKey = 'exitwise-fourseasons-hotel';
+            } else if (normTitle.includes('그랜드조선') || String(item.id).includes('haeundae')) {
+                dedupeKey = 'exitwise-haeundae';
+            } else if (normTitle.includes('제니스') || String(item.id).includes('zenith')) {
+                dedupeKey = 'exitwise-zenith-npl';
+            } else if (imDocId && imDocId.length > 5) {
+                dedupeKey = `imdoc-${imDocId}`;
+            } else if (normTitle.length > 5) {
+                dedupeKey = `title-${normTitle}`;
+            }
+
+            if (dedupeKey) {
+                if (!seenKeys.has(dedupeKey)) {
+                    let canonicalItem = item;
+                    if (dedupeKey === 'exitwise-fourseasons-hotel') {
+                        canonicalItem = {
+                            ...item,
+                            id: 'exitwise-fourseasons-hotel',
+                            type: 'general',
+                            category: '호텔',
+                            img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80',
+                            location: '서울 종로구 새문안로 97 (당주동 29)',
+                            tags: ['317실', 'ExitWise 연동', '호텔', '통매각']
+                        };
+                    }
+                    seenKeys.set(dedupeKey, canonicalItem);
+                    deduplicated.push(canonicalItem);
+                } else {
+                    // 중복 발견 -> 하나로 병합 후 중복 항목 제거
+                    hasChangedAny = true;
+                    const existing = seenKeys.get(dedupeKey);
+                    const isIncomingBetter = (item.category === '호텔' && existing.category !== '호텔') ||
+                        ((item.exitwiseData?.markdownContent?.length || 0) > (existing.exitwiseData?.markdownContent?.length || 0));
+
+                    const merged = isIncomingBetter ? { ...existing, ...item } : { ...item, ...existing };
+                    if (dedupeKey === 'exitwise-fourseasons-hotel') {
+                        merged.id = 'exitwise-fourseasons-hotel';
+                        merged.type = 'general';
+                        merged.category = '호텔';
+                        merged.img = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80';
+                        merged.location = '서울 종로구 새문안로 97 (당주동 29)';
+                        merged.tags = ['317실', 'ExitWise 연동', '호텔', '통매각'];
+                    }
+
+                    const targetIdx = deduplicated.indexOf(existing);
+                    if (targetIdx >= 0) {
+                        deduplicated[targetIdx] = merged;
+                    }
+                    seenKeys.set(dedupeKey, merged);
+                }
+            } else {
+                deduplicated.push(item);
+            }
+        }
+        raw = deduplicated;
+
         // 3. 조회 시 항상 AI 이미지 및 제원 자동 정합성 검사 (자가치유)
         const { healed, hasChanged: aiChanged } = AiAssetImageMatcher.healListings(raw);
         if (hasChangedAny || aiChanged) {
@@ -352,22 +490,59 @@ const DataManager = {
     importFromExitwise: (imData) => {
         // AI 시맨틱 분석으로 제목과 본문에 100% 어울리는 사진 및 제원 도출
         const titleForMatch = imData.title || imData.imTitle || imData.assetName || '';
+        const lowerTitle = titleForMatch.toLowerCase();
+
+        // 1. 위치 문자열 정제 (JSON 파싱 찌꺼기 및 "(추정)" 괄호 제거)
+        let cleanLocation = (imData.location || '')
+            .replace(/["'}\]]+$/g, '')
+            .replace(/\s*\([^)]*추정[^)]*\)/g, '')
+            .trim();
+        if (lowerTitle.includes('포시즌스') || cleanLocation.includes('당주동') || cleanLocation.includes('새문안로')) {
+            cleanLocation = '서울 종로구 새문안로 97 (당주동 29)';
+        }
+
+        // 2. 멱등적 고유 ID 결정 (동일 매물 중복 등록 방지)
+        let deterministicId = imData.id;
+        if (lowerTitle.includes('포시즌스') || cleanLocation.includes('당주동') || cleanLocation.includes('새문안로')) {
+            deterministicId = 'exitwise-fourseasons-hotel';
+        } else if (lowerTitle.includes('그랜드조선') || lowerTitle.includes('조선호텔') || cleanLocation.includes('해운대')) {
+            deterministicId = 'exitwise-haeundae';
+        } else if (lowerTitle.includes('제니스') || lowerTitle.includes('마린시티')) {
+            deterministicId = 'exitwise-zenith-npl';
+        } else if (imData.imDocumentId) {
+            deterministicId = imData.imDocumentId.startsWith('exitwise-') 
+                ? imData.imDocumentId 
+                : `exitwise-${imData.imDocumentId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 16)}`;
+        } else if (!deterministicId) {
+            deterministicId = `exitwise-${Date.now()}`;
+        }
+
         const aiMatched = AiAssetImageMatcher.match({
             title: titleForMatch,
             content: imData.markdownContent || '',
             category: imData.category,
-            location: imData.location
+            location: cleanLocation
         });
 
-        const finalCategory = aiMatched.category || imData.category || '오피스빌딩';
-        const isHotel = finalCategory === '호텔';
-        const finalLocation = imData.location?.trim() || aiMatched.location || (isHotel ? '부산 해운대구 우동' : '서울 영등포구 여의대로 24');
+        const isHotel = lowerTitle.includes('호텔') || imData.category === '호텔' || aiMatched.category === '호텔';
+        const finalCategory = isHotel ? '호텔' : (aiMatched.category || imData.category || '오피스빌딩');
+        const finalLocation = cleanLocation || aiMatched.location || (isHotel ? '부산 해운대구 우동' : '서울 영등포구 여의대로 24');
         const finalTitle = imData.title || imData.imTitle || `${aiMatched.cleanTitle} 자산 매각`;
-        const finalSalePrice = imData.salePrice || (isHotel ? '1,850억' : '2,850억');
+        const finalImg = (deterministicId === 'exitwise-fourseasons-hotel' || lowerTitle.includes('포시즌스'))
+            ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80'
+            : aiMatched.img;
+
+        const finalSalePrice = imData.salePrice || imData.targetPrice || (deterministicId === 'exitwise-fourseasons-hotel' ? '8,100억' : (isHotel ? '1,850억' : '2,850억'));
+        const finalRoi = imData.roi || (deterministicId === 'exitwise-fourseasons-hotel' ? '2.15%' : (isHotel ? '5.8%' : '5.4%'));
+        const finalRooms = isHotel ? (imData.rooms || (deterministicId === 'exitwise-fourseasons-hotel' ? '317실' : '330실')) : undefined;
+        const finalFloors = imData.floors || (deterministicId === 'exitwise-fourseasons-hotel' ? '지하 7층 / 지상 25층' : (isHotel ? '지하 6층 / 지상 16층' : '지하 7층 / 지상 50층'));
+        const finalParking = imData.parking || (deterministicId === 'exitwise-fourseasons-hotel' ? '총 350대 (자주식 완비)' : (isHotel ? '240대 (자주식 180대)' : '450대 (자주식 380대)'));
+        const finalTags = deterministicId === 'exitwise-fourseasons-hotel'
+            ? ['317실', 'ExitWise 연동', '호텔', '통매각']
+            : ['ExitWise 연동', finalCategory, 'AI 분석'];
+
         const finalLandArea = imData.landArea || (isHotel ? '4,158.4㎡ (1,257.9평)' : '3,305.8㎡ (1,000평)');
         const finalTotalFloorArea = imData.totalFloorArea || (isHotel ? '36,837.2㎡ (11,143.2평)' : '52,890.0㎡ (16,000평)');
-        const finalFloors = imData.floors || (isHotel ? '지하 6층 / 지상 16층' : '지하 7층 / 지상 50층');
-        const finalParking = imData.parking || (isHotel ? '240대 (자주식 180대)' : '450대 (자주식 380대)');
         const finalSummary = imData.summary || imData.executiveSummary || `${finalTitle}은(는) ExitWise AI를 통해 가치평가 및 출구전략 수립이 완료된 프리미엄 핵심 자산입니다.`;
         const finalRiskWarning = imData.riskWarning || '본 IM 자료는 투자 의사결정 참고용이며 최종 거래 조건은 법률 및 세무 실사에 따라 변동될 수 있습니다.';
 
@@ -379,7 +554,7 @@ const DataManager = {
                 category: finalCategory,
                 location: finalLocation,
                 salePrice: finalSalePrice,
-                capRate: imData.roi || (isHotel ? '5.8%' : '5.4%'),
+                capRate: finalRoi,
                 landArea: finalLandArea,
                 totalFloorArea: finalTotalFloorArea,
                 floors: finalFloors,
@@ -390,43 +565,115 @@ const DataManager = {
             });
         }
 
+        const extracted = extractMetricsFromIM(finalMarkdown, {
+            salePrice: finalSalePrice,
+            roi: finalRoi,
+            deposit: imData.deposit,
+            monthlyRent: imData.monthlyRent,
+            pricePerPyung: imData.pricePerPyung,
+            landArea: finalLandArea,
+            totalFloorArea: finalTotalFloorArea,
+            floors: finalFloors,
+            parking: finalParking,
+            summary: finalSummary,
+            executiveSummary: imData.executiveSummary
+        });
+
+        // 기존 매물 목록에서 동일 물건 존재 여부 확인 (ID, imDocumentId, 또는 정규화된 제목 기준)
+        let listings = DataManager._safeGet(STORAGE_KEYS.LISTINGS, mockListings);
+        const existingIndex = listings.findIndex(item => {
+            if (String(item.id) === String(deterministicId)) return true;
+            if (imData.imDocumentId && String(item.exitwiseData?.imDocumentId) === String(imData.imDocumentId)) return true;
+            const itemTitleNorm = (item.title || item.exitwiseData?.imTitle || '').replace(/\s+/g, '');
+            const newTitleNorm = finalTitle.replace(/\s+/g, '');
+            if (newTitleNorm.includes('포시즌스') && itemTitleNorm.includes('포시즌스')) return true;
+            if (newTitleNorm.length > 5 && itemTitleNorm === newTitleNorm) return true;
+            return false;
+        });
+
         const newListing = {
-            id: `exitwise-${Date.now()}`,
-            type: 'general',
-            img: aiMatched.img,
+            id: deterministicId,
+            type: imData.type || (finalCategory === 'NPL' ? 'npl' : 'general'),
+            img: finalImg,
             location: finalLocation,
             title: finalTitle,
             category: finalCategory,
-            salePrice: finalSalePrice,
-            roi: imData.roi || (isHotel ? '5.8%' : '5.4%'),
+            salePrice: extracted.salePrice || finalSalePrice,
+            roi: extracted.roi || finalRoi,
+            deposit: extracted.deposit,
+            monthlyRent: extracted.monthlyRent,
+            pricePerPyung: extracted.pricePerPyung,
+            landArea: extracted.landArea,
+            totalFloorArea: extracted.totalFloorArea,
+            floors: extracted.floors,
+            parking: extracted.parking,
+            summary: extracted.executiveSummary,
             status: 'Active',
-            tags: ['ExitWise 연동', finalCategory, 'AI 분석'],
+            tags: finalTags,
             isExitwiseLinked: true,
             exitwiseData: {
-                imDocumentId: imData.id || `doc-${Date.now()}`,
-                imDocNumber: imData.docNumber || `IM-2026-EW-${Date.now().toString().slice(-4)}`,
+                imDocumentId: imData.imDocumentId || imData.id || deterministicId,
+                imDocNumber: imData.docNumber || `IM-2026-EW-${deterministicId.slice(-4)}`,
                 imTitle: finalTitle,
-                imDate: new Date().toISOString().split('T')[0],
+                imDate: imData.imDate || new Date().toISOString().split('T')[0],
                 assetName: imData.assetName || finalTitle,
                 assetClass: finalCategory,
                 category: finalCategory,
                 location: finalLocation,
-                salePrice: finalSalePrice,
-                capRate: imData.roi || '5.8%',
-                rooms: isHotel ? (imData.rooms || '330실') : undefined,
-                parking: finalParking,
-                landArea: finalLandArea,
-                totalFloorArea: finalTotalFloorArea,
-                floors: finalFloors,
+                salePrice: extracted.salePrice || finalSalePrice,
+                capRate: extracted.roi || finalRoi,
+                deposit: extracted.deposit,
+                monthlyRent: extracted.monthlyRent,
+                pricePerPyung: extracted.pricePerPyung,
+                rooms: finalRooms,
+                parking: extracted.parking,
+                landArea: extracted.landArea,
+                totalFloorArea: extracted.totalFloorArea,
+                floors: extracted.floors,
                 riskWarning: finalRiskWarning,
-                executiveSummary: finalSummary,
+                executiveSummary: extracted.executiveSummary,
+                kpiRaw: extracted.kpiRaw,
+                kpiItems: extracted.kpiItems,
+                sensitivityRaw: extracted.sensitivityRaw,
+                rechartsRaw: extracted.rechartsRaw,
+                kakaoMapRaw: extracted.kakaoMapRaw,
                 markdownContent: finalMarkdown,
                 htmlContent: imData.htmlContent || '',
                 validationStatus: '검증 완료'
             }
         };
-        DataManager.saveListing(newListing);
-        return newListing;
+
+        if (existingIndex >= 0) {
+            // 중복 생성 대신 기존 항목 업데이트 (Idempotent update)
+            const current = listings[existingIndex];
+            const preservedMarkdown = (newListing.exitwiseData?.markdownContent?.length || 0) >= (current.exitwiseData?.markdownContent?.length || 0)
+                ? newListing.exitwiseData.markdownContent
+                : (current.exitwiseData?.markdownContent || newListing.exitwiseData.markdownContent);
+
+            const merged = {
+                ...current,
+                ...newListing,
+                id: deterministicId,
+                exitwiseData: {
+                    ...current.exitwiseData,
+                    ...newListing.exitwiseData,
+                    markdownContent: preservedMarkdown
+                }
+            };
+            listings[existingIndex] = merged;
+            localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings } }));
+            }
+            return merged;
+        } else {
+            listings.unshift(newListing);
+            localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings } }));
+            }
+            return newListing;
+        }
     },
     deleteListing: (id) => {
         const listings = DataManager.getListings().filter(item => String(item.id) !== String(id));

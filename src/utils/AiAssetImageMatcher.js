@@ -69,6 +69,21 @@ export const PINPOINT_LANDMARKS = [
         }
     },
     {
+        name: '포시즌스호텔 서울',
+        pattern: /(?:포시즌스|당주동\s*호텔|당주동\s*29|새문안로\s*97|four\s*seasons)/i,
+        img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80',
+        category: '호텔',
+        location: '서울 종로구 새문안로 97 (당주동, 포시즌스호텔 서울)',
+        defaultPrice: '8,100억',
+        floors: '지하 7층 / 지상 25층',
+        parking: '총 350대 (자주식 완비)',
+        specs: {
+            landArea: '4,117㎡ (1,245평)',
+            totalFloorArea: '88,000㎡ (26,620평)',
+            rooms: '317실'
+        }
+    },
+    {
         name: '서초동 법조타운 근린상가 NPL',
         pattern: /(?:서초동\s*법조|법조타운|교대역|서초역|서초중앙로)/i,
         img: '/assets/listings/korea_financial_tower.jpg',
@@ -171,6 +186,9 @@ function getHashIndex(str = '', arrayLength = 1) {
 
 // 텍스트에서 지역명을 지능적으로 유추하는 헬퍼
 function inferLocationFromText(text = '') {
+    if (/(?:당주동|새문안로|광화문|종로구|종로|포시즌스)/i.test(text)) {
+        return '서울 종로구 새문안로 97 (당주동, 포시즌스호텔 서울)';
+    }
     if (/(?:마린시티|두산위브|제니스|우동|해운대)/i.test(text)) {
         return '부산 해운대구 마린시티2로 33 (우동 1407)';
     }
@@ -241,14 +259,20 @@ export const AiAssetImageMatcher = {
         let poolKey = 'office';
         let detectedCategory = category || '오피스빌딩';
 
-        // NPL인 경우 담보물 실물 형태를 1차 분석
-        const isNplContext = /(?:npl|부실채권|론세일|담보|경매)/i.test(fullText);
+        // NPL 판정: 제목(title) 또는 카테고리에 명시적인 NPL 관련 단어가 있을 때만 NPL로 분류 (본문의 일반 '담보' 단어에 의한 오인식 원천 차단)
+        const titleAndCat = `${title} ${category}`.toLowerCase();
+        const isNplContext = /(?:npl|부실채권|론세일)/i.test(titleAndCat) || (category && category.includes('NPL'));
 
-        if (/(?:두산위브|제니스|마린시티|아파트|주택|고급주택|빌라|펜트하우스|residential)/i.test(fullText)) {
+        // 호텔 우선 판정: 제목이나 카테고리에 호텔 키워드가 있으면 본문 내용과 무관하게 100% 호텔로 확정
+        if (/(?:호텔|hotel|포시즌스|조선호텔|리조트|resort|숙박|콘도|풀빌라)/i.test(titleAndCat)) {
+            poolKey = 'hotel';
+            detectedCategory = isNplContext ? 'NPL (호텔/리조트)' : '호텔';
+            if (!resolvedLocation) resolvedLocation = '서울 종로구 새문안로 97 (당주동, 포시즌스호텔 서울)';
+        } else if (/(?:두산위브|제니스|마린시티|아파트|주택|고급주택|빌라|펜트하우스|residential)/i.test(titleAndCat) || /(?:두산위브|제니스|마린시티)/i.test(fullText)) {
             poolKey = 'residential';
             detectedCategory = isNplContext ? 'NPL (주거/주상복합)' : '아파트/주택';
             if (!resolvedLocation) resolvedLocation = '부산 해운대구 마린시티2로 33';
-        } else if (/(?:상가|근생|리테일|상업시설|상업용|법조타운)/i.test(fullText)) {
+        } else if (/(?:상가|근생|리테일|상업시설|상업용|법조타운)/i.test(titleAndCat) || /(?:근린상가|법조타운)/i.test(fullText)) {
             poolKey = 'commercial';
             detectedCategory = isNplContext ? 'NPL (근린상가)' : '상가';
             if (!resolvedLocation) resolvedLocation = '서울 서초구 서초동';
@@ -271,7 +295,7 @@ export const AiAssetImageMatcher = {
         } else if (/(?:호텔|리조트|숙박|콘도|풀빌라|hotel|resort)/i.test(fullText)) {
             poolKey = 'hotel';
             detectedCategory = isNplContext ? 'NPL (호텔/리조트)' : '호텔';
-            if (!resolvedLocation) resolvedLocation = '제주 제주시 애월읍 애월해안로';
+            if (!resolvedLocation) resolvedLocation = '서울 종로구 새문안로 97 (당주동)';
         } else if (/(?:토지|대지|나대지|부지|필지|land)/i.test(fullText)) {
             poolKey = 'land';
             detectedCategory = isNplContext ? 'NPL (토지/개발)' : '토지';
@@ -330,8 +354,44 @@ export const AiAssetImageMatcher = {
             const isFki = /(?:여의도|FKI)/i.test(title) && !title.includes('그랜드조선');
             const isFkiWrongLocation = isFki && location.includes('해운대');
 
-            if (isHumanPortrait || isZenithWrongLocation || isZenithWrongImg || isYangjuWrongLocation || isYangjuWrongImg || isFkiWrongLocation) {
+            // 5. 포시즌스호텔인데 NPL이거나 주거/주상복합이거나 사진이 브릿지/인물이거나 위치에 '추정' 잔여물이 있는 경우
+            const isFourSeasons = /(?:포시즌스|당주동\s*포시즌스|당주동\s*호텔)/i.test(title);
+            const isFourSeasonsWrong = isFourSeasons && (
+                item.category !== '호텔' || 
+                item.type !== 'general' || 
+                img.includes('busan') || 
+                img.includes('haeundae_zenith') || 
+                location.includes('추정') ||
+                location.includes('}') ||
+                location.includes('"') ||
+                !location.includes('종로구')
+            );
+
+            if (isHumanPortrait || isZenithWrongLocation || isZenithWrongImg || isYangjuWrongLocation || isYangjuWrongImg || isFkiWrongLocation || isFourSeasonsWrong) {
                 hasChanged = true;
+
+                if (isFourSeasons) {
+                    return {
+                        ...item,
+                        type: 'general',
+                        category: '호텔',
+                        img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80',
+                        location: '서울 종로구 새문안로 97 (당주동 29)',
+                        salePrice: item.salePrice || '8,100억',
+                        targetPrice: item.targetPrice || item.salePrice || '8,100억',
+                        roi: item.roi || '2.15%',
+                        tags: ['317실', 'ExitWise 연동', '호텔', '통매각'],
+                        exitwiseData: {
+                            ...(item.exitwiseData || {}),
+                            category: '호텔',
+                            assetClass: '호텔',
+                            location: '서울 종로구 새문안로 97 (당주동 29)',
+                            rooms: '317실',
+                            floors: '지하 7층 / 지상 25층',
+                            parking: '총 350대 (자주식 완비)'
+                        }
+                    };
+                }
 
                 if (isZenith) {
                     return {
