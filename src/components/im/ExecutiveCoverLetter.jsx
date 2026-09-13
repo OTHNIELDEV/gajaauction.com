@@ -1,4 +1,5 @@
 import React from 'react';
+import { unescapeMarkdown } from '../../utils/markdownUtils';
 
 /**
  * ExecutiveCoverLetter
@@ -19,16 +20,16 @@ export default function ExecutiveCoverLetter({ rawCoverLetter, docNumber, isDark
     const bodyParagraphs = [];
 
     for (const l of lines) {
-        const line = l.trim();
+        const line = unescapeMarkdown(l.trim());
         if (!line) continue;
         if (/^문서번호[:\s]+(.*)$/i.test(line)) {
-            parsedDocNo = line.replace(/^문서번호[:\s]+/i, '').trim();
+            parsedDocNo = unescapeMarkdown(line.replace(/^문서번호[:\s]+/i, '').trim());
         } else if (/confidential/i.test(line)) {
-            parsedConfidential = line.replace(/^#+\s*/, '').trim();
+            parsedConfidential = unescapeMarkdown(line.replace(/^#+\s*/, '').trim());
         } else if (/^수신[:\s]+(.*)$/i.test(line)) {
-            parsedTo = line.replace(/^수신[:\s]+/i, '').trim();
+            parsedTo = unescapeMarkdown(line.replace(/^수신[:\s]+/i, '').trim());
         } else if (/^발신[:\s]+(.*)$/i.test(line)) {
-            parsedFrom = line.replace(/^발신[:\s]+/i, '').trim();
+            parsedFrom = unescapeMarkdown(line.replace(/^발신[:\s]+/i, '').trim());
         } else if (line.startsWith('<<<') || line.startsWith('>>>')) {
             continue;
         } else {

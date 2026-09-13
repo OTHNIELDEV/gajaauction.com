@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import DataManager from '../utils/DataManager';
 import { useTheme } from '../context/ThemeContext';
+import { sanitizeMarkdownContent } from '../utils/markdownUtils';
 
 export default function ImportListingPage() {
     const location = useLocation();
@@ -50,7 +51,7 @@ export default function ImportListingPage() {
             floors: data.floors,
             riskWarning: data.riskWarning,
             executiveSummary: data.executiveSummary,
-            markdownContent: data.markdownContent || '',
+            markdownContent: data.markdownContent ? sanitizeMarkdownContent(data.markdownContent) : '',
             htmlContent: data.htmlContent || ''
         });
 

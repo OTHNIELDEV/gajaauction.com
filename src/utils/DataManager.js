@@ -1,6 +1,7 @@
 import { mockListings } from '../data/mockListings';
 import { partners } from '../data/partners';
 import AiAssetImageMatcher from './AiAssetImageMatcher';
+import { sanitizeMarkdownContent, unescapeMarkdown } from './markdownUtils';
 
 const STORAGE_KEYS = {
     LISTINGS: 'gaja_listings',
@@ -51,11 +52,25 @@ function syncExitwiseIMData(list) {
                     isExitwiseLinked: true,
                     exitwiseData: {
                         ...(item.exitwiseData || {}),
-                        ...(seedMatch.exitwiseData || {})
+                        ...(seedMatch.exitwiseData || {}),
+                        markdownContent: sanitizeMarkdownContent(seedMatch.exitwiseData?.markdownContent || item.exitwiseData?.markdownContent)
                     }
                 };
             }
         }
+
+        // 7. 모든 매물(임포트 매물 포함)의 마크다운 백슬래시 이스케이프 잔존 검사 및 자가치유
+        if (item.exitwiseData?.markdownContent && /\\([.[\]()\-*_#:!~"'>+`]|(\d+)\\\.)/.test(item.exitwiseData.markdownContent)) {
+            changed = true;
+            return {
+                ...item,
+                exitwiseData: {
+                    ...(item.exitwiseData || {}),
+                    markdownContent: sanitizeMarkdownContent(item.exitwiseData.markdownContent)
+                }
+            };
+        }
+
         return item;
     });
     return { synced, changed };
@@ -309,7 +324,7 @@ const DataManager = {
             const updatedExitwiseData = {
                 ...(current.exitwiseData || {}),
                 imDocumentId: docId,
-                markdownContent: freshData.markdownContent || current.exitwiseData?.markdownContent,
+                markdownContent: freshData.markdownContent ? sanitizeMarkdownContent(freshData.markdownContent) : current.exitwiseData?.markdownContent,
                 htmlContent: freshData.htmlContent || current.exitwiseData?.htmlContent,
                 mediaAssets: freshData.mediaAssets || current.exitwiseData?.mediaAssets,
                 imTitle: freshData.title || freshData.imTitle || current.exitwiseData?.imTitle,
@@ -356,7 +371,7 @@ const DataManager = {
         const finalSummary = imData.summary || imData.executiveSummary || `${finalTitle}은(는) ExitWise AI를 통해 가치평가 및 출구전략 수립이 완료된 프리미엄 핵심 자산입니다.`;
         const finalRiskWarning = imData.riskWarning || '본 IM 자료는 투자 의사결정 참고용이며 최종 거래 조건은 법률 및 세무 실사에 따라 변동될 수 있습니다.';
 
-        let finalMarkdown = imData.markdownContent;
+        let finalMarkdown = imData.markdownContent ? sanitizeMarkdownContent(imData.markdownContent) : null;
         if (!finalMarkdown) {
             finalMarkdown = generateExitwiseMarkdown({
                 title: finalTitle,

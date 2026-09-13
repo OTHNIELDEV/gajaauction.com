@@ -6,10 +6,12 @@ import FinancialChart from './FinancialChart';
 import KpiStatCards from './KpiStatCards';
 import FloorStackPlan from './FloorStackPlan';
 import ExecutiveCoverLetter from './ExecutiveCoverLetter';
+import { unescapeMarkdown, sanitizeMarkdownContent } from '../../utils/markdownUtils';
 
 function renderInlineMarkdown(text, isDark) {
     if (!text) return null;
-    const parts = text.split(/(\*\*.*?\*\*)/g);
+    const cleanText = unescapeMarkdown(text);
+    const parts = cleanText.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, idx) => {
         if (part.startsWith('**') && part.endsWith('**')) {
             return (
@@ -30,7 +32,7 @@ function MarkdownTable({ lines, isDark }) {
             .replace(/^\|/, '')
             .replace(/\|$/, '')
             .split('|')
-            .map((c) => c.trim());
+            .map((c) => unescapeMarkdown(c.trim()));
 
     const header = parseRow(lines[0]);
     const bodyRows = lines.slice(2).map(parseRow);
@@ -99,7 +101,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
 
     // 1. 서문(Cover Letter) 추출 (삭제하지 않고 온전히 보존하여 렌더링)
     const coverMatch = markdown.match(/<<<\s*COVER[_\s]*LETTER[_\s]*START\s*>>>([\s\S]*?)<<<\s*COVER[_\s]*LETTER[_\s]*END\s*>>>/i);
-    const rawCoverLetter = coverMatch ? coverMatch[1].trim() : null;
+    const rawCoverLetter = coverMatch ? sanitizeMarkdownContent(coverMatch[1].trim()) : null;
 
     // 2. 마크다운 본문 정규화 (서문은 본문 카드에서 중복 방지를 위해 제외하되 메인 서한으로 독립 렌더링)
     let cleanMd = markdown
@@ -110,6 +112,9 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
         .replace(/<<<\s*IM[_\s]*BODY[_\s]*END\s*>>>/gi, '')
         .replace(/<<<\s*EXPERT[_\s]*MATCH[_\s]*START\s*>>>[\s\S]*$/gi, '')
         .trim();
+
+    // 백슬래시 이스케이프(\., \[, \], \(, \) 등)를 코드 블록 보존 하에 선제 정규화
+    cleanMd = sanitizeMarkdownContent(cleanMd);
 
     const rawLines = cleanMd.split('\n');
     const sections = [];
@@ -133,7 +138,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                 sections.push(currentSection);
             }
             currentSection = {
-                title: chapterMatch[2].trim(),
+                title: unescapeMarkdown(chapterMatch[2].trim()),
                 level: chapterMatch[1].length,
                 lines: []
             };
@@ -239,7 +244,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                     if (trimmedLine.startsWith('### ') || trimmedLine.startsWith('#### ')) {
                         flushTable();
                         flushSpecs();
-                        const subTitle = trimmedLine.replace(/^#+\s+/, '');
+                        const subTitle = unescapeMarkdown(trimmedLine.replace(/^#+\s+/, ''));
                         lastSubTitle = subTitle;
                         lastNonEmptyLine = subTitle;
                         renderedBlocks.push(
@@ -472,7 +477,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                     // 3. 키-값 스펙 목록 (- 항목: 값)
                     const kvMatch = trimmedLine.match(/^[-*]\s*([^:：]+)[:：]\s*(.+)$/);
                     if (kvMatch && !trimmedLine.includes('http')) {
-                        specBuffer.push({ key: kvMatch[1].trim(), val: kvMatch[2].trim() });
+                        specBuffer.push({ key: unescapeMarkdown(kvMatch[1].trim()), val: unescapeMarkdown(kvMatch[2].trim()) });
                         continue;
                     } else {
                         flushSpecs();
@@ -482,11 +487,39 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                         continue;
                     }
 
-                    // 4. 감사 보고서 및 강조 박스 [확인], [주의]
+                    // 4. 감사 보고서 및 강조 박스 [확인], [주의], [출처]
                     const highlightMatch = trimmedLine.match(/^\[(.*?)\]\s*(.*)$/);
                     if (highlightMatch) {
-                        const tag = highlightMatch[1];
-                        const content = highlightMatch[2];
+                        const rawTag = highlightMatch[1];
+                        const tag = unescapeMarkdown(rawTag);
+                        const content = unescapeMarkdown(highlightMatch[2]);
+
+                        // 4-A. 표/본문 하단 출처 및 주석 메타데이터 ([출처: ...], [참고: ...] 등)
+                        if (tag.includes('출처') || tag.includes('참고') || tag.includes('비고') || tag.startsWith('※') || tag.startsWith('주') || tag.toLowerCase().startsWith('source')) {
+                            renderedBlocks.push(
+                                <div
+                                    key={`src-${renderedBlocks.length}`}
+                                    style={{
+                                        fontSize: '0.84rem',
+                                        color: isDark ? '#94a3b8' : '#64748b',
+                                        margin: '8px 0 16px 2px',
+                                        lineHeight: '1.6',
+                                        display: 'flex',
+                                        alignItems: 'baseline',
+                                        gap: '6px'
+                                    }}
+                                >
+                                    <i className="fas fa-circle-info" style={{ fontSize: '0.8rem', color: '#0ea5e9', flexShrink: 0, marginTop: '2px' }}></i>
+                                    <span>
+                                        <strong style={{ color: isDark ? '#cbd5e1' : '#475569', fontWeight: '600' }}>[{tag}]</strong>
+                                        {content ? ` ${content}` : ''}
+                                    </span>
+                                </div>
+                            );
+                            continue;
+                        }
+
+                        // 4-B. 일반 감사 보고서 및 리스크 강조 박스 ([확인], [주의] 등)
                         const isRed = tag.includes('주의') || tag.includes('경고');
                         const isGreen = tag.includes('확인') || tag.includes('통과');
                         const borderCol = isRed ? '#ef4444' : isGreen ? '#10b981' : '#0ea5e9';
