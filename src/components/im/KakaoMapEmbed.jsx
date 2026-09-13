@@ -1,49 +1,13 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { useTheme } from '../../context/ThemeContext';
+import { resolvePropertyCoordinates, PROPERTY_MASTER_COORDINATES } from '../../constants/propertyCoordinates';
 
 const KAKAO_KEY = '23e29b72b33388f59ca4668bce00c82d';
 const KAKAO_SDK_URL = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}&libraries=services&autoload=false`;
 
-const KNOWN_COORDINATES = {
-    // 서울 강남권
-    '도곡': { lat: 37.4980, lng: 127.0572, name: '강남구 도곡로' },
-    '대치': { lat: 37.4980, lng: 127.0572, name: '강남구 대치동 두각빌딩' },
-    '한티': { lat: 37.4980, lng: 127.0572, name: '한티역 도곡로' },
-    '테헤란': { lat: 37.5000, lng: 127.0360, name: '강남 테헤란로 타워' },
-    '역삼': { lat: 37.5000, lng: 127.0360, name: '강남 역삼동 빌딩' },
-    '강남': { lat: 37.4980, lng: 127.0572, name: '강남 도곡로 자산' },
-    '삼성': { lat: 37.5088, lng: 127.0631, name: '강남 삼성동 테헤란로' },
-    '청담': { lat: 37.5255, lng: 127.0493, name: '강남 청담동 럭셔리존' },
-    '압구정': { lat: 37.5270, lng: 127.0285, name: '강남 압구정 로데오' },
-    '논현': { lat: 37.5115, lng: 127.0285, name: '강남 논현동 가구거리' },
-    '신사': { lat: 37.5163, lng: 127.0200, name: '강남 신사동 가로수길' },
-    // 서울 서초/송파/용산/영등포
-    '서초': { lat: 37.4935, lng: 127.0135, name: '서초 법조타운' },
-    '법조타운': { lat: 37.4935, lng: 127.0135, name: '서초 법조타운' },
-    '반포': { lat: 37.5045, lng: 127.0080, name: '서초 반포자이' },
-    '잠실': { lat: 37.5133, lng: 127.1001, name: '송파 잠실 롯데월드타워' },
-    '송파': { lat: 37.5048, lng: 127.1145, name: '송파 문정법조타운' },
-    '한남': { lat: 37.5348, lng: 127.0115, name: '한남동 유엔빌리지' },
-    '유엔빌리지': { lat: 37.5348, lng: 127.0115, name: '한남동 유엔빌리지' },
-    '성수': { lat: 37.5445, lng: 127.0560, name: '성수동 IT밸리' },
-    '여의도': { lat: 37.5218, lng: 126.9242, name: '여의도 FKI타워' },
-    'FKI': { lat: 37.5218, lng: 126.9242, name: '여의도 FKI타워' },
-    '마포': { lat: 37.5400, lng: 126.9450, name: '마포 공덕역 업무지구' },
-    // 부산/제주/경기
-    '해운대': { lat: 35.1578, lng: 129.1444, name: '해운대 두산위브더제니스' },
-    '마린시티': { lat: 35.1578, lng: 129.1444, name: '해운대 두산위브더제니스' },
-    '그랜드조선': { lat: 35.1598, lng: 129.1620, name: '그랜드조선 부산' },
-    '양주': { lat: 37.8812, lng: 126.9856, name: '양주시 남면 스마트 팩토리' },
-    '상수리': { lat: 37.8812, lng: 126.9856, name: '양주시 남면 스마트 팩토리' },
-    '판교': { lat: 37.3947, lng: 127.1112, name: '판교테크노밸리' },
-    '정자': { lat: 37.3665, lng: 127.1082, name: '분당 정자동 카페거리' },
-    '분당': { lat: 37.3665, lng: 127.1082, name: '분당 정자동 카페거리' },
-    '애월': { lat: 33.4655, lng: 126.3195, name: '제주 애월 리조트' },
-    '제주': { lat: 33.4655, lng: 126.3195, name: '제주 애월 리조트' }
-};
-
 export default function KakaoMapEmbed({
+    listingId,
     address,
     title,
     lat: propLat,
@@ -72,16 +36,29 @@ export default function KakaoMapEmbed({
             .trim();
     }, [address]);
 
+    // 공인 마스터 좌표 해석 엔진 연동 (1픽셀 오차 없는 정밀 좌표 산출)
     const [resolvedCoords, setResolvedCoords] = useState(() => {
-        if (propLat && propLng) return { lat: parseFloat(propLat), lng: parseFloat(propLng) };
-        const query = `${sanitizedAddress || address || ''} ${title || ''}`;
-        for (const [key, val] of Object.entries(KNOWN_COORDINATES)) {
-            if (query.includes(key)) {
-                return { lat: val.lat, lng: val.lng };
-            }
-        }
-        return { lat: 37.5218, lng: 126.9242 }; // 기본 여의도
+        return resolvePropertyCoordinates({
+            listingId,
+            address: sanitizedAddress || address,
+            title,
+            lat: propLat,
+            lng: propLng
+        });
     });
+
+    // props 또는 주소 변경 시 좌표 동기화
+    useEffect(() => {
+        const nextCoords = resolvePropertyCoordinates({
+            listingId,
+            address: sanitizedAddress || address,
+            title,
+            lat: propLat,
+            lng: propLng
+        });
+        setResolvedCoords(nextCoords);
+        currentCoordsRef.current = nextCoords;
+    }, [listingId, sanitizedAddress, address, title, propLat, propLng]);
 
     // 클로저 캡처 버그 원천 차단을 위한 최신 값 Ref
     const currentCoordsRef = useRef(resolvedCoords);
@@ -185,35 +162,47 @@ export default function KakaoMapEmbed({
                                 currentCircle.setMap(null);
                             }
 
-                            // 커스텀 프리미엄 펄스 핀 마커
+                            // 커스텀 프리미엄 펄스 핀 마커 (바닥 중앙 끝점이 정확히 좌표에 100% 일치)
                             const markerContent = document.createElement('div');
-                            markerContent.style.cssText = 'position:relative; transform:translate(-50%, -100%); cursor:pointer; z-index:100;';
+                            markerContent.style.cssText = 'position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 100; pointer-events: auto;';
                             markerContent.innerHTML = `
                                 <div style="
-                                    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-                                    border: 2.5px solid #ffffff;
-                                    padding: 7px 14px;
-                                    border-radius: 24px;
-                                    box-shadow: 0 6px 20px rgba(0,0,0,0.4), 0 0 12px rgba(14,165,233,0.5);
+                                    background: linear-gradient(135deg, #09101f 0%, #1e293b 100%);
+                                    border: 2px solid #fbbf24;
+                                    padding: 7px 16px;
+                                    border-radius: 20px;
+                                    box-shadow: 0 6px 20px rgba(0,0,0,0.55), 0 0 12px rgba(251,191,36,0.4);
                                     color: #ffffff;
                                     font-size: 12px;
                                     font-weight: 800;
                                     white-space: nowrap;
                                     display: flex;
                                     align-items: center;
-                                    gap: 6px;
+                                    gap: 7px;
                                     letter-spacing: -0.01em;
                                 ">
-                                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#fbbf24; box-shadow:0 0 8px #fbbf24;"></span>
-                                    <span>📍 ${locTitle || '현재 매물'}</span>
+                                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#ef4444; box-shadow:0 0 8px #ef4444; border: 1.5px solid #ffffff;"></span>
+                                    <span style="color:#fbbf24; font-weight:900;">📍</span>
+                                    <span>${locTitle || '현재 매물'}</span>
                                 </div>
+                                <!-- 아래쪽을 뾰족하게 가리키는 정밀 골드 지침 화살표 -->
                                 <div style="
                                     width: 0;
                                     height: 0;
-                                    border-left: 7px solid transparent;
-                                    border-right: 7px solid transparent;
-                                    border-top: 9px solid #0369a1;
-                                    margin: 0 auto;
+                                    border-left: 8px solid transparent;
+                                    border-right: 8px solid transparent;
+                                    border-top: 14px solid #fbbf24;
+                                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+                                "></div>
+                                <!-- 건물 옥상/필지 정확한 지점에 꽂히는 정밀 앵커 타겟 링 (지침 끝점) -->
+                                <div style="
+                                    width: 8px;
+                                    height: 8px;
+                                    border-radius: 50%;
+                                    background: #ef4444;
+                                    border: 1.5px solid #ffffff;
+                                    box-shadow: 0 0 8px #ef4444;
+                                    margin-top: -3px;
                                 "></div>
                             `;
 
@@ -222,11 +211,13 @@ export default function KakaoMapEmbed({
                                 window.open(link, '_blank', 'noopener,noreferrer');
                             });
 
+                            // xAnchor: 0.5, yAnchor: 1.0 -> 마커 컨텐츠의 맨 밑바닥 중앙(핀포인트 점)이 정확히 좌표에 꽂힘
                             currentOverlay = new window.kakao.maps.CustomOverlay({
                                 map: map,
                                 position: position,
                                 content: markerContent,
-                                yAnchor: 1.15,
+                                xAnchor: 0.5,
+                                yAnchor: 1.0,
                                 zIndex: 20
                             });
 
@@ -447,35 +438,46 @@ export default function KakaoMapEmbed({
                 attribution: '&copy; CARTO &copy; OpenStreetMap'
             }).addTo(map);
 
-            // 커스텀 프리미엄 펄스 핀 마커
+            // 커스텀 프리미엄 정밀 골드 펄스 핀 마커
             const customIcon = L.divIcon({
                 className: 'custom-leaflet-marker-clean',
                 html: `
-                    <div style="position:relative; transform: translate(-50%, -100%); cursor:pointer;">
+                    <div style="position:relative; transform: translate(-50%, -100%); cursor:pointer; display:flex; flex-direction:column; align-items:center;">
                         <div style="
-                            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-                            border: 2px solid #ffffff;
+                            background: linear-gradient(135deg, #09101f 0%, #1e293b 100%);
+                            border: 2px solid #fbbf24;
                             color: #ffffff;
-                            padding: 6px 13px;
+                            padding: 6px 14px;
                             border-radius: 20px;
                             font-weight: 800;
                             font-size: 11.5px;
                             white-space: nowrap;
-                            box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+                            box-shadow: 0 6px 20px rgba(0,0,0,0.55), 0 0 10px rgba(251,191,36,0.4);
                             display: flex;
                             align-items: center;
                             gap: 6px;
-                            letter-spacing: -0.02em;
+                            letter-spacing: -0.01em;
                         ">
-                            <span style="color:#fbbf24; font-size: 13px;">📍</span> ${displayTitle}
+                            <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#ef4444; box-shadow:0 0 6px #ef4444; border: 1px solid #fff;"></span>
+                            <span style="color:#fbbf24; font-weight:900;">📍</span>
+                            <span>${displayTitle}</span>
                         </div>
                         <div style="
                             width: 0;
                             height: 0;
-                            border-left: 6px solid transparent;
-                            border-right: 6px solid transparent;
-                            border-top: 8px solid #0369a1;
-                            margin: 0 auto;
+                            border-left: 8px solid transparent;
+                            border-right: 8px solid transparent;
+                            border-top: 13px solid #fbbf24;
+                            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+                        "></div>
+                        <div style="
+                            width: 8px;
+                            height: 8px;
+                            border-radius: 50%;
+                            background: #ef4444;
+                            border: 1.5px solid #ffffff;
+                            box-shadow: 0 0 8px #ef4444;
+                            margin-top: -3px;
                         "></div>
                     </div>
                 `,

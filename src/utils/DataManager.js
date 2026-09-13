@@ -37,8 +37,13 @@ function syncExitwiseIMData(list) {
             // 5. 마크다운 내용 최신 버전 일치 검사
             const markdownVersionMismatch = seedMatch.exitwiseData?.markdownContent && 
                                             item.exitwiseData?.markdownContent !== seedMatch.exitwiseData?.markdownContent;
+            // 6. 위치 및 공인 정밀 위경도 불일치 검사 (그랜드조선 및 전 매물 좌표 자가치유)
+            const locOrCoordsMismatch = (seedMatch.location && item.location !== seedMatch.location) ||
+                                        (seedMatch.lat && item.lat !== seedMatch.lat) ||
+                                        (seedMatch.lng && item.lng !== seedMatch.lng) ||
+                                        (!item.locationCoords && Boolean(seedMatch.locationCoords));
 
-            if (missingCoverLetter || missingMap || missingCharts || missingMd || isOldZenith || !item.isExitwiseLinked || priceMismatch || markdownVersionMismatch) {
+            if (missingCoverLetter || missingMap || missingCharts || missingMd || isOldZenith || !item.isExitwiseLinked || priceMismatch || markdownVersionMismatch || locOrCoordsMismatch) {
                 changed = true;
                 return {
                     ...item,

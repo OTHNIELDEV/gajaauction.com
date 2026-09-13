@@ -27,6 +27,7 @@ const ListingDetailPage = () => {
     const [deckPage, setDeckPage] = useState(1);
     const [copiedNotice, setCopiedNotice] = useState(false);
     const [syncNotice, setSyncNotice] = useState(null);
+    const [isCardModalOpen, setIsCardModalOpen] = useState(false);
     const { openConsulting } = useOutletContext() || {};
     const { isDark } = useTheme();
 
@@ -673,6 +674,7 @@ const ListingDetailPage = () => {
                                                     isDark={isDark}
                                                     assetName={listing.exitwiseData?.assetName || listing.title}
                                                     docNumber={listing.exitwiseData?.imDocNumber}
+                                                    listingId={listing.id}
                                                 />
                                             ) : (
                                                 <>
@@ -1330,8 +1332,11 @@ const ListingDetailPage = () => {
                                     {activeTab === 'location' && (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                                             <KakaoMapEmbed
+                                                listingId={listing.id}
                                                 address={listing.location}
                                                 title={listing.title}
+                                                lat={listing.lat || listing.locationCoords?.lat}
+                                                lng={listing.lng || listing.locationCoords?.lng}
                                                 height={460}
                                             />
 
@@ -1394,46 +1399,144 @@ const ListingDetailPage = () => {
                             </AnimatePresence>
                         </div>
 
-                        {/* Right: Sticky Action Sidebar */}
+                        {/* Right: Sticky Action Sidebar (컴팩트 골드 박스) */}
                         <div className="listing-detail-sidebar">
                             <div className="glass-card listing-detail-card" style={{
-                                padding: '30px',
+                                padding: '22px 18px',
                                 border: '2px solid var(--accent-gold)',
-                                borderRadius: '16px',
+                                borderRadius: '14px',
                                 background: cardBg,
-                                boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.5)' : '0 10px 30px rgba(184, 134, 11, 0.08)'
+                                boxShadow: isDark ? '0 8px 25px rgba(0,0,0,0.5)' : '0 8px 25px rgba(184, 134, 11, 0.08)'
                             }}>
-                                <h3 style={{ fontSize: '1.4rem', marginBottom: '10px', color: 'var(--text-white)', fontWeight: '800' }}>
-                                    자산 매수 및 실사 문의
+                                <h3 style={{ fontSize: '1.22rem', marginBottom: '8px', color: 'var(--text-white)', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <span style={{ color: 'var(--accent-gold)', fontSize: '0.9rem' }}>◆</span> 자산 매수 및 실사 문의
                                 </h3>
-                                <p style={{ color: 'var(--text-gray)', marginBottom: '25px', fontSize: '0.92rem' }}>
+                                <p style={{ color: 'var(--text-gray)', marginBottom: '16px', fontSize: '0.84rem', lineHeight: '1.5' }}>
                                     가자에셋 수석 컨설턴트가 전담 실사 리포트를 제공해 드립니다.
                                 </p>
 
-                                <ul style={{ marginBottom: '30px', fontSize: '0.9rem', color: 'var(--text-off-white)', listStyle: 'none', padding: 0 }}>
-                                    <li style={{ marginBottom: '12px', display: 'flex', alignItems: 'center' }}>
-                                        <i className="fas fa-check-circle" style={{ color: 'var(--accent-gold)', marginRight: '10px', fontSize: '1rem' }}></i>
-                                        법률/권리/세무 정밀 실사(Due Diligence)
+                                <ul style={{ marginBottom: '18px', fontSize: '0.84rem', color: 'var(--text-off-white)', listStyle: 'none', padding: 0 }}>
+                                    <li style={{ marginBottom: '9px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <i className="fas fa-check-circle" style={{ color: 'var(--accent-gold)', fontSize: '0.88rem', flexShrink: 0 }}></i>
+                                        <span>법률/권리/세무 정밀 실사(Due Diligence)</span>
                                     </li>
-                                    <li style={{ marginBottom: '12px', display: 'flex', alignItems: 'center' }}>
-                                        <i className="fas fa-check-circle" style={{ color: 'var(--accent-gold)', marginRight: '10px', fontSize: '1rem' }}></i>
-                                        {listing.category === '호텔' ? '호텔 OCC/ADR 운영 수익률표' : '임대료 수익률 및 현금흐름표'}
+                                    <li style={{ marginBottom: '9px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <i className="fas fa-check-circle" style={{ color: 'var(--accent-gold)', fontSize: '0.88rem', flexShrink: 0 }}></i>
+                                        <span>{listing.category === '호텔' ? '호텔 OCC/ADR 운영 수익률표' : '임대료 수익률 및 현금흐름표'}</span>
                                     </li>
-                                    <li style={{ marginBottom: '12px', display: 'flex', alignItems: 'center' }}>
-                                        <i className="fas fa-check-circle" style={{ color: 'var(--accent-gold)', marginRight: '10px', fontSize: '1rem' }}></i>
-                                        매수 희망가 산정 및 입찰 가이드
+                                    <li style={{ marginBottom: '9px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <i className="fas fa-check-circle" style={{ color: 'var(--accent-gold)', fontSize: '0.88rem', flexShrink: 0 }}></i>
+                                        <span>매수 희망가 산정 및 입찰 가이드</span>
                                     </li>
                                 </ul>
 
                                 <button
                                     className="btn-primary"
-                                    style={{ width: '100%', borderRadius: '8px', padding: '14px', fontSize: '1.05rem', fontWeight: 'bold' }}
+                                    style={{ width: '100%', borderRadius: '8px', padding: '12px 14px', fontSize: '0.98rem', fontWeight: 'bold' }}
                                     onClick={openConsulting}
                                 >
                                     VIP 자산 상담 신청하기
                                 </button>
-                                <div style={{ textAlign: 'center', marginTop: '15px', fontSize: '0.9rem', color: 'var(--text-gray)' }}>
-                                    <i className="fas fa-phone-alt" style={{ marginRight: '6px', color: 'var(--accent-gold)' }}></i> 02-1234-5678
+                                <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '0.88rem', color: 'var(--text-gray)', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
+                                    <i className="fas fa-phone-alt" style={{ color: 'var(--accent-gold)', fontSize: '0.85rem' }}></i>
+                                    <span style={{ color: 'var(--text-gray)', fontSize: '0.82rem' }}>상담 직통:</span>
+                                    <a href="tel:010-8916-1305" style={{ color: 'var(--accent-gold)', fontWeight: '700', textDecoration: 'none' }}>010-8916-1305</a>
+                                </div>
+
+                                {/* 문의 맨 아래 첨부 명함 (작게 부착 및 클릭 시 확대) */}
+                                <div style={{
+                                    marginTop: '16px',
+                                    paddingTop: '14px',
+                                    borderTop: `1px solid ${isDark ? 'rgba(184, 134, 11, 0.3)' : 'rgba(184, 134, 11, 0.2)'}`,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '8px'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <span style={{ fontSize: '0.76rem', fontWeight: '800', color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <span>📇</span> 담당 수석 컨설턴트
+                                        </span>
+                                        <button
+                                            onClick={() => setIsCardModalOpen(true)}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: 'var(--text-gray)',
+                                                fontSize: '0.72rem',
+                                                cursor: 'pointer',
+                                                padding: 0,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '3px'
+                                            }}
+                                        >
+                                            <i className="fas fa-search-plus"></i> 명함 확대
+                                        </button>
+                                    </div>
+
+                                    {/* 정재원 팀장 명함 이미지 프리뷰 */}
+                                    <div
+                                        onClick={() => setIsCardModalOpen(true)}
+                                        style={{
+                                            position: 'relative',
+                                            borderRadius: '8px',
+                                            overflow: 'hidden',
+                                            border: '1px solid rgba(184, 134, 11, 0.45)',
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                                            cursor: 'pointer',
+                                            background: '#ffffff',
+                                            transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                                        }}
+                                        title="정재원 영업팀장 명함 크게 보기 (클릭)"
+                                    >
+                                        <img
+                                            src="/assets/business_card_jaewon_chung.png"
+                                            alt="(주)가자에셋파트너스 영업팀장 정재원 명함"
+                                            style={{ width: '100%', height: 'auto', display: 'block' }}
+                                        />
+                                    </div>
+
+                                    {/* 명함 직통 연락처 원클릭 다이얼 & 이메일 */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '2px' }}>
+                                        <a
+                                            href="tel:010-8916-1305"
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '5px',
+                                                padding: '7px 6px',
+                                                borderRadius: '6px',
+                                                background: isDark ? 'rgba(184, 134, 11, 0.15)' : '#fef3c7',
+                                                border: '1px solid rgba(184, 134, 11, 0.4)',
+                                                color: 'var(--accent-gold)',
+                                                fontSize: '0.74rem',
+                                                fontWeight: '700',
+                                                textDecoration: 'none'
+                                            }}
+                                        >
+                                            <i className="fas fa-phone-alt"></i> 010-8916-1305
+                                        </a>
+                                        <a
+                                            href="mailto:ickra345@gmail.com"
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '5px',
+                                                padding: '7px 6px',
+                                                borderRadius: '6px',
+                                                background: isDark ? 'rgba(255, 255, 255, 0.06)' : '#f1f5f9',
+                                                border: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #cbd5e1',
+                                                color: 'var(--text-off-white)',
+                                                fontSize: '0.74rem',
+                                                fontWeight: '600',
+                                                textDecoration: 'none'
+                                            }}
+                                        >
+                                            <i className="fas fa-envelope"></i> 이메일 문의
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1865,6 +1968,110 @@ const ListingDetailPage = () => {
                                 </button>
                             </div>
 
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* 정재원 팀장 명함 고해상도 확대 모달 */}
+            <AnimatePresence>
+                {isCardModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsCardModalOpen(false)}
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            width: '100vw',
+                            height: '100vh',
+                            background: 'rgba(0, 0, 0, 0.75)',
+                            backdropFilter: 'blur(8px)',
+                            zIndex: 10000,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '20px'
+                        }}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 15 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 15 }}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                maxWidth: '560px',
+                                width: '100%',
+                                background: isDark ? '#0b1329' : '#ffffff',
+                                border: '2px solid var(--accent-gold)',
+                                borderRadius: '16px',
+                                padding: '24px',
+                                boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '16px'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span style={{ fontSize: '1.2rem' }}>📇</span>
+                                    <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-white)', fontWeight: '800' }}>
+                                        (주)가자에셋파트너스 담당자 명함
+                                    </h4>
+                                </div>
+                                <button
+                                    onClick={() => setIsCardModalOpen(false)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: 'var(--text-gray)',
+                                        fontSize: '1.3rem',
+                                        cursor: 'pointer',
+                                        padding: '4px'
+                                    }}
+                                >
+                                    <i className="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            {/* 명함 이미지 */}
+                            <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.4)', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+                                <img
+                                    src="/assets/business_card_jaewon_chung.png"
+                                    alt="(주)가자에셋파트너스 영업팀장 정재원 명함"
+                                    style={{ width: '100%', height: 'auto', display: 'block' }}
+                                />
+                            </div>
+
+                            {/* 직통 연락 버튼 */}
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                                <a
+                                    href="tel:010-8916-1305"
+                                    className="btn-primary"
+                                    style={{ flex: 1, textAlign: 'center', padding: '12px', borderRadius: '8px', fontSize: '0.92rem', fontWeight: 'bold' }}
+                                >
+                                    <i className="fas fa-phone-alt" style={{ marginRight: '6px' }}></i> 직통 전화 (010-8916-1305)
+                                </a>
+                                <a
+                                    href="mailto:ickra345@gmail.com"
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        padding: '12px 18px',
+                                        borderRadius: '8px',
+                                        background: isDark ? 'rgba(255,255,255,0.08)' : '#f1f5f9',
+                                        border: isDark ? '1px solid rgba(255,255,255,0.15)' : '1px solid #cbd5e1',
+                                        color: 'var(--text-white)',
+                                        fontSize: '0.92rem',
+                                        fontWeight: '600'
+                                    }}
+                                >
+                                    <i className="fas fa-envelope" style={{ marginRight: '6px' }}></i> 이메일
+                                </a>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}

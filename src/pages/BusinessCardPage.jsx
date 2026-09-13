@@ -26,7 +26,7 @@ const PEOPLE_DATA = {
         cert: '',
         company: '(주)가자에셋파트너스',
         phone: '010-8916-1305',
-        secondLabel: 'T.',
+        secondLabel: 'FAX',
         secondContact: '02-6455-7063',
         email: 'ickra345@gmail.com',
         address: '경기도 성남시 분당구 수내로 54, 삼성보보스쉐르빌 2707호',

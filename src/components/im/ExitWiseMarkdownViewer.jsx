@@ -87,7 +87,7 @@ function MarkdownTable({ lines, isDark }) {
     );
 }
 
-export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName }) {
+export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, docNumber, listingId }) {
     if (!markdown || !markdown.trim()) {
         return (
             <div style={{ padding: '40px', textAlign: 'center', color: isDark ? '#94a3b8' : '#64748b' }}>
@@ -294,6 +294,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName }) 
                             renderedBlocks.push(
                                 <KakaoMapEmbed
                                     key={`map-${renderedBlocks.length}`}
+                                    listingId={mapProps.listingId || listingId}
                                     address={mapProps.address}
                                     title={mapProps.caption || mapProps.title || '자산 위치'}
                                     lat={mapProps.lat}

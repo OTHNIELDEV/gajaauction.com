@@ -9,6 +9,9 @@ export const mockListings = [
         type: 'npl',
         img: '/assets/listings/haeundae_zenith.jpg',
         location: "부산 해운대구 마린시티2로 33 (우동 1407)",
+        lat: 35.157204,
+        lng: 129.144817,
+        locationCoords: { lat: 35.157204, lng: 129.144817 },
         title: "해운대 마린시티 두산위브더제니스 NPL 매입 검토",
         category: "아파트/주택",
         salePrice: "1,350억",
@@ -143,7 +146,7 @@ export const mockListings = [
 
 ## Chapter 4. 담보 부동산 입지 및 층별 프로그램 (Location & Program)
 \`\`\`kakao-map
-{"address":"부산 해운대구 마린시티2로 33","caption":"해운대 두산위브더제니스 80층 초고층 랜드마크 입지","zoom":4}
+{"listingId":"exitwise-zenith-npl","address":"부산 해운대구 마린시티2로 33 (우동 1407)","lat":35.157204,"lng":129.144817,"caption":"해운대 두산위브더제니스 80층 초고층 랜드마크 입지","zoom":3}
 \`\`\`
 
 | 층수 | 용도 및 주요 시설 | 특장점 / 비고 |
@@ -169,7 +172,10 @@ export const mockListings = [
         id: 'exitwise-haeundae',
         type: 'general', // 'auction' | 'general' | 'npl'
         img: busanImg,
-        location: "부산 해운대구 우동",
+        location: "부산 해운대구 해운대해변로 292 (중동 1405-16)",
+        lat: 35.160066,
+        lng: 129.163128,
+        locationCoords: { lat: 35.160066, lng: 129.163128 },
         title: "해운대 그랜드조선 부산 관광호텔 자산 매각",
         category: "호텔",
         salePrice: "1,850억",
@@ -306,7 +312,7 @@ export const mockListings = [
 
 ## Chapter 4. 자산 입지 및 층별 프로그램 (Location & Program)
 \`\`\`kakao-map
-{"address":"부산 해운대구 해운대해변로 292","caption":"그랜드조선 부산 5성급 오션프론트 랜드마크 입지","zoom":4}
+{"listingId":"exitwise-haeundae","address":"부산 해운대구 해운대해변로 292 (중동 1405-16)","lat":35.160066,"lng":129.163128,"caption":"그랜드조선 부산 5성급 오션프론트 호텔 입지","zoom":3}
 \`\`\`
 
 | 층수 | 용도 및 주요 시설 | 특장점 / 비고 |
@@ -334,6 +340,9 @@ export const mockListings = [
         type: 'general',
         img: '/assets/listings/yangju_factory.jpg',
         location: "경기 양주시 남면 상수리 일반공업지역",
+        lat: 37.861053,
+        lng: 127.002114,
+        locationCoords: { lat: 37.861053, lng: 127.002114 },
         title: "경기 양주시 남면 상수리 일반공업지역 공장 자산 매각",
         category: "공장/제조",
         salePrice: "480억",
@@ -475,7 +484,7 @@ export const mockListings = [
 
 ## Chapter 4. 자산 입지 및 층별 제조 설비 구성 (Location & Facility)
 \`\`\`kakao-map
-{"address":"경기 양주시 남면 상수리 일반공업지역","caption":"양주시 남면 상수리 일반공업지역 스마트 플랜트 입지","zoom":4}
+{"listingId":"exitwise-yangju","address":"경기 양주시 남면 상수리 일반공업지역","lat":37.861053,"lng":127.002114,"caption":"양주시 남면 상수리 일반공업지역 스마트 플랜트 입지","zoom":3}
 \`\`\`
 
 | 층수 | 용도 및 주요 시설 | 특장점 / 비고 |
@@ -501,6 +510,9 @@ export const mockListings = [
         type: 'general',
         img: '/assets/listings/yeouido_fki_tower.jpg',
         location: "서울 영등포구 여의대로 24 (여의도동)",
+        lat: 37.522180,
+        lng: 126.919917,
+        locationCoords: { lat: 37.522180, lng: 126.919917 },
         title: "여의도 FKI타워 프라임 오피스 자산 매각",
         category: "오피스빌딩",
         salePrice: "2,850억",
@@ -640,7 +652,7 @@ export const mockListings = [
 
 ## Chapter 4. 층별 공간 및 테넌트 구성 (Floor-by-Floor Program)
 \`\`\`kakao-map
-{"address":"서울 영등포구 여의대로 24","caption":"여의도 FKI타워 (전경련회관) 프라임 랜드마크 입지","zoom":3}
+{"listingId":"exitwise-fki","address":"서울 영등포구 여의대로 24 (여의도동 28-1)","lat":37.522180,"lng":126.919917,"caption":"여의도 FKI타워 (전경련회관) 프라임 랜드마크 입지","zoom":3}
 \`\`\`
 | 층수 | 용도 및 주요 시설 | 특장점 / 비고 |
 |---|---|---|
@@ -666,6 +678,9 @@ export const mockListings = [
         type: 'general',
         img: gangnamImg,
         location: "서울 강남구 역삼동",
+        lat: 37.500024,
+        lng: 127.036509,
+        locationCoords: { lat: 37.500024, lng: 127.036509 },
         title: "테헤란로 프라임 오피스 사옥 매매",
         category: "오피스빌딩",
         salePrice: "620억",
@@ -743,7 +758,7 @@ export const mockListings = [
 
 ## Chapter 4. 자산 입지 및 층별 프로그램 (Location & Program)
 \`\`\`kakao-map
-{"address":"서울 강남구 역삼동 테헤란로","caption":"강남 테헤란로 프라임 오피스 사옥 입지","zoom":3}
+{"listingId":"102","address":"서울 강남구 테헤란로 152 (역삼동 737)","lat":37.500024,"lng":127.036509,"caption":"강남 테헤란로 프라임 오피스 사옥 입지","zoom":3}
 \`\`\`
 
 - 10F ~ 14F: 대기업 지사 및 IT 헤드쿼터 전용 오피스
@@ -763,6 +778,9 @@ export const mockListings = [
         type: 'general',
         img: pangyoImg,
         location: "서울 용산구 한남동",
+        lat: 37.534998,
+        lng: 127.00864,
+        locationCoords: { lat: 37.534998, lng: 127.00864 },
         title: "유엔빌리지 단독 고급주택 매매",
         category: "아파트/주택",
         salePrice: "195억",
@@ -836,7 +854,7 @@ export const mockListings = [
 
 ## Chapter 4. 자산 입지 및 공간 구성 (Location & Program)
 \`\`\`kakao-map
-{"address":"서울 용산구 한남동 유엔빌리지길","caption":"한남동 유엔빌리지 최고급 하이엔드 주택 입지","zoom":3}
+{"listingId":"103","address":"서울 용산구 한남대로20길 1-120","lat":37.534998,"lng":127.008640,"caption":"한남동 유엔빌리지 최고급 하이엔드 주택 입지","zoom":3}
 \`\`\`
 
 - 3F: 마스터 침실, 루프탑 테라스, 한강 파노라마 전망 라운지
@@ -855,6 +873,9 @@ export const mockListings = [
         type: 'npl',
         img: gangnamImg,
         location: "서울 서초구 서초동",
+        lat: 37.493009,
+        lng: 127.013419,
+        locationCoords: { lat: 37.493009, lng: 127.013419 },
         title: "서초동 법조타운 근린상가 선순위 NPL",
         category: "상가",
         opb: "120억",
@@ -920,7 +941,7 @@ export const mockListings = [
 
 ## Chapter 4. 담보 부동산 입지 (Location)
 \`\`\`kakao-map
-{"address":"서울 서초구 서초동 법조타운","caption":"서초동 법조타운 근린상가 NPL 담보부동산 입지","zoom":3}
+{"listingId":"201","address":"서울 서초구 서초중앙로 125","lat":37.493009,"lng":127.013419,"caption":"서초동 법조타운 근린상가 NPL 담보부동산 입지","zoom":3}
 \`\`\`
 
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)
@@ -934,6 +955,9 @@ export const mockListings = [
         type: 'npl',
         img: busanImg,
         location: "제주 제주시 애월읍",
+        lat: 33.4655,
+        lng: 126.3195,
+        locationCoords: { lat: 33.4655, lng: 126.3195 },
         title: "애월 해안도로 오션프론트 리조트 NPL",
         category: "토지",
         opb: "48억",
@@ -999,7 +1023,7 @@ export const mockListings = [
 
 ## Chapter 4. 담보 부동산 입지 (Location)
 \`\`\`kakao-map
-{"address":"제주 제주시 애월읍 애월해안로","caption":"제주 애월 해안도로 오션프론트 리조트 NPL 입지","zoom":4}
+{"listingId":"202","address":"제주특별자치도 제주시 애월읍 애월해안로 512","lat":33.465500,"lng":126.319500,"caption":"제주 애월 해안도로 오션프론트 리조트 NPL 입지","zoom":3}
 \`\`\`
 
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)
@@ -1013,6 +1037,9 @@ export const mockListings = [
         type: 'auction',
         img: gangnamImg,
         location: "서울 강남구 역삼동",
+        lat: 37.50212,
+        lng: 127.0381,
+        locationCoords: { lat: 37.50212, lng: 127.0381 },
         title: "역삼동 테헤란로 이면 코너빌딩 경매",
         appraisal: "150억",
         minPrice: "105억",
@@ -1078,7 +1105,7 @@ export const mockListings = [
 
 ## Chapter 4. 물건 입지 및 층별 현황 (Location)
 \`\`\`kakao-map
-{"address":"서울 강남구 역삼동 테헤란로","caption":"역삼동 테헤란로 코너빌딩 법원경매 입지","zoom":3}
+{"listingId":"1","address":"서울 강남구 테헤란로25길 20 (역삼동 670-1)","lat":37.502120,"lng":127.038100,"caption":"역삼동 테헤란로 코너빌딩 법원경매 입지","zoom":3}
 \`\`\`
 
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)
@@ -1092,6 +1119,9 @@ export const mockListings = [
         type: 'auction',
         img: pangyoImg,
         location: "경기 성남시 판교",
+        lat: 37.400544,
+        lng: 127.106839,
+        locationCoords: { lat: 37.400544, lng: 127.106839 },
         title: "판교테크노밸리 스마트오피스 2개층 경매",
         appraisal: "28억",
         minPrice: "19.6억",
@@ -1157,7 +1187,7 @@ export const mockListings = [
 
 ## Chapter 4. 물건 입지 및 접근성 (Location)
 \`\`\`kakao-map
-{"address":"경기 성남시 분당구 판교역로","caption":"판교테크노밸리 스마트오피스 2개층 입지","zoom":4}
+{"listingId":"2","address":"경기 성남시 분당구 판교역로 146 (삼평동)","lat":37.400544,"lng":127.106839,"caption":"판교테크노밸리 스마트오피스 2개층 입지","zoom":3}
 \`\`\`
 
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)
@@ -1171,6 +1201,9 @@ export const mockListings = [
         type: 'auction',
         img: busanImg,
         location: "부산 해운대구 마린시티",
+        lat: 35.157204,
+        lng: 129.144817,
+        locationCoords: { lat: 35.157204, lng: 129.144817 },
         title: "마린시티 오션프론트 초고층 펜트하우스",
         appraisal: "45억",
         minPrice: "31.5억",
@@ -1235,7 +1268,7 @@ export const mockListings = [
 
 ## Chapter 4. 물건 입지 및 주변 환경 (Location)
 \`\`\`kakao-map
-{"address":"부산 해운대구 마린시티2로 33","caption":"해운대 마린시티 오션프론트 펜트하우스 입지","zoom":4}
+{"listingId":"3","address":"부산 해운대구 마린시티2로 33 (우동 1407)","lat":35.157204,"lng":129.144817,"caption":"해운대 마린시티 오션프론트 펜트하우스 입지","zoom":3}
 \`\`\`
 
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)
@@ -1249,6 +1282,9 @@ export const mockListings = [
         type: 'auction',
         img: pangyoImg,
         location: "경기 성남시 분당구",
+        lat: 37.36541,
+        lng: 127.10725,
+        locationCoords: { lat: 37.36541, lng: 127.10725 },
         title: "정자동 카페거리 1층 테라스 코너상가",
         appraisal: "18억",
         minPrice: "12.6억",
@@ -1314,7 +1350,7 @@ export const mockListings = [
 
 ## Chapter 4. 물건 입지 및 상권 분석 (Location)
 \`\`\`kakao-map
-{"address":"경기 성남시 분당구 정자일로","caption":"정자동 카페거리 1층 테라스 코너상가 입지","zoom":4}
+{"listingId":"5","address":"경기 성남시 분당구 정자일로 135 (정자동)","lat":37.365410,"lng":127.107250,"caption":"정자동 카페거리 1층 테라스 코너상가 입지","zoom":3}
 \`\`\`
 
 ## Chapter 5. ExitWise 결정론 검증 감사보고서 (Verification Audit)
