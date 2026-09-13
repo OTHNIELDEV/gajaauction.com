@@ -6,6 +6,9 @@ import FinancialChart from './FinancialChart';
 import KpiStatCards from './KpiStatCards';
 import FloorStackPlan from './FloorStackPlan';
 import ExecutiveCoverLetter from './ExecutiveCoverLetter';
+import AudioBriefingPlayer from './AudioBriefingPlayer';
+import RelatedVideosEmbed from './RelatedVideosEmbed';
+import RelatedNewsEmbed from './RelatedNewsEmbed';
 import { unescapeMarkdown, sanitizeMarkdownContent } from '../../utils/markdownUtils';
 
 function renderInlineMarkdown(text, isDark) {
@@ -219,10 +222,10 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                             >
                                 {specBuffer.map((item, idx) => (
                                     <div key={idx}>
-                                        <div style={{ color: isDark ? '#94a3b8' : '#64748b', fontSize: '0.82rem', marginBottom: '4px' }}>
-                                            {item.key}
+                                        <div style={{ color: isDark ? '#94a3b8' : '#64748b', fontSize: '0.84rem', marginBottom: '4px', fontWeight: '600' }}>
+                                            {renderInlineMarkdown(item.key, isDark)}
                                         </div>
-                                        <div style={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: '700', fontSize: '1.05rem' }}>
+                                        <div style={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: '700', fontSize: '1.02rem', lineHeight: '1.6' }}>
                                             {renderInlineMarkdown(item.val, isDark)}
                                         </div>
                                     </div>
@@ -401,48 +404,161 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                                 />
                             );
                             continue;
+                        } else if (lang === 'audio' || lang === 'voice' || lang === 'briefing' || lang === 'tts') {
+                            if (renderedBlocks.length > 0 && (lastNonEmptyLine.includes('음성') || lastNonEmptyLine.includes('브리핑'))) {
+                                renderedBlocks.pop();
+                            }
+                            renderedBlocks.push(
+                                <AudioBriefingPlayer
+                                    key={`audio-${renderedBlocks.length}`}
+                                    raw={blockContent}
+                                    isDark={isDark}
+                                />
+                            );
+                            continue;
+                        } else if (lang === 'video' || lang === 'videos' || lang === 'youtube' || lang === 'yt') {
+                            if (renderedBlocks.length > 0 && (lastNonEmptyLine.includes('영상') || lastNonEmptyLine.includes('유튜브') || lastNonEmptyLine.includes('동영상'))) {
+                                renderedBlocks.pop();
+                            }
+                            renderedBlocks.push(
+                                <RelatedVideosEmbed
+                                    key={`video-${renderedBlocks.length}`}
+                                    raw={blockContent}
+                                    isDark={isDark}
+                                />
+                            );
+                            continue;
+                        } else if (lang === 'news' || lang === 'articles' || lang === 'news-items' || lang === 'press') {
+                            if (renderedBlocks.length > 0 && (lastNonEmptyLine.includes('뉴스') || lastNonEmptyLine.includes('동향'))) {
+                                renderedBlocks.pop();
+                            }
+                            renderedBlocks.push(
+                                <RelatedNewsEmbed
+                                    key={`news-${renderedBlocks.length}`}
+                                    raw={blockContent}
+                                    isDark={isDark}
+                                />
+                            );
+                            continue;
                         } else {
-                            // 안전 장치: 일반 json 코드 블록으로 떨어졌으나 위경도 좌표가 포함된 경우 스마트 변환
-                            if (blockContent.startsWith('{') && blockContent.includes('"lat"') && blockContent.includes('"lng"')) {
+                            // 안전 장치: 일반 json 또는 기타 코드 블록에 대한 스마트 분기 탐지
+                            let parsedJson = null;
+                            if (blockContent.startsWith('{') || blockContent.startsWith('[')) {
                                 try {
-                                    const parsed = JSON.parse(blockContent);
-                                    if (parsed.lat && parsed.lng) {
-                                        const isRv = (parsed.caption && (parsed.caption.includes('로드뷰') || parsed.caption.includes('Roadview'))) || 
-                                                     lastSubTitle.includes('로드뷰') || 
-                                                     lastSubTitle.includes('Roadview') || 
-                                                     prevLineHadRoadview || 
-                                                     lang.includes('road') || 
-                                                     lang.includes('rv');
-                                        if (isRv) {
-                                            renderedBlocks.push(
-                                                <KakaoRoadviewEmbed
-                                                    key={`rv-${renderedBlocks.length}`}
-                                                    listingId={parsed.listingId || listingId}
-                                                    address={parsed.address}
-                                                    title={parsed.caption || parsed.title || lastSubTitle || '현장 로드뷰'}
-                                                    lat={parsed.lat}
-                                                    lng={parsed.lng}
-                                                    caption={parsed.caption}
-                                                />
-                                            );
-                                            continue;
-                                        } else {
-                                            renderedBlocks.push(
-                                                <KakaoMapEmbed
-                                                    key={`map-${renderedBlocks.length}`}
-                                                    listingId={parsed.listingId || listingId}
-                                                    address={parsed.address}
-                                                    title={parsed.caption || parsed.title || '자산 위치'}
-                                                    lat={parsed.lat}
-                                                    lng={parsed.lng}
-                                                    zoom={parsed.zoom}
-                                                    caption={parsed.caption}
-                                                />
-                                            );
-                                            continue;
-                                        }
+                                    parsedJson = JSON.parse(blockContent);
+                                } catch {
+                                    try {
+                                        parsedJson = JSON.parse(blockContent.replace(/[\n\r\t]/g, ' '));
+                                    } catch {
+                                        // ignore
                                     }
-                                } catch (e) {}
+                                }
+                            }
+
+                            // 1. 위경도 좌표가 포함된 경우 지도/로드뷰 스마트 변환
+                            if (parsedJson && parsedJson.lat && parsedJson.lng) {
+                                const isRv = (parsedJson.caption && (parsedJson.caption.includes('로드뷰') || parsedJson.caption.includes('Roadview'))) || 
+                                             lastSubTitle.includes('로드뷰') || 
+                                             lastSubTitle.includes('Roadview') || 
+                                             prevLineHadRoadview || 
+                                             lang.includes('road') || 
+                                             lang.includes('rv');
+                                if (isRv) {
+                                    renderedBlocks.push(
+                                        <KakaoRoadviewEmbed
+                                            key={`rv-${renderedBlocks.length}`}
+                                            listingId={parsedJson.listingId || listingId}
+                                            address={parsedJson.address}
+                                            title={parsedJson.caption || parsedJson.title || lastSubTitle || '현장 로드뷰'}
+                                            lat={parsedJson.lat}
+                                            lng={parsedJson.lng}
+                                            caption={parsedJson.caption}
+                                        />
+                                    );
+                                    continue;
+                                } else {
+                                    renderedBlocks.push(
+                                        <KakaoMapEmbed
+                                            key={`map-${renderedBlocks.length}`}
+                                            listingId={parsedJson.listingId || listingId}
+                                            address={parsedJson.address}
+                                            title={parsedJson.caption || parsedJson.title || '자산 위치'}
+                                            lat={parsedJson.lat}
+                                            lng={parsedJson.lng}
+                                            zoom={parsedJson.zoom}
+                                            caption={parsedJson.caption}
+                                        />
+                                    );
+                                    continue;
+                                }
+                            }
+
+                            // 2. AI 음성 브리핑 JSON 스마트 탐지 (title/text 또는 audioUrl)
+                            const isAudioJson = parsedJson && (
+                                Boolean(parsedJson.audioUrl) ||
+                                (parsedJson.title && (parsedJson.title.includes('음성') || parsedJson.title.includes('브리핑') || parsedJson.title.includes('오디오'))) ||
+                                (parsedJson.text && (lastSubTitle.includes('음성') || lastSubTitle.includes('브리핑') || lastNonEmptyLine.includes('음성') || lastNonEmptyLine.includes('브리핑') || (parsedJson.title && String(parsedJson.title).includes('브리핑'))))
+                            );
+                            if (isAudioJson) {
+                                if (renderedBlocks.length > 0 && (lastNonEmptyLine.includes('음성') || lastNonEmptyLine.includes('브리핑'))) {
+                                    renderedBlocks.pop();
+                                }
+                                renderedBlocks.push(
+                                    <AudioBriefingPlayer
+                                        key={`audio-${renderedBlocks.length}`}
+                                        raw={blockContent}
+                                        spec={parsedJson}
+                                        isDark={isDark}
+                                    />
+                                );
+                                continue;
+                            }
+
+                            // 3. 관련 영상 JSON 스마트 탐지 (videos, videoId, 또는 관련 영상 문맥)
+                            const isVideoJson = parsedJson && (
+                                Array.isArray(parsedJson.videos) ||
+                                Array.isArray(parsedJson.videoList) ||
+                                Boolean(parsedJson.videoId) ||
+                                (Array.isArray(parsedJson) && parsedJson.some(item => item && (item.videoId || item.url?.includes('youtu')))) ||
+                                ((lastSubTitle.includes('영상') || lastNonEmptyLine.includes('영상') || lastSubTitle.includes('유튜브') || lastNonEmptyLine.includes('동영상')) && (parsedJson.videos || Array.isArray(parsedJson)))
+                            );
+                            if (isVideoJson) {
+                                if (renderedBlocks.length > 0 && (lastNonEmptyLine.includes('영상') || lastNonEmptyLine.includes('동영상'))) {
+                                    renderedBlocks.pop();
+                                }
+                                renderedBlocks.push(
+                                    <RelatedVideosEmbed
+                                        key={`video-${renderedBlocks.length}`}
+                                        raw={blockContent}
+                                        spec={parsedJson}
+                                        isDark={isDark}
+                                        title={lastSubTitle.includes('영상') ? lastSubTitle : '관련 영상 분석'}
+                                    />
+                                );
+                                continue;
+                            }
+
+                            // 4. 관련 뉴스 및 개발 동향 JSON 스마트 탐지 (items with source/date/url, 또는 관련 뉴스 문맥)
+                            const isNewsJson = parsedJson && (
+                                (Array.isArray(parsedJson.items) && parsedJson.items.some(item => item && (item.source || item.url || item.date || item.title))) ||
+                                Array.isArray(parsedJson.news) ||
+                                Array.isArray(parsedJson.articles) ||
+                                ((lastSubTitle.includes('뉴스') || lastSubTitle.includes('동향') || lastNonEmptyLine.includes('뉴스') || lastNonEmptyLine.includes('동향')) && (Array.isArray(parsedJson) || Array.isArray(parsedJson.items)))
+                            );
+                            if (isNewsJson) {
+                                if (renderedBlocks.length > 0 && (lastNonEmptyLine.includes('뉴스') || lastNonEmptyLine.includes('동향'))) {
+                                    renderedBlocks.pop();
+                                }
+                                renderedBlocks.push(
+                                    <RelatedNewsEmbed
+                                        key={`news-${renderedBlocks.length}`}
+                                        raw={blockContent}
+                                        spec={parsedJson}
+                                        isDark={isDark}
+                                        title={lastSubTitle.includes('뉴스') || lastSubTitle.includes('동향') ? lastSubTitle : '관련 뉴스 및 개발 동향'}
+                                    />
+                                );
+                                continue;
                             }
 
                             // 일반 코드 블록 폴백
@@ -474,10 +590,73 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName, do
                         flushTable();
                     }
 
-                    // 3. 키-값 스펙 목록 (- 항목: 값)
-                    const kvMatch = trimmedLine.match(/^[-*]\s*([^:：]+)[:：]\s*(.+)$/);
-                    if (kvMatch && !trimmedLine.includes('http')) {
-                        specBuffer.push({ key: unescapeMarkdown(kvMatch[1].trim()), val: unescapeMarkdown(kvMatch[2].trim()) });
+                    // 3. 인용구 및 현장 실사 참고 노트 (> ⚑ ... 또는 > ...)
+                    if (trimmedLine.startsWith('>')) {
+                        flushTable();
+                        flushSpecs();
+                        const rawQuote = trimmedLine.replace(/^>\s*/, '');
+                        const cleanQuote = unescapeMarkdown(rawQuote);
+                        const hasFlag = cleanQuote.includes('⚑') || cleanQuote.includes('⚐') || cleanQuote.includes('🚩');
+                        const displayQuote = cleanQuote.replace(/^[⚑⚐🚩\s]+/u, '');
+
+                        renderedBlocks.push(
+                            <div
+                                key={`quote-${renderedBlocks.length}`}
+                                style={{
+                                    background: isDark ? 'rgba(245, 158, 11, 0.08)' : '#fffbeb',
+                                    border: isDark ? '1px solid rgba(245, 158, 11, 0.25)' : '1px solid #fef3c7',
+                                    borderLeft: '4px solid #f59e0b',
+                                    padding: '14px 18px',
+                                    borderRadius: '0 10px 10px 0',
+                                    margin: '16px 0',
+                                    fontSize: '0.92rem',
+                                    lineHeight: '1.75',
+                                    color: isDark ? '#fef3c7' : '#92400e',
+                                    display: 'flex',
+                                    gap: '12px',
+                                    alignItems: 'flex-start'
+                                }}
+                            >
+                                <i className={`fas ${hasFlag ? 'fa-flag' : 'fa-circle-info'}`} style={{
+                                    color: '#f59e0b',
+                                    fontSize: '1rem',
+                                    marginTop: '3px',
+                                    flexShrink: 0
+                                }}></i>
+                                <div style={{ flex: 1, fontWeight: '500' }}>
+                                    {renderInlineMarkdown(displayQuote, isDark)}
+                                </div>
+                            </div>
+                        );
+                        continue;
+                    }
+
+                    // 4. 키-값 스펙 목록 (- 항목: 값 또는 **항목**: 값)
+                    let isKv = false;
+                    let kvKey = '';
+                    let kvVal = '';
+
+                    // A. 불릿 키-값 (- 항목: 값, * 항목: 값 -> 반드시 불릿 뒤 공백 1개 이상 필요)
+                    const bulletKvMatch = trimmedLine.match(/^[-*]\s+([^:：]+)[:：]\s*(.+)$/);
+                    // B. 볼드 키-값 (**항목**: 값)
+                    const boldKvMatch = trimmedLine.match(/^\*\*([^*:：]+)\*\*[:：]\s*(.+)$/);
+
+                    if (bulletKvMatch && !trimmedLine.includes('http')) {
+                        isKv = true;
+                        kvKey = bulletKvMatch[1].trim();
+                        kvVal = bulletKvMatch[2].trim();
+                    } else if (boldKvMatch && !trimmedLine.includes('http')) {
+                        isKv = true;
+                        kvKey = boldKvMatch[1].trim();
+                        kvVal = boldKvMatch[2].trim();
+                    }
+
+                    if (isKv) {
+                        const cleanKey = unescapeMarkdown(kvKey).replace(/^\*+|\*+$/g, '').trim();
+                        specBuffer.push({
+                            key: cleanKey,
+                            val: unescapeMarkdown(kvVal)
+                        });
                         continue;
                     } else {
                         flushSpecs();
