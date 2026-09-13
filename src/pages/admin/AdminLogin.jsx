@@ -23,7 +23,7 @@ const AdminLogin = () => {
                 <ThemeToggle />
             </div>
 
-            <div className="admin-card" style={{ padding: '40px', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div className="admin-card" style={{ padding: '36px 28px', width: '90%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '20px' }}>
                 <h2 style={{ marginBottom: '30px', color: 'var(--accent-gold)', fontWeight: '700' }}>GAJA ADMIN</h2>
                 <form onSubmit={handleLogin} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <input

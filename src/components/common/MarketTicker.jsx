@@ -25,14 +25,7 @@ const MarketTicker = () => {
             zIndex: 2000 // Above navbar
         }}>
             <div className="container" style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                <span style={{
-                    fontWeight: 'bold',
-                    paddingRight: '20px',
-                    marginRight: '20px',
-                    borderRight: '1px solid var(--glass-border)',
-                    whiteSpace: 'nowrap',
-                    color: 'var(--text-white)'
-                }}>
+                <span className="market-ticker-label">
                     LIVE NPL MARKET
                 </span>
                 <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>

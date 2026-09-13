@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from '../../components/ThemeToggle';
+import './AdminResponsive.css';
 
 const AdminLayout = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
 
-    React.useEffect(() => {
+    useEffect(() => {
         const token = localStorage.getItem('adminToken');
         if (!token) {
             navigate('/admin/login');
         }
     }, [navigate]);
+
+    // Close mobile menu upon navigation
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [location.pathname]);
 
     const handleLogout = () => {
         localStorage.removeItem('adminToken');
@@ -31,10 +38,17 @@ const AdminLayout = () => {
     ];
 
     return (
-        <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', background: 'var(--admin-bg)', color: 'var(--admin-text-main)' }}>
+        <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', background: 'var(--admin-bg)', color: 'var(--admin-text-main)', position: 'relative' }}>
+            {/* Mobile Backdrop Overlay */}
+            <div 
+                className={`admin-sidebar-backdrop ${isMobileMenuOpen ? 'active' : ''}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                aria-hidden="true"
+            />
+
             {/* Sidebar */}
             <motion.aside
-                className="admin-aside"
+                className={`admin-aside ${isMobileMenuOpen ? 'mobile-open' : 'mobile-closed'}`}
                 initial={{ width: 260 }}
                 animate={{ width: isSidebarOpen ? 260 : 80 }}
                 transition={{ duration: 0.3 }}
@@ -49,28 +63,39 @@ const AdminLayout = () => {
                 }}
             >
                 {/* Logo Area */}
-                <div style={{ padding: '25px', display: 'flex', alignItems: 'center', justifyContent: isSidebarOpen ? 'space-between' : 'center', borderBottom: '1px solid var(--admin-sidebar-border)' }}>
+                <div style={{ padding: '20px 25px', display: 'flex', alignItems: 'center', justifyContent: isSidebarOpen ? 'space-between' : 'center', borderBottom: '1px solid var(--admin-sidebar-border)' }}>
                     {isSidebarOpen && (
                         <h2 style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--accent-gold)', margin: 0 }}>GAJA ADMIN</h2>
                     )}
-                    <button onClick={() => setSidebarOpen(!isSidebarOpen)} style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer' }}>
+                    <button 
+                        onClick={() => {
+                            if (window.innerWidth <= 992) {
+                                setIsMobileMenuOpen(false);
+                            } else {
+                                setSidebarOpen(!isSidebarOpen);
+                            }
+                        }} 
+                        style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', fontSize: '1rem', padding: '5px' }}
+                        aria-label="Toggle Sidebar"
+                    >
                         <i className={isSidebarOpen ? "fas fa-chevron-left" : "fas fa-bars"}></i>
                     </button>
                 </div>
 
                 {/* Menu */}
-                <nav style={{ flex: 1, padding: '20px 0' }}>
-                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                <nav style={{ flex: 1, padding: '15px 0', overflowY: 'auto' }}>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                         {menuItems.map((item) => {
                             const isActive = location.pathname === item.path;
                             return (
-                                <li key={item.path} style={{ marginBottom: '5px' }}>
+                                <li key={item.path} style={{ marginBottom: '4px' }}>
                                     <Link
                                         to={item.path}
+                                        onClick={() => setIsMobileMenuOpen(false)}
                                         style={{
                                             display: 'flex',
                                             alignItems: 'center',
-                                            padding: '15px 25px',
+                                            padding: '14px 22px',
                                             color: isActive ? 'var(--accent-gold)' : 'var(--admin-text-sub)',
                                             background: isActive ? 'var(--admin-sidebar-active-bg)' : 'transparent',
                                             borderRight: isActive ? '3px solid var(--accent-gold)' : '3px solid transparent',
@@ -127,7 +152,7 @@ const AdminLayout = () => {
             </motion.aside>
 
             {/* Main Content Area */}
-            <div style={{ flex: 1, marginLeft: isSidebarOpen ? 260 : 80, transition: 'margin-left 0.3s ease' }}>
+            <div className="admin-main-wrapper" style={{ flex: 1, marginLeft: isSidebarOpen ? 260 : 80, transition: 'margin-left 0.3s ease', minWidth: 0 }}>
                 {/* Top Header */}
                 <header
                     className="admin-header"
@@ -145,10 +170,21 @@ const AdminLayout = () => {
                         zIndex: 90
                     }}
                 >
-                    <h2 style={{ fontSize: '1.2rem', color: 'var(--admin-text-main)', margin: 0 }}>
-                        {menuItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
-                    </h2>
-                    <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        {/* Mobile Menu Hamburger Button */}
+                        <button 
+                            className="admin-mobile-menu-btn"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            aria-label="Open navigation drawer"
+                        >
+                            <i className="fas fa-bars"></i>
+                        </button>
+                        <h2 style={{ fontSize: '1.2rem', color: 'var(--admin-text-main)', margin: 0, whiteSpace: 'nowrap' }}>
+                            {menuItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
+                        </h2>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                         {/* Theme Toggle Button */}
                         <ThemeToggle />
 
@@ -161,7 +197,7 @@ const AdminLayout = () => {
                 </header>
 
                 {/* Page Content */}
-                <main style={{ padding: '30px' }}>
+                <main className="admin-content-area" style={{ padding: '30px' }}>
                     <Outlet />
                 </main>
             </div>

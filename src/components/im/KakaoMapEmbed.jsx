@@ -42,9 +42,15 @@ export default function KakaoMapEmbed({
     const leafletContainerRef = useRef(null);
     const leafletInstanceRef = useRef(null);
 
-    const [status, setStatus] = useState('loading'); // 'loading' | 'ready' | 'fallback_leaflet' | 'error'
+    // 카카오 SDK 도메인 유효성 즉시 판별 (미등록 도메인 1.5초 대기 없이 즉시 폴백 활성화)
+    const isKakaoEligible = typeof window !== 'undefined' && (
+        window.location.hostname === 'exitwise.io' ||
+        window.location.hostname.endsWith('.xwise.net')
+    );
+
+    const [status, setStatus] = useState(isKakaoEligible ? 'loading' : 'fallback_leaflet');
     const [resolvedCoords, setResolvedCoords] = useState(() => {
-        if (propLat && propLng) return { lat: propLat, lng: propLng };
+        if (propLat && propLng) return { lat: parseFloat(propLat), lng: parseFloat(propLng) };
         // 사전 매핑 좌표 우선 확인
         if (address || title) {
             const query = `${address || ''} ${title || ''}`;
@@ -60,16 +66,22 @@ export default function KakaoMapEmbed({
     const displayAddress = address || title || '대한민국 주요 자산 입지';
     const displayTitle = title || caption || displayAddress;
 
-    // 카카오맵 딥링크 URL
+    // 카카오맵 및 네이버 지도 딥링크 URL
     const kakaoMapUrl = resolvedCoords
         ? `https://map.kakao.com/link/map/${encodeURIComponent(displayTitle)},${resolvedCoords.lat},${resolvedCoords.lng}`
         : `https://map.kakao.com/link/search/${encodeURIComponent(displayAddress)}`;
     const kakaoNaviUrl = resolvedCoords
         ? `https://map.kakao.com/link/to/${encodeURIComponent(displayTitle)},${resolvedCoords.lat},${resolvedCoords.lng}`
         : `https://map.kakao.com`;
+    const naverMapUrl = `https://map.naver.com/v5/search/${encodeURIComponent(displayAddress)}`;
 
-    // 1. 카카오맵 SDK 로드 및 렌더링 시도
+    // 1. 카카오맵 SDK 로드 및 렌더링 시도 (허용 도메인인 경우)
     useEffect(() => {
+        if (!isKakaoEligible) {
+            setStatus('fallback_leaflet');
+            return;
+        }
+
         let isCancelled = false;
         let scriptTag = null;
         let fallbackTimer = null;
@@ -236,82 +248,134 @@ export default function KakaoMapEmbed({
         };
     }, [address, displayTitle, zoom, propLat, propLng]);
 
-    // 2. Leaflet Fallback 렌더링 (카카오 SDK 미등록/오류 시 무중단 작동 보장)
+    // 2. Leaflet Fallback 렌더링 (카카오 SDK 미등록/오류 시 즉각 고해상도 무중단 작동 보장)
     useEffect(() => {
-        if (status !== 'fallback_leaflet' || !leafletContainerRef.current) return;
-        if (!window.L && typeof window !== 'undefined') {
-            import('leaflet').then((LModule) => {
-                const L = LModule.default || LModule;
-                initLeaflet(L);
-            }).catch(() => setStatus('error'));
-        } else if (window.L) {
-            initLeaflet(window.L);
-        }
+        if (status !== 'fallback_leaflet') return;
+        let isMounted = true;
+
+        const loadAndInit = async () => {
+            let L = window.L;
+            if (!L) {
+                try {
+                    const mod = await import('leaflet');
+                    L = mod.default || mod;
+                } catch (e) {
+                    console.warn('[KakaoMapEmbed] Leaflet load error:', e);
+                    return;
+                }
+            }
+            if (!isMounted || !leafletContainerRef.current) return;
+            initLeaflet(L);
+        };
+
+        loadAndInit();
 
         function initLeaflet(L) {
             if (leafletInstanceRef.current) {
                 try {
                     leafletInstanceRef.current.remove();
-                } catch (e) { }
+                } catch (e) {}
+                leafletInstanceRef.current = null;
             }
-            if (!leafletContainerRef.current) return;
 
-            const map = L.map(leafletContainerRef.current, {
-                center: [resolvedCoords.lat, resolvedCoords.lng],
-                zoom: 14,
-                zoomControl: true
+            const container = leafletContainerRef.current;
+            if (!container) return;
+
+            const lat = resolvedCoords.lat;
+            const lng = resolvedCoords.lng;
+
+            const map = L.map(container, {
+                center: [lat, lng],
+                zoom: 15,
+                zoomControl: true,
+                attributionControl: false
             });
             leafletInstanceRef.current = map;
 
+            // 고해상도 OpenStreetMap 타일
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
 
+            // 커스텀 프리미엄 펄스 핀 마커
             const customIcon = L.divIcon({
-                className: 'custom-leaflet-marker',
+                className: 'custom-leaflet-marker-clean',
                 html: `
-                    <div style="
-                        background: #0284c7;
-                        border: 2px solid #fff;
-                        color: #fff;
-                        padding: 4px 10px;
-                        border-radius: 16px;
-                        font-weight: 800;
-                        font-size: 11px;
-                        white-space: nowrap;
-                        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                    ">
-                        <span>📍</span> ${displayTitle}
+                    <div style="position:relative; transform: translate(-50%, -100%); cursor:pointer; pointer-events:auto;">
+                        <div style="
+                            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+                            border: 2px solid #ffffff;
+                            color: #ffffff;
+                            padding: 6px 14px;
+                            border-radius: 20px;
+                            font-weight: 800;
+                            font-size: 12px;
+                            white-space: nowrap;
+                            box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+                            letter-spacing: -0.02em;
+                        ">
+                            <span style="color:#fbbf24; font-size: 13px;">📍</span> ${displayTitle}
+                        </div>
+                        <div style="
+                            width: 0;
+                            height: 0;
+                            border-left: 6px solid transparent;
+                            border-right: 6px solid transparent;
+                            border-top: 8px solid #0369a1;
+                            margin: 0 auto;
+                        "></div>
+                        <div style="
+                            position: absolute;
+                            bottom: -5px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            width: 8px;
+                            height: 8px;
+                            background: #38bdf8;
+                            border-radius: 50%;
+                            box-shadow: 0 0 10px #0284c7;
+                        "></div>
                     </div>
                 `,
-                iconSize: [120, 30],
-                iconAnchor: [60, 15]
+                iconSize: [0, 0],
+                iconAnchor: [0, 0]
             });
 
-            L.marker([resolvedCoords.lat, resolvedCoords.lng], { icon: customIcon }).addTo(map);
-            L.circle([resolvedCoords.lat, resolvedCoords.lng], {
+            L.marker([lat, lng], { icon: customIcon }).addTo(map);
+
+            // 500m 반경 역세권/상권 서클
+            L.circle([lat, lng], {
                 radius: 500,
                 color: '#0ea5e9',
                 fillColor: '#0ea5e9',
-                fillOpacity: 0.15,
-                weight: 2
+                fillOpacity: 0.12,
+                weight: 1.8,
+                dashArray: '5, 5'
             }).addTo(map);
 
-            setTimeout(() => {
-                try {
-                    map.invalidateSize();
-                } catch (e) { }
-            }, 250);
+            // 다단계 리사이즈 통보 (0px 축소 버그 원천 박멸)
+            const handleInvalidate = () => {
+                try { map.invalidateSize(); } catch (e) {}
+            };
+            requestAnimationFrame(handleInvalidate);
+            setTimeout(handleInvalidate, 80);
+            setTimeout(handleInvalidate, 250);
+            setTimeout(handleInvalidate, 600);
+            setTimeout(handleInvalidate, 1200);
+
+            window.addEventListener('resize', handleInvalidate);
         }
 
         return () => {
+            isMounted = false;
             if (leafletInstanceRef.current) {
                 try {
                     leafletInstanceRef.current.remove();
-                } catch (e) { }
+                } catch (e) {}
                 leafletInstanceRef.current = null;
             }
         };
@@ -372,7 +436,7 @@ export default function KakaoMapEmbed({
                         background: status === 'ready' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(14, 165, 233, 0.15)',
                         color: status === 'ready' ? '#10b981' : '#0ea5e9'
                     }}>
-                        {status === 'ready' ? '⚡ Kakao Map Live' : '🗺️ Interactive Map'}
+                        {status === 'ready' ? '⚡ Kakao Map Live' : '🗺️ Interactive Map (OpenStreetMap)'}
                     </span>
                     <a
                         href={kakaoMapUrl}
@@ -393,25 +457,33 @@ export default function KakaoMapEmbed({
                 </div>
             </div>
 
-            {/* 지도 캔버스 영역 */}
-            <div style={{ position: 'relative', width: '100%', height: `${height}px`, background: isDark ? '#0b1120' : '#e2e8f0' }}>
+            {/* 지도 캔버스 영역 (항상 420px 실측 크기 유지) */}
+            <div style={{ position: 'relative', width: '100%', height: `${height}px`, background: isDark ? '#0b1120' : '#e2e8f0', overflow: 'hidden' }}>
                 {/* 카카오 지도 컨테이너 */}
                 <div
                     ref={containerRef}
                     style={{
+                        position: 'absolute',
+                        inset: 0,
                         width: '100%',
-                        height: `${height}px`,
-                        display: status === 'ready' ? 'block' : 'none'
+                        height: '100%',
+                        opacity: status === 'ready' ? 1 : 0,
+                        pointerEvents: status === 'ready' ? 'auto' : 'none',
+                        zIndex: status === 'ready' ? 2 : 0
                     }}
                 />
 
-                {/* Leaflet 폴백 컨테이너 */}
+                {/* Leaflet 폴백 컨테이너 (실측 크기 항상 보존) */}
                 <div
                     ref={leafletContainerRef}
                     style={{
+                        position: 'absolute',
+                        inset: 0,
                         width: '100%',
-                        height: `${height}px`,
-                        display: status === 'fallback_leaflet' ? 'block' : 'none'
+                        height: '100%',
+                        opacity: status === 'fallback_leaflet' ? 1 : 0,
+                        pointerEvents: status === 'fallback_leaflet' ? 'auto' : 'none',
+                        zIndex: status === 'fallback_leaflet' ? 2 : 0
                     }}
                 />
 
@@ -426,7 +498,8 @@ export default function KakaoMapEmbed({
                         justifyContent: 'center',
                         background: isDark ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.9)',
                         color: isDark ? '#94a3b8' : '#64748b',
-                        gap: '10px'
+                        gap: '10px',
+                        zIndex: 10
                     }}>
                         <div style={{
                             width: '28px',
@@ -441,7 +514,7 @@ export default function KakaoMapEmbed({
                 )}
             </div>
 
-            {/* 하단 주소 및 대중교통 정보 바 */}
+            {/* 하단 주소 및 대중교통/네비게이션 정보 바 */}
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -458,7 +531,7 @@ export default function KakaoMapEmbed({
                     <span style={{ color: isDark ? '#64748b' : '#94a3b8', fontSize: '0.78rem' }}> (반경 500m 핵심 상권 및 역세권 분석)</span>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <a
                         href={kakaoNaviUrl}
                         target="_blank"
@@ -478,6 +551,26 @@ export default function KakaoMapEmbed({
                         }}
                     >
                         카카오 길찾기 ↗
+                    </a>
+                    <a
+                        href={naverMapUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            background: '#03c75a',
+                            color: '#ffffff',
+                            fontSize: '0.78rem',
+                            fontWeight: '800',
+                            textDecoration: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                        }}
+                    >
+                        네이버 지도 ↗
                     </a>
                 </div>
             </div>

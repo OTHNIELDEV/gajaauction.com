@@ -360,3 +360,56 @@
         margin-right: auto;
     }
 }
+
+@media (max-width: 480px) {
+    .featured-listings-section {
+        padding: 50px 0 70px;
+    }
+    .featured-title {
+        font-size: 1.8rem;
+    }
+    .featured-subtitle {
+        font-size: 0.92rem;
+        padding: 0 10px;
+    }
+    .featured-media {
+        height: 200px;
+    }
+    .featured-media-badges {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .featured-badge-loc,
+    .featured-badge-cat,
+    .featured-badge-ew {
+        padding: 4px 8px;
+        font-size: 0.68rem;
+    }
+    .featured-body {
+        padding: 18px 16px;
+    }
+    .featured-item-title {
+        font-size: 1.12rem;
+        margin-bottom: 14px;
+        min-height: auto;
+    }
+    .featured-metrics {
+        padding: 12px;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+    .featured-metric-val {
+        font-size: 1.05rem;
+    }
+    .featured-viewall-btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+        padding: 12px 20px;
+        font-size: 0.92rem;
+    }
+}
+

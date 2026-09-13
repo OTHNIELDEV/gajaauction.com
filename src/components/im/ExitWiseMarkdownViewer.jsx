@@ -4,6 +4,7 @@ import SensitivitySimulator from './SensitivitySimulator';
 import FinancialChart from './FinancialChart';
 import KpiStatCards from './KpiStatCards';
 import FloorStackPlan from './FloorStackPlan';
+import ExecutiveCoverLetter from './ExecutiveCoverLetter';
 
 function renderInlineMarkdown(text, isDark) {
     if (!text) return null;
@@ -86,7 +87,7 @@ function MarkdownTable({ lines, isDark }) {
     );
 }
 
-export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
+export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName }) {
     if (!markdown || !markdown.trim()) {
         return (
             <div style={{ padding: '40px', textAlign: 'center', color: isDark ? '#94a3b8' : '#64748b' }}>
@@ -95,7 +96,11 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
         );
     }
 
-    // 마크다운 정규화 (코드블록 삭제 버그 제거 및 커버레터/마커 태그 정리)
+    // 1. 서문(Cover Letter) 추출 (삭제하지 않고 온전히 보존하여 렌더링)
+    const coverMatch = markdown.match(/<<<\s*COVER[_\s]*LETTER[_\s]*START\s*>>>([\s\S]*?)<<<\s*COVER[_\s]*LETTER[_\s]*END\s*>>>/i);
+    const rawCoverLetter = coverMatch ? coverMatch[1].trim() : null;
+
+    // 2. 마크다운 본문 정규화 (서문은 본문 카드에서 중복 방지를 위해 제외하되 메인 서한으로 독립 렌더링)
     let cleanMd = markdown
         .replace(/<!--\s*slide:.*?-->/gi, '')
         .replace(/<<<\s*COVER[_\s]*LETTER[_\s]*START\s*>>>[\s\S]*?<<<\s*COVER[_\s]*LETTER[_\s]*END\s*>>>/gi, '')
@@ -110,6 +115,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
     let currentSection = { title: '', level: 2, lines: [] };
     let inCodeBlock = false;
 
+    // 3. 챕터 위계 관리: ## Chapter 또는 ## N. 등 메인 챕터만 최상위 카드로 분할
     for (let i = 0; i < rawLines.length; i++) {
         const line = rawLines[i];
         const trimmed = line.trim();
@@ -118,15 +124,16 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
             inCodeBlock = !inCodeBlock;
         }
 
-        const headingMatch = !inCodeBlock && line.match(/^(#{1,4})\s+(.+)$/);
+        // Only split top-level cards on ## (h2) or # (h1)
+        const chapterMatch = !inCodeBlock && line.match(/^(#{1,2})\s+(.+)$/);
 
-        if (headingMatch) {
+        if (chapterMatch && (chapterMatch[1] === '##' || chapterMatch[1] === '#')) {
             if (currentSection.lines.length > 0 || currentSection.title) {
                 sections.push(currentSection);
             }
             currentSection = {
-                title: headingMatch[2].trim(),
-                level: headingMatch[1].length,
+                title: chapterMatch[2].trim(),
+                level: chapterMatch[1].length,
                 lines: []
             };
         } else {
@@ -144,9 +151,36 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+            {/* 정본 Executive Cover Letter (서문 & 대표 인사말) */}
+            <ExecutiveCoverLetter 
+                rawCoverLetter={rawCoverLetter} 
+                isDark={isDark} 
+                assetName={assetName}
+            />
+
             {sections.map((sec, secIdx) => {
                 const title = sec.title;
+                const isDocHeader = sec.level === 1; // # 문서 대제목
                 const isRiskWarning = title.includes('위험 경고') || title.includes('Risk Warning');
+
+                if (isDocHeader) {
+                    return (
+                        <div key={secIdx} style={{
+                            padding: '28px 32px',
+                            background: isDark ? 'linear-gradient(135deg, rgba(2, 132, 199, 0.1) 0%, rgba(14, 165, 233, 0.03) 100%)' : '#f0f9ff',
+                            border: isDark ? '1px solid rgba(2, 132, 199, 0.25)' : '1px solid #bae6fd',
+                            borderRadius: '16px',
+                            marginBottom: '6px'
+                        }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#0284c7', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                                ExitWise Primary Investment Memorandum
+                            </div>
+                            <h2 style={{ margin: 0, fontSize: '1.65rem', fontWeight: '900', color: isDark ? '#ffffff' : '#0f172a' }}>
+                                {title.replace(/^[#\s]+/, '')}
+                            </h2>
+                        </div>
+                    );
+                }
 
                 const renderedBlocks = [];
                 let tableBuffer = [];
@@ -197,6 +231,32 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
                     const line = sec.lines[i];
                     const trimmedLine = line.trim();
 
+                    // 소제목 (### 또는 ####) - 챕터 카드 내부의 우아한 서브 섹션으로 렌더링
+                    if (trimmedLine.startsWith('### ') || trimmedLine.startsWith('#### ')) {
+                        flushTable();
+                        flushSpecs();
+                        const subTitle = trimmedLine.replace(/^#+\s+/, '');
+                        renderedBlocks.push(
+                            <div
+                                key={`sub-${renderedBlocks.length}`}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    margin: '28px 0 14px 0',
+                                    paddingBottom: '8px',
+                                    borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.06)' : '1px solid #edf2f7'
+                                }}
+                            >
+                                <span style={{ width: '4px', height: '16px', background: '#0ea5e9', borderRadius: '2px' }} />
+                                <h4 style={{ margin: 0, fontSize: '1.12rem', fontWeight: '800', color: isDark ? '#f1f5f9' : '#0f172a' }}>
+                                    {subTitle}
+                                </h4>
+                            </div>
+                        );
+                        continue;
+                    }
+
                     // 1. 커스텀 코드 블록 (kakao-map, sensitivity, recharts, chart, kpi, floorstack 등) 감지
                     if (trimmedLine.startsWith('```')) {
                         flushTable();
@@ -216,6 +276,15 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
                             try {
                                 if (blockContent.startsWith('{')) {
                                     mapProps = JSON.parse(blockContent);
+                                } else if (blockContent.includes(',')) {
+                                    const parts = blockContent.split(',').map(s => s.trim());
+                                    if (parts.length >= 2 && !isNaN(parseFloat(parts[0]))) {
+                                        mapProps.lat = parseFloat(parts[0]);
+                                        mapProps.lng = parseFloat(parts[1]);
+                                        mapProps.title = parts[2] || '';
+                                    } else {
+                                        mapProps.address = blockContent;
+                                    }
                                 } else {
                                     mapProps.address = blockContent;
                                 }
@@ -467,22 +536,20 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
                             >
                                 <span
                                     style={{
-                                        width: '28px',
-                                        height: '28px',
-                                        borderRadius: '6px',
-                                        background: '#0ea5e9',
+                                        padding: '5px 12px',
+                                        borderRadius: '8px',
+                                        background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
                                         color: 'white',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontWeight: 'bold',
-                                        fontSize: '0.85rem'
+                                        fontWeight: '800',
+                                        fontSize: '0.78rem',
+                                        letterSpacing: '0.04em',
+                                        boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
                                     }}
                                 >
-                                    {secIdx + 1}
+                                    CHAPTER {secIdx < 9 ? `0${secIdx}` : secIdx}
                                 </span>
                                 <h3 style={{ margin: 0, fontSize: '1.35rem', color: isDark ? '#ffffff' : '#0f172a', fontWeight: '800' }}>
-                                    {title.replace(/^[#\s]+/, '')}
+                                    {title.replace(/^[#\s]+/, '').replace(/^Chapter\s*\d+[.:\s]*/i, '')}
                                 </h3>
                             </div>
                         )}

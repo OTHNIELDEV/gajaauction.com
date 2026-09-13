@@ -9,26 +9,32 @@ const STORAGE_KEYS = {
     VIPS: 'gaja_vips'
 };
 
-// ExitWise 기본 매물(양주 공장, 여의도 FKI, 해운대 호텔)의 IM 전문 및 제원 최신 동기화 헬퍼
+// ExitWise 전 매물의 IM 전문 및 제원 최신 동기화 헬퍼 (서문, 지도, 도표 자가치유)
 function syncExitwiseIMData(list) {
     if (!Array.isArray(list)) return { synced: list, changed: false };
     let changed = false;
     const synced = list.map(item => {
-        const seedMatch = mockListings.find(m => String(m.id) === String(item.id) && m.isExitwiseLinked);
+        const seedMatch = mockListings.find(m => String(m.id) === String(item.id));
         if (seedMatch) {
-            // 저장된 매물에 markdownContent가 없거나 지도/도표 코드블록이 누락된 경우 최신화
+            // 1. 서문 누락 검사
+            const missingCoverLetter = seedMatch.exitwiseData?.markdownContent?.includes('<<<COVER_LETTER_START>>>') && 
+                                      !item.exitwiseData?.markdownContent?.includes('<<<COVER_LETTER_START>>>');
+            // 2. 지도 또는 금융 도표 블록 누락 검사
+            const missingMap = seedMatch.exitwiseData?.markdownContent?.includes('```kakao-map') && 
+                              !item.exitwiseData?.markdownContent?.includes('```kakao-map');
+            const missingCharts = seedMatch.exitwiseData?.markdownContent?.includes('```recharts') && 
+                                 !item.exitwiseData?.markdownContent?.includes('```recharts');
+            // 3. 구형 데이터 또는 마크다운 부재 검사
             const missingMd = !item.exitwiseData?.markdownContent && Boolean(seedMatch.exitwiseData?.markdownContent);
-            const missingMapOrCharts = seedMatch.exitwiseData?.markdownContent?.includes('```kakao-map') && !item.exitwiseData?.markdownContent?.includes('```kakao-map');
-            const isOldYangju = item.id === 'exitwise-yangju' && (!item.exitwiseData?.power || !item.exitwiseData?.keyMetrics);
-            const isOldFki = item.id === 'exitwise-fki' && (!item.exitwiseData?.efficiency || !item.exitwiseData?.keyMetrics);
-            const isOldHaeundae = item.id === 'exitwise-haeundae' && !item.exitwiseData?.markdownContent;
-            const isOldZenith = (item.id === 'exitwise-zenith-npl' || item.title?.includes('두산위브')) && (item.img?.includes('photo-1450133064473') || item.location?.includes('역삼'));
+            const isOldZenith = (item.id === 'exitwise-zenith-npl' || item.title?.includes('두산위브')) && 
+                                (item.img?.includes('photo-1450133064473') || item.location?.includes('역삼'));
 
-            if (missingMd || missingMapOrCharts || isOldYangju || isOldFki || isOldHaeundae || isOldZenith || !item.isExitwiseLinked) {
+            if (missingCoverLetter || missingMap || missingCharts || missingMd || isOldZenith || !item.isExitwiseLinked) {
                 changed = true;
                 return {
                     ...item,
                     ...seedMatch,
+                    isExitwiseLinked: true,
                     exitwiseData: {
                         ...(item.exitwiseData || {}),
                         ...(seedMatch.exitwiseData || {})
@@ -41,12 +47,14 @@ function syncExitwiseIMData(list) {
     return { synced, changed };
 }
 
-// 누락된 마크다운을 카테고리별 맞춤 ExitWise IM 표준 규격으로 자동 합성하는 생성기
-function generateExitwiseMarkdown({ title, assetName, category, location, salePrice, capRate, landArea, totalFloorArea, floors, parking, summary, riskWarning }) {
+// 누락된 마크다운을 카테고리별 맞춤 ExitWise IM 표준 규격으로 자동 합성하는 생성기 (서문, 5개 챕터, 차트, 민감도, 지도 완비)
+function generateExitwiseMarkdown({ title, assetName, category, location, salePrice, capRate, landArea, totalFloorArea, floors, parking, summary, riskWarning, docNumber }) {
     const isFactory = category === '공장/제조' || (title && (title.includes('공장') || title.includes('플랜트')));
     const isOffice = category === '오피스빌딩' || (title && (title.includes('오피스') || title.includes('빌딩')));
     const isHotel = category === '호텔';
     const isNpl = (category && category.includes('NPL')) || (title && title.includes('NPL'));
+
+    const parsedDocNo = docNumber || `IM-2026-EW-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
     // 숫자 가격 파싱 (예: "620억" -> 62000000000)
     let numPrice = 50000000000;
@@ -61,7 +69,24 @@ function generateExitwiseMarkdown({ title, assetName, category, location, salePr
     const noiEok = Math.round((annualNoi / 100000000) * 10) / 10;
     const revEok = Math.round(noiEok * 1.15 * 10) / 10;
 
-    return `# ${title || `${assetName} 자산 매각 IM`}
+    const coverLetterBlock = `<<<COVER_LETTER_START>>>
+문서번호: ${parsedDocNo}
+기밀유지등급: 🔒 STRICTLY CONFIDENTIAL · 기관투자자 및 적격투자자 전용
+수신: 대표이사 및 투자심의위원회 귀하
+발신: (주)가자에셋파트너스 투자자문본부 & ExitWise AI Intelligence
+
+귀사의 무궁한 발전과 번영을 진심으로 기원합니다.
+
+본 투자설명서(Information Memorandum)는 ${assetName || title || '매각 대상 자산'}의 성공적인 매각 및 투자 유치를 위해 ExitWise AI 기업가치 평가 엔진과 가자에셋 부동산 자산관리 전문 인력의 정밀 실사를 거쳐 작성된 공식 투자 자문 자료입니다.
+
+본 자산은 탁월한 입지 경쟁력과 견고한 현금흐름, 미래 가치 상승 잠재력을 동시에 갖춘 최우량 코어 포트폴리오로서, 귀사의 투자 전략에 최적의 시너지를 제공할 것으로 확신합니다.
+
+상세한 재무 제원, 법적 권리관계 분석, 그리고 출구 전략 시뮬레이션 결과를 본 보고서에 충실히 수록하였사오니 심도 있는 검토를 요청드립니다.
+<<<COVER_LETTER_END>>>
+
+`;
+
+    return `${coverLetterBlock}# ${title || `${assetName} 자산 매각 IM`}
 
 ## Chapter 1. 자산 개요 및 거래 구조 (Executive Summary)
 - 매각 대상 자산명: ${assetName || title}
@@ -363,6 +388,115 @@ const DataManager = {
         const listings = DataManager.getListings().filter(item => String(item.id) !== String(id));
         localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
         return listings;
+    },
+
+    // 단일 매물 ExitWise 정본 IM 최신 재생성 & 동기화
+    revalidateListingIM: (id, force = true) => {
+        if (!id) return null;
+        const listings = DataManager.getListings();
+        const index = listings.findIndex(item => String(item.id) === String(id));
+        if (index < 0) return null;
+
+        let target = listings[index];
+        const seedMatch = mockListings.find(m => String(m.id) === String(id));
+
+        if (seedMatch) {
+            target = {
+                ...target,
+                ...seedMatch,
+                isExitwiseLinked: true,
+                exitwiseData: {
+                    ...(target.exitwiseData || {}),
+                    ...(seedMatch.exitwiseData || {})
+                }
+            };
+        } else {
+            const freshMd = generateExitwiseMarkdown({
+                title: target.title,
+                assetName: target.exitwiseData?.assetName || target.title,
+                category: target.category,
+                location: target.location,
+                salePrice: target.salePrice,
+                capRate: target.capRate || target.roi,
+                landArea: target.landArea,
+                totalFloorArea: target.totalFloorArea || target.area,
+                floors: target.floors,
+                parking: target.parking,
+                summary: target.summary,
+                docNumber: target.exitwiseData?.imDocNumber
+            });
+            target = {
+                ...target,
+                isExitwiseLinked: true,
+                exitwiseData: {
+                    ...(target.exitwiseData || {}),
+                    markdownContent: freshMd,
+                    imTitle: target.exitwiseData?.imTitle || `${target.title} ExitWise 투자설명서`,
+                    imDate: target.exitwiseData?.imDate || new Date().toISOString().split('T')[0]
+                }
+            };
+        }
+
+        const { healed } = AiAssetImageMatcher.healListings([target]);
+        listings[index] = healed[0];
+        localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
+
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('exitwise_im_revalidated', { detail: { id, listing: listings[index] } }));
+        }
+        return listings[index];
+    },
+
+    // 전 매물(12건) ExitWise 정본 IM 일괄 자동 재생성 & 동기화
+    revalidateAllListingsIM: (force = true) => {
+        const listings = DataManager.getListings();
+        const updated = listings.map(item => {
+            const seedMatch = mockListings.find(m => String(m.id) === String(item.id));
+            if (seedMatch) {
+                return {
+                    ...item,
+                    ...seedMatch,
+                    isExitwiseLinked: true,
+                    exitwiseData: {
+                        ...(item.exitwiseData || {}),
+                        ...(seedMatch.exitwiseData || {})
+                    }
+                };
+            } else {
+                const freshMd = generateExitwiseMarkdown({
+                    title: item.title,
+                    assetName: item.exitwiseData?.assetName || item.title,
+                    category: item.category,
+                    location: item.location,
+                    salePrice: item.salePrice,
+                    capRate: item.capRate || item.roi,
+                    landArea: item.landArea,
+                    totalFloorArea: item.totalFloorArea || item.area,
+                    floors: item.floors,
+                    parking: item.parking,
+                    summary: item.summary,
+                    docNumber: item.exitwiseData?.imDocNumber
+                });
+                return {
+                    ...item,
+                    isExitwiseLinked: true,
+                    exitwiseData: {
+                        ...(item.exitwiseData || {}),
+                        markdownContent: freshMd,
+                        imTitle: item.exitwiseData?.imTitle || `${item.title} ExitWise 투자설명서`,
+                        imDate: item.exitwiseData?.imDate || new Date().toISOString().split('T')[0]
+                    }
+                };
+            }
+        });
+
+        const { healed } = AiAssetImageMatcher.healListings(updated);
+        localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(healed));
+
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('exitwise_all_im_revalidated', { detail: { count: healed.length } }));
+        }
+        return healed;
     },
 
     // --- Partners ---

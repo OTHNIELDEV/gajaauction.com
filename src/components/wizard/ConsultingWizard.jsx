@@ -83,12 +83,21 @@ const ConsultingWizard = ({ isOpen, onClose }) => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="modal-content glass-card"
-                style={{ maxWidth: '600px', minHeight: '400px', display: 'flex', flexDirection: 'column' }}
+                style={{
+                    maxWidth: '560px',
+                    width: '94%',
+                    maxHeight: '88dvh',
+                    overflowY: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '28px 20px',
+                    borderRadius: '16px'
+                }}
             >
-                <span className="close-modal" onClick={resetWizard}>&times;</span>
+                <span className="close-modal" onClick={resetWizard} style={{ position: 'absolute', top: '16px', right: '20px', zIndex: 10 }}>&times;</span>
 
                 {/* Progress Bar */}
-                <div style={{ width: '100%', height: '4px', background: 'var(--glass-border)', marginBottom: '30px', borderRadius: '2px' }}>
+                <div style={{ width: '100%', height: '4px', background: 'var(--glass-border)', marginBottom: '25px', borderRadius: '2px' }}>
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${(step / totalSteps) * 100}%` }}
@@ -198,8 +207,8 @@ const WizardStep = ({ children, title }) => (
         transition={{ duration: 0.3 }}
         style={{ textAlign: 'center' }}
     >
-        <h2 style={{ fontSize: '2rem', marginBottom: '40px', lineHeight: '1.3' }}>{title}</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '400px', margin: '0 auto' }}>
+        <h2 style={{ fontSize: 'clamp(1.25rem, 4vw, 1.8rem)', marginBottom: '24px', lineHeight: '1.35', wordBreak: 'keep-all' }}>{title}</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '400px', margin: '0 auto', width: '100%' }}>
             {children}
         </div>
     </motion.div>
@@ -212,10 +221,10 @@ const OptionButton = ({ label, onClick }) => (
         style={{
             background: 'var(--input-bg)',
             border: '1px solid var(--glass-border)',
-            padding: '18px',
+            padding: '14px 18px',
             borderRadius: '12px',
             color: 'var(--text-off-white)',
-            fontSize: '1.1rem',
+            fontSize: 'clamp(0.95rem, 2.5vw, 1.05rem)',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             textAlign: 'left',

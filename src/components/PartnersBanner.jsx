@@ -21,8 +21,8 @@ const PartnersBanner = () => {
 
             <div className="marquee-container" style={{ display: 'flex', width: '100%', overflow: 'hidden', position: 'relative' }}>
                 {/* Gradient masks for fading edges */}
-                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(to right, var(--section-alt-bg), transparent)', zIndex: 2, pointerEvents: 'none' }}></div>
-                <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(to left, var(--section-alt-bg), transparent)', zIndex: 2, pointerEvents: 'none' }}></div>
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 'clamp(24px, 8vw, 100px)', background: 'linear-gradient(to right, var(--section-alt-bg), transparent)', zIndex: 2, pointerEvents: 'none' }}></div>
+                <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 'clamp(24px, 8vw, 100px)', background: 'linear-gradient(to left, var(--section-alt-bg), transparent)', zIndex: 2, pointerEvents: 'none' }}></div>
 
                 <motion.div
                     className="marquee-track"
@@ -32,7 +32,7 @@ const PartnersBanner = () => {
                         duration: 30,
                         ease: "linear"
                     }}
-                    style={{ display: 'flex', gap: '60px', paddingLeft: '40px' }}
+                    style={{ display: 'flex', gap: 'clamp(30px, 5vw, 60px)', paddingLeft: '20px' }}
                 >
                     {marqueePartners.map((partner, index) => (
                         <div key={`${partner.id}-${index}`} className="partner-logo-item" style={{
@@ -40,7 +40,7 @@ const PartnersBanner = () => {
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            minWidth: '200px',
+                            minWidth: 'clamp(120px, 20vw, 200px)',
                             opacity: 0.85,
                             filter: 'grayscale(100%)',
                             transition: 'all 0.3s ease'

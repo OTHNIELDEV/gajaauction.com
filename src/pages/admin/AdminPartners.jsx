@@ -32,26 +32,26 @@ const AdminPartners = () => {
 
     return (
         <div className="admin-partners">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '15px' }}>
                 <h1 style={{ fontSize: '1.8rem', color: 'var(--admin-text-main)', margin: 0 }}>Partner Management</h1>
                 <button className="btn-primary" onClick={handleAdd}>+ Add Partner</button>
             </div>
 
-            <div className="admin-card" style={{ padding: '0', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="admin-card admin-table-responsive" style={{ padding: '0' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '450px' }}>
                     <thead style={{ background: 'var(--admin-table-header-bg)' }}>
                         <tr>
-                            <th style={{ padding: '20px', textAlign: 'left', color: 'var(--admin-text-sub)' }}>Name</th>
-                            <th style={{ padding: '20px', textAlign: 'left', color: 'var(--admin-text-sub)' }}>Category</th>
-                            <th style={{ padding: '20px', textAlign: 'right', color: 'var(--admin-text-sub)' }}>Actions</th>
+                            <th style={{ padding: '14px 18px', textAlign: 'left', color: 'var(--admin-text-sub)' }}>Name</th>
+                            <th style={{ padding: '14px 18px', textAlign: 'left', color: 'var(--admin-text-sub)' }}>Category</th>
+                            <th style={{ padding: '14px 18px', textAlign: 'right', color: 'var(--admin-text-sub)' }}>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {partners.map(partner => (
                             <tr key={partner.id} style={{ borderBottom: '1px solid var(--admin-table-row-border)' }}>
-                                <td style={{ padding: '20px', color: 'var(--admin-text-main)', fontWeight: 'bold' }}>{partner.name}</td>
-                                <td style={{ padding: '20px', color: 'var(--admin-text-sub)' }}>{partner.category}</td>
-                                <td style={{ padding: '20px', textAlign: 'right' }}>
+                                <td style={{ padding: '14px 18px', color: 'var(--admin-text-main)', fontWeight: 'bold' }}>{partner.name}</td>
+                                <td style={{ padding: '14px 18px', color: 'var(--admin-text-sub)' }}>{partner.category}</td>
+                                <td style={{ padding: '14px 18px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                                     <button onClick={() => handleEdit(partner)} style={{ marginRight: '15px', color: 'var(--admin-text-sub)', background: 'none', border: 'none', cursor: 'pointer' }}>Edit</button>
                                     <button onClick={() => handleDelete(partner.id)} style={{ color: '#ff6b6b', background: 'none', border: 'none', cursor: 'pointer' }}>Delete</button>
                                 </td>
@@ -63,7 +63,7 @@ const AdminPartners = () => {
 
             {isEditing && (
                 <div className="modal-overlay" style={{ display: 'flex' }}>
-                    <div className="modal-content admin-card" style={{ maxWidth: '400px', background: 'var(--admin-modal-bg)', border: '1px solid var(--admin-border)' }}>
+                    <div className="modal-content admin-card admin-modal-content" style={{ maxWidth: '400px', width: '92%', background: 'var(--admin-modal-bg)', border: '1px solid var(--admin-border)' }}>
                         <h3 style={{ marginBottom: '20px', color: 'var(--admin-text-main)' }}>{currentPartner.id ? 'Edit Partner' : 'Add Partner'}</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                             <input

@@ -60,7 +60,7 @@ const AdminVIPs = () => {
 
     return (
         <div className="admin-vips">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '15px' }}>
                 <h1 style={{ fontSize: '1.8rem', color: 'var(--admin-text-main)', margin: 0 }}>VIP Lounge</h1>
                 <div>
                     <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
@@ -70,7 +70,7 @@ const AdminVIPs = () => {
             </div>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', borderBottom: '1px solid var(--admin-border)' }}>
+            <div className="admin-tabs-scroll">
                 {['list', 'communication', 'analytics'].map(tab => (
                     <button
                         key={tab}
@@ -81,10 +81,11 @@ const AdminVIPs = () => {
                             border: 'none',
                             borderBottom: activeTab === tab ? '2px solid var(--accent-gold)' : '2px solid transparent',
                             color: activeTab === tab ? 'var(--accent-gold)' : 'var(--admin-text-sub)',
-                            fontSize: '1rem',
+                            fontSize: '0.96rem',
                             cursor: 'pointer',
                             textTransform: 'capitalize',
-                            fontWeight: activeTab === tab ? '600' : '400'
+                            fontWeight: activeTab === tab ? '600' : '400',
+                            flexShrink: 0
                         }}
                     >
                         {tab === 'communication' ? 'Send Info' : tab === 'analytics' ? 'Data & Analytics' : 'VIP List'}
@@ -94,8 +95,8 @@ const AdminVIPs = () => {
 
             <div className="tab-content">
                 {activeTab === 'list' && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="admin-card" style={{ padding: '0', overflow: 'hidden' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--admin-text-main)' }}>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="admin-card admin-table-responsive" style={{ padding: '0' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--admin-text-main)', minWidth: '650px' }}>
                             <thead style={{ background: 'var(--admin-table-header-bg)' }}>
                                 <tr>
                                     <th style={{ padding: '15px', textAlign: 'left', color: 'var(--admin-text-sub)' }}>Name</th>
@@ -115,7 +116,7 @@ const AdminVIPs = () => {
                                         <td style={{ padding: '15px', color: 'var(--admin-text-muted)' }}>{vip.joinedDate}</td>
                                         <td style={{ padding: '15px', color: 'var(--admin-text-sub)', fontSize: '0.9rem' }}>{vip.notes}</td>
                                         <td style={{ padding: '15px', textAlign: 'right' }}>
-                                            <button onClick={() => handleDelete(vip.id)} style={{ background: 'none', border: 'none', color: '#ff6b6b', cursor: 'pointer' }}>
+                                            <button onClick={() => handleDelete(vip.id)} aria-label="Delete VIP" style={{ background: 'none', border: 'none', color: '#ff6b6b', cursor: 'pointer', padding: '5px' }}>
                                                 <i className="fas fa-trash"></i>
                                             </button>
                                         </td>
@@ -129,7 +130,7 @@ const AdminVIPs = () => {
                 )}
 
                 {activeTab === 'communication' && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="admin-dashboard-grid">
                         <div className="admin-card" style={{ padding: '30px' }}>
                             <h3 style={{ color: 'var(--admin-text-main)', marginBottom: '20px' }}><i className="fas fa-paper-plane" style={{ color: 'var(--accent-gold)', marginRight: '10px' }}></i> Send Message</h3>
                             <p style={{ color: 'var(--admin-text-sub)', marginBottom: '20px' }}>Select VIPs from the list provided below (Mock selector) or 'All VIPs' to send information.</p>
@@ -170,7 +171,7 @@ const AdminVIPs = () => {
 
                 {activeTab === 'analytics' && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
+                        <div className="admin-form-grid-3col" style={{ marginBottom: '30px' }}>
                             <div className="admin-card" style={{ padding: '25px', textAlign: 'center' }}>
                                 <h4 style={{ color: 'var(--admin-text-muted)', margin: 0 }}>Total VIPs</h4>
                                 <p style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--accent-gold)', margin: '10px 0' }}>{vips.length}</p>
@@ -203,8 +204,8 @@ const AdminVIPs = () => {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="admin-card"
-                            style={{ padding: '30px', width: '400px', background: 'var(--admin-modal-bg)', border: '1px solid var(--accent-gold)', boxShadow: 'var(--admin-modal-shadow)' }}
+                            className="admin-card admin-modal-content"
+                            style={{ padding: '24px', width: '92%', maxWidth: '420px', background: 'var(--admin-modal-bg)', border: '1px solid var(--accent-gold)', boxShadow: 'var(--admin-modal-shadow)' }}
                         >
                             <h2 style={{ color: 'var(--admin-text-main)', marginBottom: '20px' }}>Add New VIP</h2>
                             <div style={{ marginBottom: '15px' }}>

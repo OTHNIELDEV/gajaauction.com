@@ -52,9 +52,9 @@ const Footer = () => {
                         <p><strong style={{ color: 'var(--text-white)', marginRight: '10px' }}>연락</strong> wise@exitwise.io</p>
                     </div>
                 </div>
-                <div className="footer-bottom" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="footer-bottom" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                     {/* Business Registration Number removed as per request */}
-                    <p>&copy; 2026 (주)가자에셋파트너스  All rights reserved.</p>
+                    <p style={{ margin: 0 }}>&copy; 2026 (주)가자에셋파트너스  All rights reserved.</p>
                     <Link to="/admin" style={{ fontSize: '0.8rem', opacity: 0.7, color: 'var(--text-gray)', textDecoration: 'none' }}>Admin Access</Link>
                 </div>
             </div>

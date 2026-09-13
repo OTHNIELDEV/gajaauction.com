@@ -182,14 +182,13 @@ const AdminListings = () => {
     };
 
     const handleSyncAllExitwise = () => {
-        let count = 0;
         EXITWISE_AVAILABLE_DOCS.forEach(doc => {
             DataManager.importFromExitwise(doc);
-            count++;
         });
-        setListings(DataManager.getListings());
+        const updated = DataManager.revalidateAllListingsIM(true);
+        setListings(updated || DataManager.getListings());
         setShowExitwiseModal(false);
-        alert(`[ExitWise 일괄 동기화 완료]\n총 ${count}건의 ExitWise IM 매물이 가자에셋 리스팅에 성공적으로 동기화되었습니다.`);
+        alert(`[ExitWise 일괄 동기화 & 정본 IM 재생성 완료]\n전체 매물이 최신 ExitWise 정본 IM 규격(서문·지도·도표·감사보고서)으로 완벽하게 동기화 및 재생성되었습니다.`);
     };
 
     const handleImportManualJson = (e) => {
@@ -309,7 +308,7 @@ const AdminListings = () => {
                     </div>
 
                     {/* Type Tabs */}
-                    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '10px', overflowX: 'auto' }}>
+                    <div className="admin-tabs-scroll">
                         {[
                             { key: 'all', label: '전체 매물', count: listings.length },
                             { key: 'general', label: '일반매물', count: listings.filter(i => i.type === 'general').length },
@@ -332,7 +331,8 @@ const AdminListings = () => {
                                     alignItems: 'center',
                                     gap: '8px',
                                     borderRadius: '6px 6px 0 0',
-                                    fontSize: '0.95rem'
+                                    fontSize: '0.92rem',
+                                    flexShrink: 0
                                 }}
                             >
                                 {tab.label}
@@ -350,9 +350,9 @@ const AdminListings = () => {
                     </div>
 
                     {/* Filter & Search Bar */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '15px', flexWrap: 'wrap' }}>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <div className="search-box" style={{ position: 'relative' }}>
+                    <div className="admin-filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '15px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', width: '100%', maxWidth: '500px' }}>
+                            <div className="search-box" style={{ position: 'relative', flex: 1, minWidth: '180px' }}>
                                 <i className="fas fa-search" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: 'var(--admin-text-muted)' }}></i>
                                 <input
                                     type="text"
@@ -362,7 +362,7 @@ const AdminListings = () => {
                                     className="admin-input"
                                     style={{
                                         padding: '10px 10px 10px 40px',
-                                        width: '280px'
+                                        width: '100%'
                                     }}
                                 />
                             </div>
@@ -370,6 +370,7 @@ const AdminListings = () => {
                                 value={selectedCategory}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
                                 className="admin-select"
+                                style={{ minWidth: '130px' }}
                             >
                                 <option value="All">전체 카테고리</option>
                                 <option value="빌딩/오피스">빌딩/오피스</option>
@@ -385,7 +386,7 @@ const AdminListings = () => {
                     </div>
 
                     {/* Table View */}
-                    <div className="admin-card" style={{ overflowX: 'auto', borderRadius: '12px' }}>
+                    <div className="admin-card admin-table-responsive">
                         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '850px' }}>
                             <thead style={{ background: 'var(--admin-table-header-bg)' }}>
                                 <tr>
@@ -538,6 +539,7 @@ const AdminListings = () => {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
+                        className="admin-modal-content"
                         style={{
                             background: 'var(--admin-modal-bg)',
                             border: '1px solid var(--admin-border)',
@@ -547,7 +549,7 @@ const AdminListings = () => {
                             maxHeight: '90vh',
                             display: 'flex',
                             flexDirection: 'column',
-                            padding: '28px',
+                            padding: '24px',
                             boxShadow: 'var(--admin-modal-shadow)',
                             overflow: 'hidden'
                         }}
@@ -868,7 +870,7 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
 
             <div className="admin-card" style={{ padding: '30px', borderRadius: '12px' }}>
                 {/* Navigation Tabs */}
-                <div style={{ display: 'flex', gap: '20px', borderBottom: '1px solid var(--admin-border)', marginBottom: '30px' }}>
+                <div className="admin-tabs-scroll">
                     {[
                         { id: 'basic', label: '기본 정보' },
                         { id: 'price', label: formData.type === 'general' ? '매매가 및 수익률' : formData.type === 'npl' ? '채권/담보 조건' : '경매/입찰 정보' },
@@ -885,8 +887,9 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                                 borderBottom: activeTab === tab.id ? '2px solid var(--accent-gold)' : '2px solid transparent',
                                 color: activeTab === tab.id ? 'var(--accent-gold)' : 'var(--admin-text-sub)',
                                 cursor: 'pointer',
-                                fontSize: '1rem',
-                                fontWeight: '600'
+                                fontSize: '0.96rem',
+                                fontWeight: '600',
+                                flexShrink: 0
                             }}
                         >
                             {tab.label}
@@ -896,7 +899,7 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
 
                 {/* Tab 1: Basic Info */}
                 {activeTab === 'basic' && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
+                    <div className="admin-form-grid-2col">
                         <InputField label="매물명 (Title)" name="title" value={formData.title} onChange={handleChange} placeholder="예: 해운대 그랜드조선 부산 호텔 자산 매각" />
                         <InputField label="소재지 (Location)" name="location" value={formData.location} onChange={handleChange} placeholder="예: 부산 해운대구 우동" />
 
@@ -948,7 +951,7 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                 {activeTab === 'price' && (
                     <div>
                         {formData.type === 'general' && (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
+                            <div className="admin-form-grid-2col">
                                 <div style={{ gridColumn: '1 / -1', padding: '12px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', color: '#10b981', fontSize: '0.9rem' }}>
                                     <i className="fas fa-info-circle"></i> 일반매물(매매/급매) 전용 항목입니다. 매매가 및 예상 임대수익률을 입력하세요.
                                 </div>
@@ -961,7 +964,7 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                         )}
 
                         {formData.type === 'npl' && (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
+                            <div className="admin-form-grid-2col">
                                 <div style={{ gridColumn: '1 / -1', padding: '12px', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '8px', color: '#c084fc', fontSize: '0.9rem' }}>
                                     <i className="fas fa-info-circle"></i> NPL(부실채권) 전용 항목입니다. 채권최고액, OPB 및 목표 매각가를 입력하세요.
                                 </div>
@@ -974,7 +977,7 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                         )}
 
                         {(formData.type === 'auction' || !formData.type) && (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
+                            <div className="admin-form-grid-2col">
                                 <div style={{ gridColumn: '1 / -1', padding: '12px', background: 'rgba(212, 175, 55, 0.1)', borderRadius: '8px', color: 'var(--accent-gold)', fontSize: '0.9rem' }}>
                                     <i className="fas fa-info-circle"></i> 법원 경매 물건 전용 항목입니다. 감정가 및 최저입찰가를 입력하세요.
                                 </div>
@@ -1002,7 +1005,7 @@ const ListingEditor = ({ item, onSave, onCancel }) => {
                             </p>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
+                        <div className="admin-form-grid-2col">
                             <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <input
                                     type="checkbox"

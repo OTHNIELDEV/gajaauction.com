@@ -20,7 +20,7 @@ const DashboardHome = () => {
     return (
         <div className="dashboard-home">
             {/* Stats Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '30px' }}>
                 {stats.map((stat, index) => (
                     <motion.div
                         key={index}
@@ -28,19 +28,19 @@ const DashboardHome = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                         className="admin-card"
-                        style={{ padding: '25px', display: 'flex', alignItems: 'center', gap: '20px' }}
+                        style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}
                     >
                         <div style={{
-                            width: '50px', height: '50px', borderRadius: '12px',
+                            width: '48px', height: '48px', borderRadius: '12px', flexShrink: 0,
                             background: `${stat.color}20`, color: stat.color,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem'
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem'
                         }}>
                             <i className={stat.icon}></i>
                         </div>
                         <div>
-                            <h4 style={{ color: 'var(--admin-text-sub)', fontSize: '0.9rem', marginBottom: '5px' }}>{stat.label}</h4>
-                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
-                                <span style={{ fontSize: '1.8rem', fontWeight: '700', color: 'var(--admin-text-main)', lineHeight: 1 }}>{stat.value}</span>
+                            <h4 style={{ color: 'var(--admin-text-sub)', fontSize: '0.85rem', marginBottom: '4px' }}>{stat.label}</h4>
+                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
+                                <span style={{ fontSize: '1.6rem', fontWeight: '700', color: 'var(--admin-text-main)', lineHeight: 1 }}>{stat.value}</span>
                                 <span style={{ fontSize: '0.8rem', color: stat.change.includes('+') ? '#4CAF50' : '#FF5722' }}>
                                     {stat.change}
                                 </span>
@@ -50,9 +50,9 @@ const DashboardHome = () => {
                 ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
+            <div className="admin-dashboard-grid">
                 {/* Recent Activity */}
-                <div className="admin-card" style={{ padding: '25px' }}>
+                <div className="admin-card" style={{ padding: '22px' }}>
                     <h3 style={{ marginBottom: '20px', fontSize: '1.1rem', color: 'var(--admin-text-main)' }}>Recent Activity</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         {recentActivities.map(activity => (

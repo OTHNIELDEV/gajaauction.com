@@ -59,10 +59,43 @@ const ListingDetailPage = () => {
             }
         });
 
+        // 로컬 정본 재검증 이벤트 수신
+        const handleLocalRevalidated = (e) => {
+            if (e.detail?.id === id || !id || e.type === 'exitwise_all_im_revalidated') {
+                const updated = DataManager.getListingById(id);
+                if (updated) {
+                    setListing({ ...updated });
+                }
+            }
+        };
+        window.addEventListener('exitwise_im_revalidated', handleLocalRevalidated);
+        window.addEventListener('exitwise_all_im_revalidated', handleLocalRevalidated);
+
         return () => {
             unsubscribe();
+            window.removeEventListener('exitwise_im_revalidated', handleLocalRevalidated);
+            window.removeEventListener('exitwise_all_im_revalidated', handleLocalRevalidated);
         };
     }, [id]);
+
+    // 탭 전환 시 지도 컨테이너 크기 재계산 (0px 축소 버그 원천 방지)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 120);
+        return () => clearTimeout(timer);
+    }, [activeTab]);
+
+    const handleRegenerateAndSyncIM = () => {
+        const targetId = listing?.id || id;
+        const refreshed = DataManager.revalidateListingIM(targetId, true);
+        if (refreshed) {
+            setListing({ ...refreshed });
+            setSyncNotice('ExitWise 정본 IM(서문·지도·도표·감사보고서 완비)으로 최신 재생성 및 동기화되었습니다.');
+            setTimeout(() => setSyncNotice(null), 4000);
+            setTimeout(() => window.dispatchEvent(new Event('resize')), 150);
+        }
+    };
 
     const openRawImWindow = () => {
         const width = 980;
@@ -304,7 +337,10 @@ const ListingDetailPage = () => {
                                     return (
                                         <button
                                             key={tab.id}
-                                            onClick={() => setActiveTab(tab.id)}
+                                            onClick={() => {
+                                                setActiveTab(tab.id);
+                                                setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+                                            }}
                                             className={`detail-tab-btn ${isActive ? 'is-active' : ''} ${tab.isExitwise && isActive ? 'is-exitwise' : ''}`}
                                             type="button"
                                         >
@@ -485,13 +521,34 @@ const ListingDetailPage = () => {
                                                     {/* Quick Actions */}
                                                     <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                                                         <button
-                                                            onClick={openRawImWindow}
+                                                            onClick={handleRegenerateAndSyncIM}
                                                             style={{
-                                                                background: 'linear-gradient(135deg, #10b981, #059669)',
+                                                                background: 'linear-gradient(135deg, #d97706, #b45309)',
                                                                 color: 'white',
                                                                 border: 'none',
                                                                 borderRadius: '8px',
-                                                                padding: '10px 16px',
+                                                                padding: '10px 18px',
+                                                                fontWeight: '700',
+                                                                fontSize: '0.9rem',
+                                                                cursor: 'pointer',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '6px',
+                                                                boxShadow: '0 4px 12px rgba(217, 119, 6, 0.35)'
+                                                            }}
+                                                            title="ExitWise 최신 정본 IM(서문·지도·도표·감사보고서)으로 전수 재검증 및 재생성합니다."
+                                                        >
+                                                            <i className="fas fa-bolt"></i> ExitWise 원문 IM 최신 재생성 & 동기화
+                                                        </button>
+
+                                                        <button
+                                                            onClick={openRawImWindow}
+                                                            style={{
+                                                                background: 'linear-gradient(135deg, #059669, #10b981)',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                borderRadius: '8px',
+                                                                padding: '10px 18px',
                                                                 fontWeight: '700',
                                                                 fontSize: '0.9rem',
                                                                 cursor: 'pointer',
@@ -588,7 +645,12 @@ const ListingDetailPage = () => {
 
                                             {/* ExitWise IM 본문 동적 마크다운 렌더링 (원문 전문 표시) */}
                                             {listing.exitwiseData?.markdownContent ? (
-                                                <ExitWiseMarkdownViewer markdown={listing.exitwiseData.markdownContent} isDark={isDark} />
+                                                <ExitWiseMarkdownViewer
+                                                    markdown={listing.exitwiseData.markdownContent}
+                                                    isDark={isDark}
+                                                    assetName={listing.exitwiseData?.assetName || listing.title}
+                                                    docNumber={listing.exitwiseData?.imDocNumber}
+                                                />
                                             ) : (
                                                 <>
                                                     {/* Chapter 1: Executive Summary & Deal Structure (Fallback Demo) */}
