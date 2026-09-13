@@ -6,26 +6,41 @@ const KAKAO_KEY = '23e29b72b33388f59ca4668bce00c82d';
 const KAKAO_SDK_URL = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}&libraries=services&autoload=false`;
 
 const KNOWN_COORDINATES = {
+    // 서울 강남권
+    '도곡': { lat: 37.4980, lng: 127.0572, name: '강남구 도곡로' },
+    '대치': { lat: 37.4980, lng: 127.0572, name: '강남구 대치동 두각빌딩' },
+    '한티': { lat: 37.4980, lng: 127.0572, name: '한티역 도곡로' },
+    '테헤란': { lat: 37.5000, lng: 127.0360, name: '강남 테헤란로 타워' },
+    '역삼': { lat: 37.5000, lng: 127.0360, name: '강남 역삼동 빌딩' },
+    '강남': { lat: 37.4980, lng: 127.0572, name: '강남 도곡로 자산' },
+    '삼성': { lat: 37.5088, lng: 127.0631, name: '강남 삼성동 테헤란로' },
+    '청담': { lat: 37.5255, lng: 127.0493, name: '강남 청담동 럭셔리존' },
+    '압구정': { lat: 37.5270, lng: 127.0285, name: '강남 압구정 로데오' },
+    '논현': { lat: 37.5115, lng: 127.0285, name: '강남 논현동 가구거리' },
+    '신사': { lat: 37.5163, lng: 127.0200, name: '강남 신사동 가로수길' },
+    // 서울 서초/송파/용산/영등포
+    '서초': { lat: 37.4935, lng: 127.0135, name: '서초 법조타운' },
+    '법조타운': { lat: 37.4935, lng: 127.0135, name: '서초 법조타운' },
+    '반포': { lat: 37.5045, lng: 127.0080, name: '서초 반포자이' },
+    '잠실': { lat: 37.5133, lng: 127.1001, name: '송파 잠실 롯데월드타워' },
+    '송파': { lat: 37.5048, lng: 127.1145, name: '송파 문정법조타운' },
+    '한남': { lat: 37.5348, lng: 127.0115, name: '한남동 유엔빌리지' },
+    '유엔빌리지': { lat: 37.5348, lng: 127.0115, name: '한남동 유엔빌리지' },
+    '성수': { lat: 37.5445, lng: 127.0560, name: '성수동 IT밸리' },
+    '여의도': { lat: 37.5218, lng: 126.9242, name: '여의도 FKI타워' },
+    'FKI': { lat: 37.5218, lng: 126.9242, name: '여의도 FKI타워' },
+    '마포': { lat: 37.5400, lng: 126.9450, name: '마포 공덕역 업무지구' },
+    // 부산/제주/경기
     '해운대': { lat: 35.1578, lng: 129.1444, name: '해운대 두산위브더제니스' },
     '마린시티': { lat: 35.1578, lng: 129.1444, name: '해운대 두산위브더제니스' },
     '그랜드조선': { lat: 35.1598, lng: 129.1620, name: '그랜드조선 부산' },
     '양주': { lat: 37.8812, lng: 126.9856, name: '양주시 남면 스마트 팩토리' },
     '상수리': { lat: 37.8812, lng: 126.9856, name: '양주시 남면 스마트 팩토리' },
-    '여의도': { lat: 37.5218, lng: 126.9242, name: '여의도 FKI타워' },
-    'FKI': { lat: 37.5218, lng: 126.9242, name: '여의도 FKI타워' },
-    '테헤란': { lat: 37.5000, lng: 127.0360, name: '강남 테헤란로 타워' },
-    '역삼': { lat: 37.5000, lng: 127.0360, name: '강남 역삼동 빌딩' },
-    '강남': { lat: 37.5000, lng: 127.0360, name: '강남 테헤란로 타워' },
-    '한남': { lat: 37.5348, lng: 127.0115, name: '한남동 유엔빌리지' },
-    '유엔빌리지': { lat: 37.5348, lng: 127.0115, name: '한남동 유엔빌리지' },
-    '서초': { lat: 37.4935, lng: 127.0135, name: '서초 법조타운' },
-    '법조타운': { lat: 37.4935, lng: 127.0135, name: '서초 법조타운' },
-    '반포': { lat: 37.5045, lng: 127.0080, name: '서초 반포자이' },
-    '애월': { lat: 33.4655, lng: 126.3195, name: '제주 애월 리조트' },
-    '제주': { lat: 33.4655, lng: 126.3195, name: '제주 애월 리조트' },
     '판교': { lat: 37.3947, lng: 127.1112, name: '판교테크노밸리' },
     '정자': { lat: 37.3665, lng: 127.1082, name: '분당 정자동 카페거리' },
-    '분당': { lat: 37.3665, lng: 127.1082, name: '분당 정자동 카페거리' }
+    '분당': { lat: 37.3665, lng: 127.1082, name: '분당 정자동 카페거리' },
+    '애월': { lat: 33.4655, lng: 126.3195, name: '제주 애월 리조트' },
+    '제주': { lat: 33.4655, lng: 126.3195, name: '제주 애월 리조트' }
 };
 
 export default function KakaoMapEmbed({
@@ -33,7 +48,7 @@ export default function KakaoMapEmbed({
     title,
     lat: propLat,
     lng: propLng,
-    zoom = 4,
+    zoom = 3, // 상세 건물 및 도로 입지가 선명히 보이는 황금 배율 (3 레벨)
     height = 420,
     caption
 }) {
@@ -47,21 +62,35 @@ export default function KakaoMapEmbed({
     const [showTraffic, setShowTraffic] = useState(false);
     const kakaoMapInstanceRef = useRef(null);
 
+    // 주소 문자열 클렌징 (예: '서울 강남구 도곡로 429 — 입지 분석' -> '서울 강남구 도곡로 429')
+    const sanitizedAddress = useMemo(() => {
+        if (!address) return '';
+        return address
+            .replace(/[—–\-].*$/, '') // 대시 뒤 부가설명 제거
+            .replace(/\(.*?\)/g, '')   // 괄호 내용 제거
+            .replace(/입지\s*분석.*$/, '') // '입지 분석' 수식어 제거
+            .trim();
+    }, [address]);
+
     const [resolvedCoords, setResolvedCoords] = useState(() => {
         if (propLat && propLng) return { lat: parseFloat(propLat), lng: parseFloat(propLng) };
-        // 사전 매핑 좌표 우선 확인
-        if (address || title) {
-            const query = `${address || ''} ${title || ''}`;
-            for (const [key, val] of Object.entries(KNOWN_COORDINATES)) {
-                if (query.includes(key)) {
-                    return { lat: val.lat, lng: val.lng };
-                }
+        const query = `${sanitizedAddress || address || ''} ${title || ''}`;
+        for (const [key, val] of Object.entries(KNOWN_COORDINATES)) {
+            if (query.includes(key)) {
+                return { lat: val.lat, lng: val.lng };
             }
         }
         return { lat: 37.5218, lng: 126.9242 }; // 기본 여의도
     });
 
-    const displayAddress = address || title || '대한민국 주요 자산 입지';
+    // 클로저 캡처 버그 원천 차단을 위한 최신 값 Ref
+    const currentCoordsRef = useRef(resolvedCoords);
+    currentCoordsRef.current = resolvedCoords;
+    const targetZoomLevel = (zoom && zoom >= 1 && zoom <= 14) ? zoom : 3;
+    const currentLevelRef = useRef(targetZoomLevel);
+    currentLevelRef.current = targetZoomLevel;
+
+    const displayAddress = sanitizedAddress || address || title || '대한민국 주요 자산 입지';
     const displayTitle = title || caption || displayAddress;
 
     // 카카오맵 및 네이버 지도 딥링크 URL
@@ -94,209 +123,278 @@ export default function KakaoMapEmbed({
     // 1. 카카오 공식 지도 SDK 로드 및 완전한 동적 인터랙티브 지도 생성
     useEffect(() => {
         let isCancelled = false;
-        let resizeObserver = null;
+        let scriptTag = null;
         let fallbackTimer = null;
+        let retryInterval = null;
+        let resizeObserver = null;
 
-        const renderMarkerAndCircle = (map, lat, lng, locTitle) => {
-            const position = new window.kakao.maps.LatLng(lat, lng);
+        const initKakaoMap = () => {
+            if (!containerRef.current) return;
 
-            // 커스텀 프리미엄 펄스 핀 마커
-            const markerContent = document.createElement('div');
-            markerContent.style.cssText = 'position:relative; transform:translate(-50%, -100%); cursor:pointer; z-index:100;';
-            markerContent.innerHTML = `
-                <div style="
-                    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-                    border: 2px solid #ffffff;
-                    padding: 6px 13px;
-                    border-radius: 22px;
-                    box-shadow: 0 4px 18px rgba(0,0,0,0.35), 0 0 10px rgba(14,165,233,0.5);
-                    color: #ffffff;
-                    font-size: 11.5px;
-                    font-weight: 800;
-                    white-space: nowrap;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    letter-spacing: -0.01em;
-                ">
-                    <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#fbbf24; box-shadow:0 0 6px #fbbf24;"></span>
-                    <span>📍 ${locTitle || '매물 위치'}</span>
-                </div>
-                <div style="
-                    width: 0;
-                    height: 0;
-                    border-left: 6px solid transparent;
-                    border-right: 6px solid transparent;
-                    border-top: 8px solid #0369a1;
-                    margin: 0 auto;
-                "></div>
-            `;
+            const setupMapInstance = () => {
+                if (!window.kakao?.maps?.load || !containerRef.current) return false;
 
-            markerContent.addEventListener('click', () => {
-                const link = `https://map.kakao.com/link/map/${encodeURIComponent(locTitle)},${lat},${lng}`;
-                window.open(link, '_blank', 'noopener,noreferrer');
-            });
+                try {
+                    window.kakao.maps.load(() => {
+                        if (isCancelled || !containerRef.current) return;
 
-            new window.kakao.maps.CustomOverlay({
-                map: map,
-                position: position,
-                content: markerContent,
-                yAnchor: 1.15,
-                zIndex: 20
-            });
+                        const container = containerRef.current;
+                        container.innerHTML = '';
 
-            // 500m 반경 역세권 분석 서클
-            new window.kakao.maps.Circle({
-                map: map,
-                center: position,
-                radius: 500,
-                strokeWeight: 2,
-                strokeColor: '#0ea5e9',
-                strokeOpacity: 0.85,
-                strokeStyle: 'dashed',
-                fillColor: '#0ea5e9',
-                fillOpacity: 0.15
-            });
-        };
+                        const initialCoords = currentCoordsRef.current;
+                        const initialCenter = new window.kakao.maps.LatLng(initialCoords.lat, initialCoords.lng);
+                        const mapOptions = {
+                            center: initialCenter,
+                            level: targetZoomLevel, // 3레벨 (상세 골목/건물 입지)
+                            draggable: true,
+                            scrollwheel: true,
+                            disableDoubleClickZoom: false
+                        };
 
-        const createKakaoMap = () => {
-            if (!containerRef.current || !window.kakao?.maps?.Map) return false;
+                        const map = new window.kakao.maps.Map(container, mapOptions);
+                        kakaoMapInstanceRef.current = map;
 
-            try {
-                const container = containerRef.current;
-                container.innerHTML = '';
+                        // 1) 지도 타입 컨트롤러 (일반 지도 ↔ 스카이뷰 토글)
+                        const mapTypeControl = new window.kakao.maps.MapTypeControl();
+                        map.addControl(mapTypeControl, window.kakao.maps.ControlPosition.TOPRIGHT);
 
-                const initialCenter = new window.kakao.maps.LatLng(resolvedCoords.lat, resolvedCoords.lng);
-                const mapOptions = {
-                    center: initialCenter,
-                    level: zoom || 4,
-                    draggable: true,
-                    scrollwheel: true,
-                    disableDoubleClickZoom: false
-                };
+                        // 2) 줌 컨트롤러 (+ / - 슬라이더)
+                        const zoomControl = new window.kakao.maps.ZoomControl();
+                        map.addControl(zoomControl, window.kakao.maps.ControlPosition.RIGHT);
 
-                const map = new window.kakao.maps.Map(container, mapOptions);
-                kakaoMapInstanceRef.current = map;
-
-                // 지도 타입 컨트롤러 (일반 지도 ↔ 스카이뷰 토글)
-                const mapTypeControl = new window.kakao.maps.MapTypeControl();
-                map.addControl(mapTypeControl, window.kakao.maps.ControlPosition.TOPRIGHT);
-
-                // 줌 컨트롤러 (+ / - 슬라이더)
-                const zoomControl = new window.kakao.maps.ZoomControl();
-                map.addControl(zoomControl, window.kakao.maps.ControlPosition.RIGHT);
-
-                // 즉시 핀 마커 및 반경 서클 렌더링
-                renderMarkerAndCircle(map, resolvedCoords.lat, resolvedCoords.lng, displayTitle);
-
-                // 지오코딩 정밀 좌표 비동기 보정
-                if (address && window.kakao.maps.services?.Geocoder) {
-                    const geocoder = new window.kakao.maps.services.Geocoder();
-                    geocoder.addressSearch(address, (result, searchStatus) => {
-                        if (isCancelled) return;
-                        if (searchStatus === window.kakao.maps.services.Status.OK && result[0]) {
-                            const lat = parseFloat(result[0].y);
-                            const lng = parseFloat(result[0].x);
-                            setResolvedCoords({ lat, lng });
-                            const newCenter = new window.kakao.maps.LatLng(lat, lng);
-                            map.panTo(newCenter);
-                            renderMarkerAndCircle(map, lat, lng, displayTitle);
+                        // 3) 실시간 교통정보 적용
+                        if (showTraffic && window.kakao.maps.MapTypeId?.TRAFFIC) {
+                            map.addOverlayMapTypeId(window.kakao.maps.MapTypeId.TRAFFIC);
                         }
-                    });
-                }
 
-                if (!isCancelled) setStatus('ready');
+                        // 마커와 500m 원형 오버레이 인스턴스 보존
+                        let currentOverlay = null;
+                        let currentCircle = null;
 
-                // 다단계 relayout 발화 (모바일 0px 축소 버그 원천 차단)
-                const doRelayout = () => {
-                    if (isCancelled || !kakaoMapInstanceRef.current) return;
-                    try {
-                        kakaoMapInstanceRef.current.relayout();
-                        const center = new window.kakao.maps.LatLng(resolvedCoords.lat, resolvedCoords.lng);
-                        kakaoMapInstanceRef.current.setCenter(center);
-                    } catch (e) {}
-                };
+                        const renderMarkerAndCircle = (lat, lng, locTitle) => {
+                            const position = new window.kakao.maps.LatLng(lat, lng);
+                            
+                            // 중요: 지도 중심 및 줌 레벨을 항상 강제 재설정 (전국 지도 축소 버그 원천 방지)
+                            map.setLevel(targetZoomLevel);
+                            map.setCenter(position);
 
-                requestAnimationFrame(doRelayout);
-                setTimeout(doRelayout, 60);
-                setTimeout(doRelayout, 200);
-                setTimeout(doRelayout, 500);
-                setTimeout(doRelayout, 1000);
+                            if (currentOverlay) {
+                                currentOverlay.setMap(null);
+                            }
+                            if (currentCircle) {
+                                currentCircle.setMap(null);
+                            }
 
-                if (window.ResizeObserver && container) {
-                    resizeObserver = new ResizeObserver(() => {
-                        doRelayout();
-                    });
-                    resizeObserver.observe(container);
-                }
+                            // 커스텀 프리미엄 펄스 핀 마커
+                            const markerContent = document.createElement('div');
+                            markerContent.style.cssText = 'position:relative; transform:translate(-50%, -100%); cursor:pointer; z-index:100;';
+                            markerContent.innerHTML = `
+                                <div style="
+                                    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+                                    border: 2.5px solid #ffffff;
+                                    padding: 7px 14px;
+                                    border-radius: 24px;
+                                    box-shadow: 0 6px 20px rgba(0,0,0,0.4), 0 0 12px rgba(14,165,233,0.5);
+                                    color: #ffffff;
+                                    font-size: 12px;
+                                    font-weight: 800;
+                                    white-space: nowrap;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 6px;
+                                    letter-spacing: -0.01em;
+                                ">
+                                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#fbbf24; box-shadow:0 0 8px #fbbf24;"></span>
+                                    <span>📍 ${locTitle || '현재 매물'}</span>
+                                </div>
+                                <div style="
+                                    width: 0;
+                                    height: 0;
+                                    border-left: 7px solid transparent;
+                                    border-right: 7px solid transparent;
+                                    border-top: 9px solid #0369a1;
+                                    margin: 0 auto;
+                                "></div>
+                            `;
 
-                window.addEventListener('resize', doRelayout);
-                window.addEventListener('gaja_tab_changed', doRelayout);
+                            markerContent.addEventListener('click', () => {
+                                const link = `https://map.kakao.com/link/map/${encodeURIComponent(locTitle)},${lat},${lng}`;
+                                window.open(link, '_blank', 'noopener,noreferrer');
+                            });
 
-                return true;
-            } catch (err) {
-                console.warn('[KakaoMapEmbed] Kakao map create error:', err);
-                return false;
-            }
-        };
+                            currentOverlay = new window.kakao.maps.CustomOverlay({
+                                map: map,
+                                position: position,
+                                content: markerContent,
+                                yAnchor: 1.15,
+                                zIndex: 20
+                            });
 
-        const tryLoadKakao = () => {
-            if (window.kakao?.maps?.load) {
-                window.kakao.maps.load(() => {
-                    if (!isCancelled) {
-                        const ok = createKakaoMap();
-                        if (!ok && !isCancelled) {
-                            setStatus('fallback_leaflet');
+                            // 500m 반경 역세권 분석 서클
+                            currentCircle = new window.kakao.maps.Circle({
+                                map: map,
+                                center: position,
+                                radius: 500,
+                                strokeWeight: 2,
+                                strokeColor: '#0ea5e9',
+                                strokeOpacity: 0.85,
+                                strokeStyle: 'dashed',
+                                fillColor: '#0ea5e9',
+                                fillOpacity: 0.15
+                            });
+                        };
+
+                        // 주소 정제 후 지오코딩 시도
+                        const searchTargetAddress = sanitizedAddress || address;
+                        if (searchTargetAddress && window.kakao.maps.services?.Geocoder) {
+                            const geocoder = new window.kakao.maps.services.Geocoder();
+                            geocoder.addressSearch(searchTargetAddress, (result, searchStatus) => {
+                                if (isCancelled) return;
+                                if (searchStatus === window.kakao.maps.services.Status.OK && result[0]) {
+                                    const lat = parseFloat(result[0].y);
+                                    const lng = parseFloat(result[0].x);
+                                    currentCoordsRef.current = { lat, lng };
+                                    setResolvedCoords({ lat, lng });
+                                    renderMarkerAndCircle(lat, lng, displayTitle);
+                                } else {
+                                    // 주소 실패 시 키워드 장소 검색 2차 시도
+                                    if (window.kakao.maps.services?.Places) {
+                                        const places = new window.kakao.maps.services.Places();
+                                        places.keywordSearch(searchTargetAddress, (pResult, pStatus) => {
+                                            if (isCancelled) return;
+                                            if (pStatus === window.kakao.maps.services.Status.OK && pResult[0]) {
+                                                const lat = parseFloat(pResult[0].y);
+                                                const lng = parseFloat(pResult[0].x);
+                                                currentCoordsRef.current = { lat, lng };
+                                                setResolvedCoords({ lat, lng });
+                                                renderMarkerAndCircle(lat, lng, displayTitle);
+                                            } else {
+                                                renderMarkerAndCircle(currentCoordsRef.current.lat, currentCoordsRef.current.lng, displayTitle);
+                                            }
+                                        });
+                                    } else {
+                                        renderMarkerAndCircle(currentCoordsRef.current.lat, currentCoordsRef.current.lng, displayTitle);
+                                    }
+                                }
+                                if (!isCancelled) setStatus('ready');
+                            });
+                        } else {
+                            renderMarkerAndCircle(currentCoordsRef.current.lat, currentCoordsRef.current.lng, displayTitle);
+                            if (!isCancelled) setStatus('ready');
                         }
-                    }
-                });
-                return true;
-            }
-            return false;
-        };
 
-        // 이미 로드된 경우 즉시 실행
-        if (tryLoadKakao()) {
-            return () => {
-                isCancelled = true;
-                if (resizeObserver) resizeObserver.disconnect();
+                        // 다단계 relayout & 줌/중심 강제 고정 (0px 축소 및 전국 지도 버그 완전 박멸)
+                        const doRelayout = () => {
+                            if (!isCancelled && map && container) {
+                                try {
+                                    map.relayout();
+                                    const coords = currentCoordsRef.current;
+                                    const center = new window.kakao.maps.LatLng(coords.lat, coords.lng);
+                                    map.setLevel(currentLevelRef.current || 3);
+                                    map.setCenter(center);
+                                } catch (e) {}
+                            }
+                        };
+
+                        // 컨테이너 크기 변화를 실시간 감지하는 ResizeObserver 연동
+                        if (typeof ResizeObserver !== 'undefined' && container) {
+                            resizeObserver = new ResizeObserver(() => {
+                                if (container.offsetWidth > 0 && container.offsetHeight > 0) {
+                                    doRelayout();
+                                }
+                            });
+                            resizeObserver.observe(container);
+                        }
+
+                        requestAnimationFrame(doRelayout);
+                        setTimeout(doRelayout, 60);
+                        setTimeout(doRelayout, 150);
+                        setTimeout(doRelayout, 300);
+                        setTimeout(doRelayout, 600);
+                        setTimeout(doRelayout, 1200);
+
+                        window.addEventListener('resize', doRelayout);
+                        window.addEventListener('gaja_tab_changed', doRelayout);
+                    });
+                    return true;
+                } catch (err) {
+                    console.warn('[KakaoMapEmbed] Kakao map init error:', err);
+                    return false;
+                }
             };
+
+            if (setupMapInstance()) return;
+
+            // SDK 바인딩 안전 폴링
+            let attempts = 0;
+            retryInterval = setInterval(() => {
+                attempts++;
+                if (setupMapInstance() || attempts >= 25) {
+                    clearInterval(retryInterval);
+                    if (attempts >= 25 && !isCancelled && status !== 'ready') {
+                        setStatus('fallback_leaflet');
+                    }
+                }
+            }, 60);
+        };
+
+        // 타임아웃(3500ms): 카카오 SDK 네트워크 장애 발생 시에만 Leaflet 폴백
+        fallbackTimer = setTimeout(() => {
+            if (!window.kakao?.maps?.load && !isCancelled) {
+                console.warn('[KakaoMapEmbed] SDK timeout, using Leaflet fallback');
+                setStatus('fallback_leaflet');
+            }
+        }, 3500);
+
+        // 이미 로드된 경우
+        if (window.kakao?.maps?.load) {
+            clearTimeout(fallbackTimer);
+            initKakaoMap();
+            return;
         }
 
-        // 스크립트 동적 주입 및 백업 로딩
-        let scriptTag = document.getElementById('kakao-maps-sdk');
-        if (!scriptTag) {
+        // 스크립트 동적 주입
+        let existingScript = document.getElementById('kakao-maps-sdk');
+        if (!existingScript) {
             scriptTag = document.createElement('script');
             scriptTag.id = 'kakao-maps-sdk';
             scriptTag.src = KAKAO_SDK_URL;
             scriptTag.async = true;
+
             scriptTag.onload = () => {
-                if (!isCancelled) tryLoadKakao();
+                clearTimeout(fallbackTimer);
+                initKakaoMap();
             };
+
             scriptTag.onerror = () => {
+                clearTimeout(fallbackTimer);
                 if (!isCancelled) setStatus('fallback_leaflet');
             };
+
             document.head.appendChild(scriptTag);
         } else {
-            scriptTag.addEventListener('load', () => {
-                if (!isCancelled) tryLoadKakao();
-            }, { once: true });
-        }
-
-        // 타임아웃(3000ms): 카카오 SDK 연결 불능 시 안전 폴백
-        fallbackTimer = setTimeout(() => {
-            if (!kakaoMapInstanceRef.current && !isCancelled) {
-                console.warn('[KakaoMapEmbed] Kakao timeout, using Leaflet fallback');
-                setStatus('fallback_leaflet');
+            if (window.kakao?.maps?.load) {
+                clearTimeout(fallbackTimer);
+                initKakaoMap();
+            } else {
+                existingScript.addEventListener('load', () => {
+                    clearTimeout(fallbackTimer);
+                    initKakaoMap();
+                }, { once: true });
+                existingScript.addEventListener('error', () => {
+                    clearTimeout(fallbackTimer);
+                    if (!isCancelled) setStatus('fallback_leaflet');
+                }, { once: true });
             }
-        }, 3000);
+        }
 
         return () => {
             isCancelled = true;
             if (fallbackTimer) clearTimeout(fallbackTimer);
+            if (retryInterval) clearInterval(retryInterval);
             if (resizeObserver) resizeObserver.disconnect();
         };
-    }, [address, displayTitle, zoom, propLat, propLng]);
+    }, [sanitizedAddress, address, displayTitle, zoom, propLat, propLng]);
 
     // 2. Leaflet Fallback 렌더링 (카카오 SDK 장애 시 차단 없는 고해상도 타일 사용)
     useEffect(() => {
