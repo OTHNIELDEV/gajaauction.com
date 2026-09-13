@@ -16,14 +16,15 @@ function syncExitwiseIMData(list) {
     const synced = list.map(item => {
         const seedMatch = mockListings.find(m => String(m.id) === String(item.id) && m.isExitwiseLinked);
         if (seedMatch) {
-            // 저장된 매물에 markdownContent가 없거나 과거 호텔 스펙 잔재가 있는 경우 즉시 최신화
+            // 저장된 매물에 markdownContent가 없거나 지도/도표 코드블록이 누락된 경우 최신화
             const missingMd = !item.exitwiseData?.markdownContent && Boolean(seedMatch.exitwiseData?.markdownContent);
+            const missingMapOrCharts = seedMatch.exitwiseData?.markdownContent?.includes('```kakao-map') && !item.exitwiseData?.markdownContent?.includes('```kakao-map');
             const isOldYangju = item.id === 'exitwise-yangju' && (!item.exitwiseData?.power || !item.exitwiseData?.keyMetrics);
             const isOldFki = item.id === 'exitwise-fki' && (!item.exitwiseData?.efficiency || !item.exitwiseData?.keyMetrics);
             const isOldHaeundae = item.id === 'exitwise-haeundae' && !item.exitwiseData?.markdownContent;
             const isOldZenith = (item.id === 'exitwise-zenith-npl' || item.title?.includes('두산위브')) && (item.img?.includes('photo-1450133064473') || item.location?.includes('역삼'));
 
-            if (missingMd || isOldYangju || isOldFki || isOldHaeundae || isOldZenith) {
+            if (missingMd || missingMapOrCharts || isOldYangju || isOldFki || isOldHaeundae || isOldZenith || !item.isExitwiseLinked) {
                 changed = true;
                 return {
                     ...item,
@@ -42,9 +43,23 @@ function syncExitwiseIMData(list) {
 
 // 누락된 마크다운을 카테고리별 맞춤 ExitWise IM 표준 규격으로 자동 합성하는 생성기
 function generateExitwiseMarkdown({ title, assetName, category, location, salePrice, capRate, landArea, totalFloorArea, floors, parking, summary, riskWarning }) {
-    const isFactory = category === '공장/제조' || title.includes('공장') || title.includes('플랜트');
-    const isOffice = category === '오피스빌딩' || title.includes('오피스') || title.includes('빌딩');
+    const isFactory = category === '공장/제조' || (title && (title.includes('공장') || title.includes('플랜트')));
+    const isOffice = category === '오피스빌딩' || (title && (title.includes('오피스') || title.includes('빌딩')));
     const isHotel = category === '호텔';
+    const isNpl = (category && category.includes('NPL')) || (title && title.includes('NPL'));
+
+    // 숫자 가격 파싱 (예: "620억" -> 62000000000)
+    let numPrice = 50000000000;
+    if (salePrice && typeof salePrice === 'string') {
+        const match = salePrice.replace(/,/g, '').match(/(\d+(\.\d+)?)/);
+        if (match) {
+            numPrice = parseFloat(match[1]) * 100000000;
+        }
+    }
+    const numCap = parseFloat(capRate) || 5.5;
+    const annualNoi = Math.round(numPrice * (numCap / 100));
+    const noiEok = Math.round((annualNoi / 100000000) * 10) / 10;
+    const revEok = Math.round(noiEok * 1.15 * 10) / 10;
 
     return `# ${title || `${assetName} 자산 매각 IM`}
 
@@ -52,19 +67,27 @@ function generateExitwiseMarkdown({ title, assetName, category, location, salePr
 - 매각 대상 자산명: ${assetName || title}
 - 희망 매각가: ${salePrice || '협의'}
 - 목표 수익률 (Cap Rate): ${capRate || '5.5% 내외'}
-- 자산 분류: ${category}
+- 자산 분류: ${category || '수익형 부동산'}
 - 소재지: ${location}
 - 대지면적: ${landArea || '실사 확인'}
 - 연면적: ${totalFloorArea || '실사 확인'}
 - 건축 규모: ${floors || '실사 확인'}
 - 주차 대수: ${parking || '자주식 완비'}
 
-[Executive Summary] ${summary || `${location}에 위치한 우량 ${category} 자산 매각 건으로, 안정적인 현금흐름 창출과 뛰어난 자산 가치 보존성을 보유한 최우량 실물자산입니다.`}
+[Executive Summary] ${summary || `${location}에 위치한 우량 ${category || '실물자산'} 매각 건으로, 전문 권리분석 및 ExitWise 결정론 검증을 완료하여 안정적인 현금흐름 창출과 높은 자산가치 보존성을 보유한 핵심 투자 자산입니다.`}
 
 ## Chapter 2. 핵심 운영 및 임대 재무 실적 (Operating & Financials)
 - 가동률/임대율: ${isFactory ? '100.0% (장기 마스터리스 계약 체결)' : isOffice ? '98.2% 내외 (공실률 1.8%)' : isHotel ? '78.4%' : '95.0% 이상'}
 - 목표 수익률: ${capRate || '5.5%'}
-- 현금창출력: 우량 임차인 기반의 안정적인 순영업소득(NOI) 확보
+- 연간 순영업소득 (NOI): 약 ${noiEok}억원
+
+\`\`\`recharts
+{"type":"bar","title":"연도별 총 매출/수입 및 순영업소득(NOI) 추이 (단위: 억원)","data":[{"name":"2023년","총수입":${Math.round(revEok * 0.9 * 10) / 10},"NOI":${Math.round(noiEok * 0.9 * 10) / 10}},{"name":"2024년","총수입":${Math.round(revEok * 0.95 * 10) / 10},"NOI":${Math.round(noiEok * 0.95 * 10) / 10}},{"name":"2025년","총수입":${revEok},"NOI":${noiEok}},{"name":"2026년(추정)","총수입":${Math.round(revEok * 1.06 * 10) / 10},"NOI":${Math.round(noiEok * 1.05 * 10) / 10}}],"bars":[{"key":"총수입","name":"총 매출/수입","color":"#0ea5e9"},{"key":"NOI","name":"순영업소득 (NOI)","color":"#10b981"}]}
+\`\`\`
+
+\`\`\`sensitivity
+{"title":"${title || assetName} 매입가 및 Cap Rate 민감도 시뮬레이터","basePrice":${numPrice},"annualNoi":${annualNoi},"priceRangePct":15,"exitCapPct":${numCap},"noiGrowthPct":2.0,"holdYears":5,"caption":"기준: 매각가 ${salePrice || '협의'} · 목표 수익률 ${capRate || '5.5%'}"}
+\`\`\`
 
 ## Chapter 3. 4대 핵심 투자 하이라이트 (Investment Thesis)
 1. 광역 교통망 및 핵심 거점 연계 최적의 입지 경쟁력 확보
@@ -72,8 +95,12 @@ function generateExitwiseMarkdown({ title, assetName, category, location, salePr
 3. 권역 내 희소성과 향후 주변 개발 호재에 따른 자산가치 상승(Capital Gain) 잠재력
 4. 전문 자산운용 실사를 통한 공적장부 및 권리관계 무결성 검증 통과
 
-## Chapter 4. 층별 공간 및 시설 구성 (Floor-by-Floor Program)
-- 상층부: 핵심 업무/제조/객실 전용 공간
+## Chapter 4. 층별 공간 및 입지 분석 (Location & Facility)
+\`\`\`kakao-map
+{"address":"${location}","caption":"${title || assetName} 핵심 입지","zoom":4}
+\`\`\`
+
+- 상층부: 핵심 업무/제조/주거 전용 공간
 - 저층부: 메인 로비, 어메니티, 편의시설 및 공용 공간
 - 지하층: 자주식 주차장 및 첨단 전기·기계 설비실
 
@@ -217,6 +244,41 @@ const DataManager = {
         }
         localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
         return listings;
+    },
+    updateListingFromExitwise: (docId, freshData) => {
+        if (!docId || !freshData) return null;
+        const listings = DataManager.getListings();
+        const index = listings.findIndex(item => 
+            String(item.id) === String(docId) || 
+            String(item.exitwiseData?.imDocumentId) === String(docId)
+        );
+
+        if (index >= 0) {
+            const current = listings[index];
+            const updatedExitwiseData = {
+                ...(current.exitwiseData || {}),
+                imDocumentId: docId,
+                markdownContent: freshData.markdownContent || current.exitwiseData?.markdownContent,
+                htmlContent: freshData.htmlContent || current.exitwiseData?.htmlContent,
+                mediaAssets: freshData.mediaAssets || current.exitwiseData?.mediaAssets,
+                imTitle: freshData.title || freshData.imTitle || current.exitwiseData?.imTitle,
+                lastSyncedAt: new Date().toISOString()
+            };
+
+            const updatedListing = {
+                ...current,
+                title: freshData.title || current.title,
+                location: freshData.location || current.location,
+                salePrice: freshData.salePrice || current.salePrice,
+                exitwiseData: updatedExitwiseData
+            };
+
+            listings[index] = updatedListing;
+            localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
+            console.log(`[DataManager] Successfully live-synced listing ${current.id} (${docId})`);
+            return updatedListing;
+        }
+        return null;
     },
     importFromExitwise: (imData) => {
         // AI 시맨틱 분석으로 제목과 본문에 100% 어울리는 사진 및 제원 도출

@@ -6,8 +6,10 @@ import { WealthSimulator } from '../components/calculator/WealthSimulator';
 import { TrustBadge } from '../components/trust/TrustBadge';
 import SEO from '../components/SEO';
 import DataManager from '../utils/DataManager';
+import ExitWiseSyncManager from '../utils/ExitWiseSyncManager';
 import { useTheme } from '../context/ThemeContext';
 import ExitWiseMarkdownViewer from '../components/im/ExitWiseMarkdownViewer';
+import KakaoMapEmbed from '../components/im/KakaoMapEmbed';
 
 const parseKoreanCurrency = (str) => {
     if (!str) return 0;
@@ -24,6 +26,7 @@ const ListingDetailPage = () => {
     const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
     const [deckPage, setDeckPage] = useState(1);
     const [copiedNotice, setCopiedNotice] = useState(false);
+    const [syncNotice, setSyncNotice] = useState(null);
     const { openConsulting } = useOutletContext() || {};
     const { isDark } = useTheme();
 
@@ -36,8 +39,29 @@ const ListingDetailPage = () => {
             // ExitWise 연동 매물인 경우 즉시 IM 전문 탭을 기본 활성화
             if (found.isExitwiseLinked) {
                 setActiveTab('exitwise');
+                // Background SWR 최신 IM 동기화 시도
+                const imDocId = found.exitwiseData?.imDocumentId;
+                if (imDocId) {
+                    ExitWiseSyncManager.syncWithExitwise(imDocId);
+                }
             }
         }
+
+        // ExitWise 실시간 동기화 이벤트 구독 (BroadcastChannel & storage)
+        const unsubscribe = ExitWiseSyncManager.subscribe((event) => {
+            if (event.type === 'IM_DOCUMENT_UPDATED' || event.type === 'LIVE_REVALIDATION_SUCCESS') {
+                const updated = DataManager.getListingById(id);
+                if (updated) {
+                    setListing({ ...updated });
+                    setSyncNotice('ExitWise 최신 IM 업데이트가 실시간 반영되었습니다.');
+                    setTimeout(() => setSyncNotice(null), 4000);
+                }
+            }
+        });
+
+        return () => {
+            unsubscribe();
+        };
     }, [id]);
 
     const openRawImWindow = () => {
@@ -245,6 +269,31 @@ const ListingDetailPage = () => {
 
                         {/* Left: Main Tabs & Info */}
                         <div style={{ flex: 2, minWidth: '320px' }}>
+                            {/* Live Sync Notice Banner */}
+                            {syncNotice && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0 }}
+                                    style={{
+                                        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95))',
+                                        color: '#ffffff',
+                                        padding: '12px 20px',
+                                        borderRadius: '12px',
+                                        marginBottom: '20px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '10px',
+                                        fontWeight: '700',
+                                        fontSize: '0.92rem',
+                                        boxShadow: '0 4px 15px rgba(16, 185, 129, 0.35)'
+                                    }}
+                                >
+                                    <i className="fas fa-check-circle" style={{ fontSize: '1.2rem', color: '#a7f3d0' }}></i>
+                                    <span>{syncNotice}</span>
+                                </motion.div>
+                            )}
+
                             {/* Navigation Tabs (Luxury Grid Segmented Bar, No Scrollbar) */}
                             <nav
                                 className={`detail-tabs-nav ${tabs.length === 4 ? 'has-4-tabs' : 'has-3-tabs'}`}
@@ -1194,14 +1243,65 @@ const ListingDetailPage = () => {
 
                                     {/* Tab 4: Location */}
                                     {activeTab === 'location' && (
-                                        <div className="glass-card" style={{ padding: '40px', minHeight: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
-                                            <div style={{ textAlign: 'center' }}>
-                                                <i className="fas fa-map-marked-alt" style={{ fontSize: '3.5rem', color: 'var(--accent-gold)', marginBottom: '20px' }}></i>
-                                                <h3 style={{ color: 'var(--text-white)', marginBottom: '10px' }}>{listing.location}</h3>
-                                                <p style={{ color: 'var(--text-off-white)', lineHeight: '1.7' }}>
-                                                    상세 주소 및 정밀 지적도는 보안상<br />
-                                                    <strong style={{ color: 'var(--accent-gold)' }}>가자에셋 자산 실사(DD) 신청 고객</strong>에게만 제공됩니다.
-                                                </p>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                            <KakaoMapEmbed
+                                                address={listing.location}
+                                                title={listing.title}
+                                                height={460}
+                                            />
+
+                                            <div className="glass-card" style={{ padding: '30px 35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
+                                                    <span style={{ fontSize: '1.2rem', color: '#0ea5e9' }}>📍</span>
+                                                    <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--text-white)', fontWeight: '800' }}>입지 환경 및 광역 인프라 정밀 분석</h3>
+                                                </div>
+
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px' }}>
+                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                        <div style={{ color: '#0ea5e9', fontWeight: '800', fontSize: '0.9rem', marginBottom: '8px' }}>
+                                                            <i className="fas fa-subway" style={{ marginRight: '6px' }}></i>대중교통 및 역세권
+                                                        </div>
+                                                        <p style={{ margin: 0, fontSize: '0.88rem', color: isDark ? '#cbd5e1' : '#475569', lineHeight: '1.7' }}>
+                                                            {isHotel
+                                                                ? '해운대역(부산 2호선) 도보 7분, 해운대 해변로 바로 연결, 김해국제공항 리무진 직결'
+                                                                : isOffice
+                                                                ? '여의도역(5·9호선 환승역) 도보 3분 초역세권, 여의도 환승센터 32개 광역 버스 노선 집결'
+                                                                : isFactory
+                                                                ? '수도권 전철 1호선 덕정역 연계 광역 교통망, 양주테크노밸리 산업단지 셔틀 운행'
+                                                                : '인접 지하철역 도보 5분 이내 역세권, 간선/지선 버스 노선 12개 집결지'}
+                                                        </p>
+                                                    </div>
+
+                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                        <div style={{ color: '#10b981', fontWeight: '800', fontSize: '0.9rem', marginBottom: '8px' }}>
+                                                            <i className="fas fa-road" style={{ marginRight: '6px' }}></i>도로망 및 광역 접근성
+                                                        </div>
+                                                        <p style={{ margin: 0, fontSize: '0.88rem', color: isDark ? '#cbd5e1' : '#475569', lineHeight: '1.7' }}>
+                                                            {isFactory
+                                                                ? '세종-포천고속도로 및 제2순환고속도로 IC 10분 내 진입, 40ft 대형 트레일러 진출입 최적화'
+                                                                : isOffice
+                                                                ? '올림픽대로 및 강변북로, 여의대로 광폭 8차선 대로변 코너 입지, 도심/강남 20분대 쾌속 이동'
+                                                                : isHotel
+                                                                ? '광안대교, 부산울산고속도로, 동해선 벡스코역 10분 거리, 동부산 관광단지 15분 진입'
+                                                                : '주요 간선도로 및 도심 고속화도로 직결, 물류 및 업무 이동 편의성 극대화'}
+                                                        </p>
+                                                    </div>
+
+                                                    <div style={{ background: subCardBg, padding: '20px', borderRadius: '12px', border: `1px solid ${subCardBorder}` }}>
+                                                        <div style={{ color: '#f59e0b', fontWeight: '800', fontSize: '0.9rem', marginBottom: '8px' }}>
+                                                            <i className="fas fa-building" style={{ marginRight: '6px' }}></i>권역 특성 및 개발 호재
+                                                        </div>
+                                                        <p style={{ margin: 0, fontSize: '0.88rem', color: isDark ? '#cbd5e1' : '#475569', lineHeight: '1.7' }}>
+                                                            {isOffice
+                                                                ? '대한민국 금융 중심지 YBD 코어 블록, 신안산선(공사 중) 및 GTX-B 개통 예정으로 미래가치 상승'
+                                                                : isFactory
+                                                                ? '경기 북부 일반공업지역 희소 필지, 공장총량제 수혜 및 인근 산업클러스터 집적화 수혜'
+                                                                : isHotel
+                                                                ? '대한민국 대표 해양 관광특구 1선 오션프론트, 사계절 MICE 및 글로벌 외국인 관광객 배후수요'
+                                                                : '도시계획상 중심상업/준주거지역 위치, 풍부한 배후 세대 및 유동인구 확보'}
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     )}

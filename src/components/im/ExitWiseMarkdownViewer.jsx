@@ -1,4 +1,9 @@
 import React from 'react';
+import KakaoMapEmbed from './KakaoMapEmbed';
+import SensitivitySimulator from './SensitivitySimulator';
+import FinancialChart from './FinancialChart';
+import KpiStatCards from './KpiStatCards';
+import FloorStackPlan from './FloorStackPlan';
 
 function renderInlineMarkdown(text, isDark) {
     if (!text) return null;
@@ -90,6 +95,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
         );
     }
 
+    // 마크다운 정규화 (코드블록 삭제 버그 제거 및 커버레터/마커 태그 정리)
     let cleanMd = markdown
         .replace(/<!--\s*slide:.*?-->/gi, '')
         .replace(/<<<\s*COVER[_\s]*LETTER[_\s]*START\s*>>>[\s\S]*?<<<\s*COVER[_\s]*LETTER[_\s]*END\s*>>>/gi, '')
@@ -97,16 +103,22 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
         .replace(/<<<\s*IM[_\s]*BODY[_\s]*START\s*>>>/gi, '')
         .replace(/<<<\s*IM[_\s]*BODY[_\s]*END\s*>>>/gi, '')
         .replace(/<<<\s*EXPERT[_\s]*MATCH[_\s]*START\s*>>>[\s\S]*$/gi, '')
-        .replace(/```[a-z0-9_-]*\b[\s\S]*?```/g, '')
         .trim();
 
     const rawLines = cleanMd.split('\n');
     const sections = [];
     let currentSection = { title: '', level: 2, lines: [] };
+    let inCodeBlock = false;
 
     for (let i = 0; i < rawLines.length; i++) {
         const line = rawLines[i];
-        const headingMatch = line.match(/^(#{1,4})\s+(.+)$/);
+        const trimmed = line.trim();
+
+        if (trimmed.startsWith('```')) {
+            inCodeBlock = !inCodeBlock;
+        }
+
+        const headingMatch = !inCodeBlock && line.match(/^(#{1,4})\s+(.+)$/);
 
         if (headingMatch) {
             if (currentSection.lines.length > 0 || currentSection.title) {
@@ -182,29 +194,123 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
                 };
 
                 for (let i = 0; i < sec.lines.length; i++) {
-                    const line = sec.lines[i].trim();
+                    const line = sec.lines[i];
+                    const trimmedLine = line.trim();
 
-                    if (line.startsWith('|') && line.endsWith('|')) {
+                    // 1. 커스텀 코드 블록 (kakao-map, sensitivity, recharts, chart, kpi, floorstack 등) 감지
+                    if (trimmedLine.startsWith('```')) {
+                        flushTable();
                         flushSpecs();
-                        tableBuffer.push(line);
+
+                        const lang = trimmedLine.slice(3).trim().toLowerCase();
+                        const codeBuffer = [];
+                        i++;
+                        while (i < sec.lines.length && !sec.lines[i].trim().startsWith('```')) {
+                            codeBuffer.push(sec.lines[i]);
+                            i++;
+                        }
+                        const blockContent = codeBuffer.join('\n').trim();
+
+                        if (lang === 'kakao-map' || lang === 'map') {
+                            let mapProps = { address: '', title: '' };
+                            try {
+                                if (blockContent.startsWith('{')) {
+                                    mapProps = JSON.parse(blockContent);
+                                } else {
+                                    mapProps.address = blockContent;
+                                }
+                            } catch (e) {
+                                mapProps.address = blockContent;
+                            }
+                            renderedBlocks.push(
+                                <KakaoMapEmbed
+                                    key={`map-${renderedBlocks.length}`}
+                                    address={mapProps.address}
+                                    title={mapProps.caption || mapProps.title || '자산 위치'}
+                                    lat={mapProps.lat}
+                                    lng={mapProps.lng}
+                                    zoom={mapProps.zoom}
+                                    caption={mapProps.caption}
+                                />
+                            );
+                            continue;
+                        } else if (lang === 'sensitivity') {
+                            renderedBlocks.push(
+                                <SensitivitySimulator
+                                    key={`sens-${renderedBlocks.length}`}
+                                    raw={blockContent}
+                                />
+                            );
+                            continue;
+                        } else if (lang === 'recharts' || lang === 'chart' || lang === 'graph') {
+                            renderedBlocks.push(
+                                <FinancialChart
+                                    key={`chart-${renderedBlocks.length}`}
+                                    raw={blockContent}
+                                />
+                            );
+                            continue;
+                        } else if (lang === 'kpi') {
+                            renderedBlocks.push(
+                                <KpiStatCards
+                                    key={`kpi-${renderedBlocks.length}`}
+                                    raw={blockContent}
+                                />
+                            );
+                            continue;
+                        } else if (lang === 'floorstack') {
+                            renderedBlocks.push(
+                                <FloorStackPlan
+                                    key={`floor-${renderedBlocks.length}`}
+                                    raw={blockContent}
+                                />
+                            );
+                            continue;
+                        } else {
+                            // 일반 코드 블록 폴백
+                            renderedBlocks.push(
+                                <pre
+                                    key={`code-${renderedBlocks.length}`}
+                                    style={{
+                                        background: isDark ? 'rgba(0,0,0,0.4)' : '#f1f5f9',
+                                        padding: '14px',
+                                        borderRadius: '8px',
+                                        overflowX: 'auto',
+                                        fontSize: '0.85rem',
+                                        color: isDark ? '#e2e8f0' : '#1e293b'
+                                    }}
+                                >
+                                    <code>{blockContent}</code>
+                                </pre>
+                            );
+                            continue;
+                        }
+                    }
+
+                    // 2. 표 (Markdown Table) 파싱
+                    if (trimmedLine.startsWith('|') && trimmedLine.endsWith('|')) {
+                        flushSpecs();
+                        tableBuffer.push(trimmedLine);
                         continue;
                     } else {
                         flushTable();
                     }
 
-                    const kvMatch = line.match(/^[-*]\s*([^:：]+)[:：]\s*(.+)$/);
-                    if (kvMatch && !line.includes('http')) {
+                    // 3. 키-값 스펙 목록 (- 항목: 값)
+                    const kvMatch = trimmedLine.match(/^[-*]\s*([^:：]+)[:：]\s*(.+)$/);
+                    if (kvMatch && !trimmedLine.includes('http')) {
                         specBuffer.push({ key: kvMatch[1].trim(), val: kvMatch[2].trim() });
                         continue;
                     } else {
                         flushSpecs();
                     }
 
-                    if (!line || line === '---') {
+                    if (!trimmedLine || trimmedLine === '---') {
                         continue;
                     }
 
-                    const highlightMatch = line.match(/^\[(.*?)\]\s*(.*)$/);
+                    // 4. 감사 보고서 및 강조 박스 [확인], [주의]
+                    const highlightMatch = trimmedLine.match(/^\[(.*?)\]\s*(.*)$/);
                     if (highlightMatch) {
                         const tag = highlightMatch[1];
                         const content = highlightMatch[2];
@@ -236,7 +342,8 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
                         continue;
                     }
 
-                    const numMatch = line.match(/^(\d+)[.)]\s*(.*)$/);
+                    // 5. 번호 매기기 목록
+                    const numMatch = trimmedLine.match(/^(\d+)[.)]\s*(.*)$/);
                     if (numMatch) {
                         renderedBlocks.push(
                             <div
@@ -272,7 +379,8 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
                         continue;
                     }
 
-                    if (line.startsWith('- ') || line.startsWith('* ')) {
+                    // 6. 불릿 목록
+                    if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
                         renderedBlocks.push(
                             <div
                                 key={`bullet-${renderedBlocks.length}`}
@@ -287,12 +395,13 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
                                 }}
                             >
                                 <span style={{ color: '#0ea5e9', fontSize: '1.2rem', lineHeight: '1' }}>•</span>
-                                <div style={{ flex: 1 }}>{renderInlineMarkdown(line.replace(/^[-*]\s+/, ''), isDark)}</div>
+                                <div style={{ flex: 1 }}>{renderInlineMarkdown(trimmedLine.replace(/^[-*]\s+/, ''), isDark)}</div>
                             </div>
                         );
                         continue;
                     }
 
+                    // 7. 일반 문단
                     renderedBlocks.push(
                         <p
                             key={`p-${renderedBlocks.length}`}
@@ -303,7 +412,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark }) {
                                 color: isDark ? '#cbd5e1' : '#334155'
                             }}
                         >
-                            {renderInlineMarkdown(line, isDark)}
+                            {renderInlineMarkdown(trimmedLine, isDark)}
                         </p>
                     );
                 }
