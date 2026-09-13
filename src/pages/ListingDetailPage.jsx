@@ -232,7 +232,7 @@ const ListingDetailPage = () => {
                         : 'linear-gradient(to top, var(--primary-navy) 20%, rgba(248,249,252,0.85) 60%, transparent 100%)'
                 }} />
 
-                <div className="container" style={{ position: 'relative', width: '100%', zIndex: 2 }}>
+                <div className="container listing-detail-hero-container" style={{ position: 'relative', zIndex: 2 }}>
                     <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ maxWidth: '900px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
                             {/* Type Badge */}
@@ -313,12 +313,12 @@ const ListingDetailPage = () => {
             </section>
 
             {/* Content Section */}
-            <section style={{ padding: '40px 0 120px' }}>
+            <section style={{ padding: '30px 0 100px' }}>
                 <div className="container">
-                    <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                    <div className="listing-detail-layout">
 
                         {/* Left: Main Tabs & Info */}
-                        <div style={{ flex: 2, minWidth: '320px' }}>
+                        <div className="listing-detail-main">
                             {/* Live Sync Notice Banner */}
                             {syncNotice && (
                                 <motion.div
@@ -395,7 +395,7 @@ const ListingDetailPage = () => {
                                 >
                                     {/* Tab 1: Overview */}
                                     {activeTab === 'overview' && (
-                                        <div className="glass-card" style={{ padding: '40px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
+                                        <div className="glass-card listing-detail-card" style={{ padding: '36px 40px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', borderLeft: '4px solid var(--accent-gold)', paddingLeft: '15px' }}>
                                                 <h3 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-white)' }}>핵심 거래 지표</h3>
                                                 <span style={{ fontSize: '0.85rem', color: 'var(--text-gray)' }}>업데이트: 2026.09</span>
@@ -1335,7 +1335,7 @@ const ListingDetailPage = () => {
                                                 height={460}
                                             />
 
-                                            <div className="glass-card" style={{ padding: '30px 35px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
+                                            <div className="glass-card listing-detail-card" style={{ padding: '28px 32px', borderRadius: '16px', background: cardBg, border: `1px solid ${cardBorder}` }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', borderBottom: `1px solid ${subCardBorder}`, paddingBottom: '12px' }}>
                                                     <span style={{ fontSize: '1.2rem', color: '#0ea5e9' }}>📍</span>
                                                     <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--text-white)', fontWeight: '800' }}>입지 환경 및 광역 인프라 정밀 분석</h3>
@@ -1395,8 +1395,8 @@ const ListingDetailPage = () => {
                         </div>
 
                         {/* Right: Sticky Action Sidebar */}
-                        <div style={{ flex: 1, minWidth: '300px', position: 'sticky', top: '100px' }}>
-                            <div className="glass-card" style={{
+                        <div className="listing-detail-sidebar">
+                            <div className="glass-card listing-detail-card" style={{
                                 padding: '30px',
                                 border: '2px solid var(--accent-gold)',
                                 borderRadius: '16px',

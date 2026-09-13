@@ -52,7 +52,7 @@ export default function ExecutiveCoverLetter({ rawCoverLetter, docNumber, isDark
     const borderColor = isDark ? 'rgba(217, 119, 6, 0.4)' : 'rgba(217, 119, 6, 0.3)';
 
     return (
-        <div style={{
+        <div className="im-cover-card" style={{
             background: bgCard,
             border: `1.5px solid ${borderColor}`,
             borderRadius: '16px',

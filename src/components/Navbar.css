@@ -415,8 +415,10 @@
     }
 
     .navbar .container {
-        width: 94% !important;
-        padding: 0 4px !important;
+        width: 100% !important;
+        max-width: 1300px !important;
+        padding: 0 16px !important;
+        box-sizing: border-box !important;
     }
 
     /* Brand Logo Scaling */
@@ -592,6 +594,10 @@
 @media (max-width: 480px) {
     .navbar {
         padding: 12px 0 !important;
+    }
+
+    .navbar .container {
+        padding: 0 14px !important;
     }
 
     .nav-logo-img {

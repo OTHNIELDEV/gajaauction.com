@@ -165,7 +165,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName }) 
 
                 if (isDocHeader) {
                     return (
-                        <div key={secIdx} style={{
+                        <div key={secIdx} className="im-doc-header-card" style={{
                             padding: '28px 32px',
                             background: isDark ? 'linear-gradient(135deg, rgba(2, 132, 199, 0.1) 0%, rgba(14, 165, 233, 0.03) 100%)' : '#f0f9ff',
                             border: isDark ? '1px solid rgba(2, 132, 199, 0.25)' : '1px solid #bae6fd',
@@ -493,6 +493,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName }) 
                     return (
                         <div
                             key={secIdx}
+                            className="im-chapter-card"
                             style={{
                                 background: isDark ? 'rgba(239, 68, 68, 0.08)' : '#fff5f5',
                                 border: isDark ? '1px solid rgba(239, 68, 68, 0.35)' : '1px solid #fecaca',
@@ -515,7 +516,7 @@ export default function ExitWiseMarkdownViewer({ markdown, isDark, assetName }) 
                 return (
                     <div
                         key={secIdx}
-                        className="glass-card"
+                        className="glass-card im-chapter-card"
                         style={{
                             padding: '35px',
                             borderRadius: '16px',
