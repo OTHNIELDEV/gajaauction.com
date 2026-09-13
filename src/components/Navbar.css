@@ -47,6 +47,7 @@
     gap: 2px;
     white-space: nowrap !important;
     flex-shrink: 0;
+    width: fit-content;
 }
 
 .nav-brand-kr {
@@ -72,6 +73,8 @@
     font-weight: 600;
     text-transform: uppercase;
     white-space: nowrap !important;
+    align-self: flex-end;
+    text-align: right;
 }
 
 /* Nav Link overrides */
