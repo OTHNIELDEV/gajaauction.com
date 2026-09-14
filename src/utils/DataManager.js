@@ -118,8 +118,16 @@ function syncExitwiseIMData(list) {
             }
         }
 
-        // 8. AI 사진 검증 메타데이터 누락 자가치유 (로드뷰/스카이뷰/웹실사 후보군 생성)
-        if (!item.aiPhotoVerification) {
+        // 8. AI 사진 검증 메타데이터 누락 및 구버전/더미 이미지 자가치유 (실제 카카오 로드뷰/스카이뷰/정밀 웹실사 갱신)
+        const hasOutdatedPhoto = !item.aiPhotoVerification || 
+            !item.aiPhotoVerification.candidates ||
+            item.aiPhotoVerification.candidates.some(c => 
+                c.url?.includes('photo-1577495508048') || // 과거 숲속 나무 사진 필터링
+                c.url?.includes('photo-1566073771259') || // 과거 열대 휴양지 리조트 사진 필터링
+                !c.embedType
+            );
+
+        if (hasOutdatedPhoto) {
             const photoEval = AiPropertyPhotoEngine.evaluateFast({
                 listingId: item.id,
                 title: item.title,
@@ -129,7 +137,7 @@ function syncExitwiseIMData(list) {
             changed = true;
             return {
                 ...item,
-                img: item.img || photoEval.bestPhoto,
+                img: photoEval.bestPhoto || item.img,
                 aiPhotoVerification: {
                     selectedSource: photoEval.selectedSource,
                     sourceLabel: photoEval.sourceLabel,
@@ -399,7 +407,7 @@ const DataManager = {
                             id: 'exitwise-fourseasons-hotel',
                             type: 'general',
                             category: '호텔',
-                            img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80',
+                            img: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&auto=format&fit=crop&q=80',
                             location: '서울 종로구 새문안로 97 (당주동 29)',
                             tags: ['317실', 'ExitWise 연동', '호텔', '통매각']
                         };
@@ -418,7 +426,7 @@ const DataManager = {
                         merged.id = 'exitwise-fourseasons-hotel';
                         merged.type = 'general';
                         merged.category = '호텔';
-                        merged.img = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80';
+                        merged.img = 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&auto=format&fit=crop&q=80';
                         merged.location = '서울 종로구 새문안로 97 (당주동 29)';
                         merged.tags = ['317실', 'ExitWise 연동', '호텔', '통매각'];
                     }
@@ -575,7 +583,7 @@ const DataManager = {
         const finalTitle = imData.title || imData.imTitle || `${aiMatched.cleanTitle} 자산 매각`;
         const finalImg = aiPhotoEval.bestPhoto || (
             (deterministicId === 'exitwise-fourseasons-hotel' || lowerTitle.includes('포시즌스'))
-                ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80'
+                ? 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&auto=format&fit=crop&q=80'
                 : aiMatched.img
         );
 

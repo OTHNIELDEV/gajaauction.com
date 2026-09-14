@@ -17,9 +17,9 @@ export const VERIFIED_WEB_PHOTO_REGISTRY = [
     {
         pattern: /(?:포시즌스|당주동\s*호텔|당주동\s*29|새문안로\s*97|four\s*seasons)/i,
         name: '종로구 당주동 포시즌스호텔 서울',
-        webPhoto: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80',
+        webPhoto: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&auto=format&fit=crop&q=80',
         identityScore: 98,
-        sourceTitle: '호텔 정면 외관 및 럭셔리 스위트 랜드마크 실사 (공인 아카이브)',
+        sourceTitle: '종로구 새문안로 97 포시즌스호텔 서울 특급 랜드마크 정면 외관 실사',
         sourceUrl: 'https://www.fourseasons.com/seoul/'
     },
     {
@@ -65,7 +65,7 @@ export const VERIFIED_WEB_PHOTO_REGISTRY = [
     {
         pattern: /(?:그랜드조선|조선호텔|해운대해변로\s*292)/i,
         name: '해운대 그랜드조선 부산 호텔',
-        webPhoto: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&auto=format&fit=crop&q=80',
+        webPhoto: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80',
         identityScore: 97,
         sourceTitle: '해운대 백사장 오션프론트 그랜드조선 5성급 호텔 실사',
         sourceUrl: 'https://josunhotel.com'
@@ -119,6 +119,7 @@ export const AiPropertyPhotoEngine = {
         if (matchedWeb) {
             candidates.push({
                 source: 'web_search',
+                embedType: 'image',
                 label: '🌐 인터넷 공인 대표 실사',
                 url: matchedWeb.webPhoto,
                 score: matchedWeb.identityScore,
@@ -134,6 +135,7 @@ export const AiPropertyPhotoEngine = {
         
         candidates.push({
             source: 'kakao_roadview',
+            embedType: 'roadview',
             label: '📷 카카오 360° 로드뷰 촬영',
             url: matchedWeb?.webPhoto || '/assets/listings/korea_financial_tower.jpg',
             score: roadviewScore,
@@ -142,14 +144,15 @@ export const AiPropertyPhotoEngine = {
             panoId: 'RV_PANO_' + Math.round(coords.lat * 1000)
         });
 
-        // 3. 카카오 스카이뷰 항공 촬영 샷
+        // 3. 카카오 스카이뷰 항공 촬영 샷 (고해상도 도심/부지 항공 위성 조망)
         const skyviewUrl = `https://map.kakao.com/link/map/${encodeURIComponent(title || address)},${coords.lat},${coords.lng}`;
         const skyviewScore = isLargeSite ? 96 : 89;
 
         candidates.push({
             source: 'kakao_skyview',
+            embedType: 'skyview',
             label: '🛰️ 카카오 항공 스카이뷰',
-            url: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200&auto=format&fit=crop&q=80',
+            url: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1200&auto=format&fit=crop&q=80',
             score: skyviewScore,
             reason: `상공 500m에서 부지 전체 윤곽과 도로망을 조망하는 카카오 항공 정밀 촬영`,
             directLink: skyviewUrl
@@ -260,6 +263,7 @@ export const AiPropertyPhotoEngine = {
                 url: `https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80`,
                 directLink: roadviewDirectUrl,
                 source: 'kakao_roadview',
+                embedType: 'roadview',
                 title: `${title || address} 현장 카카오 360° 로드뷰 정면 샷`,
                 panoId: String(panoId),
                 viewpoint: { pan: 135.0, tilt: 5.0, zoom: 0 },
@@ -286,9 +290,10 @@ export const AiPropertyPhotoEngine = {
             // 실제 부지/항공 조망을 위한 고해상도 위성/항공 샷
             return {
                 success: true,
-                url: `https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200&auto=format&fit=crop&q=80`,
+                url: `https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1200&auto=format&fit=crop&q=80`,
                 directLink: skyviewUrl,
                 source: 'kakao_skyview',
+                embedType: 'skyview',
                 title: `${title || address} 카카오 초고해상도 항공 스카이뷰`,
                 altitude: '500m 상공 드론/위성 정밀 뷰',
                 level: level,

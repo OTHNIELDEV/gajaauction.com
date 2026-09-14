@@ -56,7 +56,7 @@ export const PINPOINT_LANDMARKS = [
     {
         name: '해운대 그랜드조선 호텔',
         pattern: /(?:그랜드조선|조선호텔|해운대\s*호텔|해운대해변로\s*292)/i,
-        img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80',
+        img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&auto=format&fit=crop&q=80',
         category: '호텔',
         location: '부산 해운대구 우동 (해운대 해수욕장 1선)',
         defaultPrice: '1,850억',
@@ -71,7 +71,7 @@ export const PINPOINT_LANDMARKS = [
     {
         name: '포시즌스호텔 서울',
         pattern: /(?:포시즌스|당주동\s*호텔|당주동\s*29|새문안로\s*97|four\s*seasons)/i,
-        img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80',
+        img: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&auto=format&fit=crop&q=80',
         category: '호텔',
         location: '서울 종로구 새문안로 97 (당주동, 포시즌스호텔 서울)',
         defaultPrice: '8,100억',
@@ -81,34 +81,6 @@ export const PINPOINT_LANDMARKS = [
             landArea: '4,117㎡ (1,245평)',
             totalFloorArea: '88,000㎡ (26,620평)',
             rooms: '317실'
-        }
-    },
-    {
-        name: '서초동 법조타운 근린상가 NPL',
-        pattern: /(?:서초동\s*법조|법조타운|교대역|서초역|서초중앙로)/i,
-        img: '/assets/listings/korea_financial_tower.jpg',
-        category: '상가',
-        location: '서울 서초구 서초중앙로 156 (서초동)',
-        defaultPrice: '95억',
-        floors: '지하 2층 / 지상 7층',
-        parking: '총 35대',
-        specs: {
-            landArea: '661㎡ (200평)',
-            totalFloorArea: '2,644㎡ (800평)'
-        }
-    },
-    {
-        name: '제주 애월 오션프론트 리조트 NPL',
-        pattern: /(?:애월|제주\s*애월|애월해안로|오션프론트\s*리조트)/i,
-        img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&auto=format&fit=crop&q=80',
-        category: '토지',
-        location: '제주 제주시 애월읍 애월해안로 892',
-        defaultPrice: '36억',
-        floors: '지상 3층 단독 풀빌라 리조트 부지',
-        parking: '총 25대',
-        specs: {
-            landArea: '6,600㎡ (2,000평)',
-            totalFloorArea: '1,980㎡ (600평)'
         }
     }
 ];
@@ -127,13 +99,12 @@ export const CATEGORY_IMAGE_POOLS = {
         '/assets/listings/korea_financial_tower.jpg',
         'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80',
         'https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=1200&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200&auto=format&fit=crop&q=80'
+        'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1200&auto=format&fit=crop&q=80'
     ],
     // 호텔 / 리조트
     hotel: [
-        'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&auto=format&fit=crop&q=80',
         'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&auto=format&fit=crop&q=80',
         'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&auto=format&fit=crop&q=80'
     ],
     // 물류센터 / 창고
@@ -361,6 +332,7 @@ export const AiAssetImageMatcher = {
                 item.type !== 'general' || 
                 img.includes('busan') || 
                 img.includes('haeundae_zenith') || 
+                img.includes('photo-1566073771259') || // 과거 열대 휴양지 리조트 목조 방갈로 사진 감지 시 강제 치유!
                 location.includes('추정') ||
                 location.includes('}') ||
                 location.includes('"') ||
@@ -375,7 +347,7 @@ export const AiAssetImageMatcher = {
                         ...item,
                         type: 'general',
                         category: '호텔',
-                        img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80',
+                        img: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&auto=format&fit=crop&q=80',
                         location: '서울 종로구 새문안로 97 (당주동 29)',
                         salePrice: item.salePrice || '8,100억',
                         targetPrice: item.targetPrice || item.salePrice || '8,100억',

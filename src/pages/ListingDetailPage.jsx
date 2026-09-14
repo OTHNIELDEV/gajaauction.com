@@ -11,6 +11,7 @@ import { useTheme } from '../context/ThemeContext';
 import ExitWiseMarkdownViewer from '../components/im/ExitWiseMarkdownViewer';
 import KakaoMapEmbed from '../components/im/KakaoMapEmbed';
 import KakaoRoadviewEmbed from '../components/im/KakaoRoadviewEmbed';
+import KakaoSkyviewEmbed from '../components/im/KakaoSkyviewEmbed';
 import KpiStatCards from '../components/im/KpiStatCards';
 import SensitivitySimulator from '../components/im/SensitivitySimulator';
 import FinancialChart from '../components/im/FinancialChart';
@@ -2522,27 +2523,50 @@ const ListingDetailPage = () => {
                                 </button>
                             </div>
 
-                            {/* 모달 이미지 메인 영역 (중앙 정렬 대형 디스플레이) */}
+                            {/* 모달 이미지 및 인터랙티브 카카오 뷰어 메인 영역 (중앙 정렬 대형 디스플레이) */}
                             <div style={{
                                 position: 'relative',
                                 background: '#020617',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                minHeight: '380px',
-                                maxHeight: '62vh',
-                                overflow: 'hidden'
+                                minHeight: '440px',
+                                maxHeight: '68vh',
+                                overflow: 'hidden',
+                                width: '100%'
                             }}>
-                                <img
-                                    src={aiCandidates[selectedPhotoIndex].url}
-                                    alt={aiCandidates[selectedPhotoIndex].label}
-                                    style={{
-                                        maxWidth: '100%',
-                                        maxHeight: '62vh',
-                                        objectFit: 'contain',
-                                        display: 'block'
-                                    }}
-                                />
+                                {aiCandidates[selectedPhotoIndex].source === 'kakao_roadview' ? (
+                                    <div style={{ width: '100%', height: '100%', minHeight: '450px' }}>
+                                        <KakaoRoadviewEmbed
+                                            listingId={listing.id}
+                                            address={listing.location}
+                                            title={listing.title}
+                                            height={480}
+                                            caption={aiCandidates[selectedPhotoIndex].reason || `${listing.title} 카카오 360° 로드뷰`}
+                                        />
+                                    </div>
+                                ) : aiCandidates[selectedPhotoIndex].source === 'kakao_skyview' ? (
+                                    <div style={{ width: '100%', height: '100%', minHeight: '450px' }}>
+                                        <KakaoSkyviewEmbed
+                                            listingId={listing.id}
+                                            address={listing.location}
+                                            title={listing.title}
+                                            height={480}
+                                            caption={aiCandidates[selectedPhotoIndex].reason || `${listing.title} 카카오 항공 스카이뷰`}
+                                        />
+                                    </div>
+                                ) : (
+                                    <img
+                                        src={aiCandidates[selectedPhotoIndex].url}
+                                        alt={aiCandidates[selectedPhotoIndex].label}
+                                        style={{
+                                            maxWidth: '100%',
+                                            maxHeight: '62vh',
+                                            objectFit: 'contain',
+                                            display: 'block'
+                                        }}
+                                    />
+                                )}
 
                                 {/* 이전 사진 버튼 */}
                                 {aiCandidates.length > 1 && (
