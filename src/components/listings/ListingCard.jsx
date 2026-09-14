@@ -30,11 +30,16 @@ const ListingCard = ({ item }) => {
         >
             <Link to={`/listings/${item.id}`} style={{ display: 'block', height: '100%', textDecoration: 'none', color: 'inherit' }}>
                 {/* Image Container with Badges */}
-                <div className="listing-image placeholder-img" style={{ height: '220px', position: 'relative', overflow: 'hidden' }}>
+                <div className="listing-image placeholder-img" style={{ height: '220px', position: 'relative', overflow: 'hidden', backgroundColor: '#0f172a' }}>
                     <img
-                        src={item.img}
+                        src={item.img || '/assets/listings/korea_financial_tower.jpg'}
+                        loading="lazy"
                         style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
                         alt={item.title}
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/assets/listings/korea_financial_tower.jpg';
+                        }}
                     />
                     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 40%, rgba(0,0,0,0.7) 100%)' }} />
 
@@ -111,10 +116,10 @@ const ListingCard = ({ item }) => {
                         bottom: '10px',
                         right: '12px',
                         background: item.aiPhotoVerification?.selectedSource === 'web_search'
-                            ? 'rgba(14, 165, 233, 0.9)'
-                            : item.aiPhotoVerification?.selectedSource === 'kakao_skyview'
-                            ? 'rgba(168, 85, 247, 0.9)'
-                            : 'rgba(16, 185, 129, 0.9)',
+                            ? 'rgba(14, 165, 233, 0.95)'
+                            : (item.aiPhotoVerification?.selectedSource === 'kakao_skyview' || item.aiPhotoVerification?.selectedSource === 'vworld_hybrid' || item.img?.includes('vworld.kr'))
+                            ? 'rgba(168, 85, 247, 0.95)'
+                            : 'rgba(16, 185, 129, 0.95)',
                         backdropFilter: 'blur(6px)',
                         color: 'white',
                         padding: '3px 8px',
@@ -125,10 +130,10 @@ const ListingCard = ({ item }) => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '4px',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.35)'
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.45)'
                     }}>
-                        <span>{item.aiPhotoVerification?.selectedSource === 'web_search' ? '🌐 웹 실사' : item.aiPhotoVerification?.selectedSource === 'kakao_skyview' ? '🛰️ 스카이뷰' : '📷 로드뷰'}</span>
-                        <span style={{ opacity: 0.9, fontSize: '0.68rem', fontWeight: 800 }}>{item.aiPhotoVerification?.score || 95}점</span>
+                        <span>{item.aiPhotoVerification?.selectedSource === 'web_search' ? '🌐 공인 실사' : (item.aiPhotoVerification?.selectedSource === 'kakao_skyview' || item.aiPhotoVerification?.selectedSource === 'vworld_hybrid' || item.img?.includes('vworld.kr')) ? '🛰️ 항공 실사' : '📷 로드뷰'}</span>
+                        <span style={{ opacity: 0.9, fontSize: '0.68rem', fontWeight: 800 }}>{item.aiPhotoVerification?.score || 98}점</span>
                     </div>
                 </div>
 

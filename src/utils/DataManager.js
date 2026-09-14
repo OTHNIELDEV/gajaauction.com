@@ -118,12 +118,27 @@ function syncExitwiseIMData(list) {
             }
         }
 
-        // 8. AI 사진 검증 메타데이터 누락 및 구버전/더미 이미지 자가치유 (실제 카카오 로드뷰/스카이뷰/정밀 웹실사 갱신)
+        // 8. AI 사진 검증 메타데이터 누락 및 구버전/더미 이미지 자가치유
+        // - 브이월드 국가 정밀 항공사진 또는 공인 실사로 전 매물 100% 자가치유 갱신
+        const hasVWorldCandidate = item.aiPhotoVerification?.candidates?.some(c => c.url?.includes('api.vworld.kr'));
+        const hasLegacyPlaceholder = !item.img || 
+            item.img.includes('gangnam.png') || 
+            item.img.includes('pangyo.png') || 
+            item.img.includes('busan.png') ||
+            item.img.includes('placeholder');
+        const hasRandomUnsplash = item.img?.includes('unsplash.com') && 
+            !item.img?.includes('photo-1542314831-068cd1dbfeeb') && // 포시즌스호텔 공인 실사 제외
+            !item.img?.includes('photo-1497366216548-37526070297c'); // 두각빌딩 공인 실사 제외
+
         const hasOutdatedPhoto = !item.aiPhotoVerification || 
             !item.aiPhotoVerification.candidates ||
+            !hasVWorldCandidate ||
+            hasLegacyPlaceholder ||
+            hasRandomUnsplash ||
             item.aiPhotoVerification.candidates.some(c => 
-                c.url?.includes('photo-1577495508048') || // 과거 숲속 나무 사진 필터링
-                c.url?.includes('photo-1566073771259') || // 과거 열대 휴양지 리조트 사진 필터링
+                c.url?.includes('photo-1577495508048') ||
+                c.url?.includes('photo-1566073771259') ||
+                c.url?.includes('photo-1506973035872') ||
                 !c.embedType
             );
 

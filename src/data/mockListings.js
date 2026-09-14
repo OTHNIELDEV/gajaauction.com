@@ -1,6 +1,4 @@
-import gangnamImg from '../assets/images/gangnam.png';
-import pangyoImg from '../assets/images/pangyo.png';
-import busanImg from '../assets/images/busan.png';
+import { getVWorldSkyviewUrl } from '../services/AiPropertyPhotoEngine.js';
 
 export const mockListings = [
     // [ExitWise 연동] NPL 매물 - 해운대 마린시티 두산위브더제니스 (80층 초고층 랜드마크 실사 정합)
@@ -176,7 +174,7 @@ export const mockListings = [
     {
         id: 'exitwise-haeundae',
         type: 'general', // 'auction' | 'general' | 'npl'
-        img: busanImg,
+        img: getVWorldSkyviewUrl({ lat: 35.160066, lng: 129.163128, zoom: 18 }),
         location: "부산 해운대구 해운대해변로 292 (중동 1405-16)",
         lat: 35.160066,
         lng: 129.163128,
@@ -696,7 +694,7 @@ export const mockListings = [
     {
         id: 102,
         type: 'general',
-        img: gangnamImg,
+        img: getVWorldSkyviewUrl({ lat: 37.500024, lng: 127.036509, zoom: 18 }),
         location: "서울 강남구 역삼동",
         lat: 37.500024,
         lng: 127.036509,
@@ -801,7 +799,7 @@ export const mockListings = [
     {
         id: 103,
         type: 'general',
-        img: pangyoImg,
+        img: getVWorldSkyviewUrl({ lat: 37.534998, lng: 127.00864, zoom: 18 }),
         location: "서울 용산구 한남동",
         lat: 37.534998,
         lng: 127.00864,
@@ -901,7 +899,7 @@ export const mockListings = [
     {
         id: 201,
         type: 'npl',
-        img: gangnamImg,
+        img: getVWorldSkyviewUrl({ lat: 37.493009, lng: 127.013419, zoom: 18 }),
         location: "서울 서초구 서초동",
         lat: 37.493009,
         lng: 127.013419,
@@ -988,7 +986,7 @@ export const mockListings = [
     {
         id: 202,
         type: 'npl',
-        img: busanImg,
+        img: getVWorldSkyviewUrl({ lat: 33.4655, lng: 126.3195, zoom: 17 }),
         location: "제주 제주시 애월읍",
         lat: 33.4655,
         lng: 126.3195,
@@ -1075,7 +1073,7 @@ export const mockListings = [
     {
         id: 1,
         type: 'auction',
-        img: gangnamImg,
+        img: getVWorldSkyviewUrl({ lat: 37.50212, lng: 127.0381, zoom: 18 }),
         location: "서울 강남구 역삼동",
         lat: 37.50212,
         lng: 127.0381,
@@ -1162,7 +1160,7 @@ export const mockListings = [
     {
         id: 2,
         type: 'auction',
-        img: pangyoImg,
+        img: getVWorldSkyviewUrl({ lat: 37.400544, lng: 127.106839, zoom: 18 }),
         location: "경기 성남시 판교",
         lat: 37.400544,
         lng: 127.106839,
@@ -1249,7 +1247,7 @@ export const mockListings = [
     {
         id: 3,
         type: 'auction',
-        img: busanImg,
+        img: getVWorldSkyviewUrl({ lat: 35.157204, lng: 129.144817, zoom: 18 }),
         location: "부산 해운대구 마린시티",
         lat: 35.157204,
         lng: 129.144817,
@@ -1335,7 +1333,7 @@ export const mockListings = [
     {
         id: 5,
         type: 'auction',
-        img: pangyoImg,
+        img: getVWorldSkyviewUrl({ lat: 37.36541, lng: 127.10725, zoom: 18 }),
         location: "경기 성남시 분당구",
         lat: 37.36541,
         lng: 127.10725,

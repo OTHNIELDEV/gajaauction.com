@@ -1,3 +1,5 @@
+import { AiPropertyPhotoEngine, getVWorldSkyviewUrl } from '../services/AiPropertyPhotoEngine.js';
+
 /**
  * AiAssetImageMatcher.js
  * 매물 제목(title), 마크다운 본문(content), 카테고리(category), 위치(location)를
@@ -401,10 +403,62 @@ export const AiAssetImageMatcher = {
                 };
             }
 
+            // 6. 브이월드 국가 정밀 항공사진 및 공인 실사 자가치유 (더미/플레이스홀더/과거 Unsplash 잔여물 박멸)
+            const hasVWorld = item.aiPhotoVerification?.candidates?.some(c => c.url?.includes('api.vworld.kr'));
+            const isPlaceholderOrOutdated = !img || 
+                img.includes('gangnam.png') || 
+                img.includes('pangyo.png') || 
+                img.includes('busan.png') || 
+                img.includes('placeholder') ||
+                img.includes('photo-1577495508048') ||
+                img.includes('photo-1566073771259') ||
+                img.includes('photo-1506973035872') ||
+                (img.includes('unsplash.com') && 
+                 !img.includes('photo-1542314831-068cd1dbfeeb') && 
+                 !img.includes('photo-1497366216548-37526070297c'));
+
+            if (!hasVWorld || isPlaceholderOrOutdated) {
+                hasChanged = true;
+                const photoEval = AiPropertyPhotoEngine.evaluateFast({
+                    listingId: item.id,
+                    title: item.title,
+                    address: item.location,
+                    category: item.category
+                });
+                return {
+                    ...item,
+                    img: photoEval.bestPhoto || item.img,
+                    aiPhotoVerification: {
+                        selectedSource: photoEval.selectedSource,
+                        sourceLabel: photoEval.sourceLabel,
+                        score: photoEval.score,
+                        reason: photoEval.reason,
+                        candidates: photoEval.candidates,
+                        verifiedAt: photoEval.verifiedAt
+                    }
+                };
+            }
+
             return item;
         });
 
         return { healed, hasChanged };
+    },
+
+    /**
+     * 카드의 안전한 이미지 추출 헬퍼
+     */
+    getImage: (item = {}) => {
+        if (item.img && !item.img.includes('placeholder') && !item.img.includes('.png')) {
+            return item.img;
+        }
+        const photoEval = AiPropertyPhotoEngine.evaluateFast({
+            listingId: item.id,
+            title: item.title,
+            address: item.location,
+            category: item.category
+        });
+        return photoEval.bestPhoto || '/assets/listings/korea_financial_tower.jpg';
     }
 };
 

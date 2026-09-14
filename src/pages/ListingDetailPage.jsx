@@ -2545,27 +2545,21 @@ const ListingDetailPage = () => {
                                             caption={aiCandidates[selectedPhotoIndex].reason || `${listing.title} 카카오 360° 로드뷰`}
                                         />
                                     </div>
-                                ) : aiCandidates[selectedPhotoIndex].source === 'kakao_skyview' ? (
-                                    <div style={{ width: '100%', height: '100%', minHeight: '450px' }}>
-                                        <KakaoSkyviewEmbed
-                                            listingId={listing.id}
-                                            address={listing.location}
-                                            title={listing.title}
-                                            height={480}
-                                            caption={aiCandidates[selectedPhotoIndex].reason || `${listing.title} 카카오 항공 스카이뷰`}
+                                ) : (
+                                    <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                        <img
+                                            src={aiCandidates[selectedPhotoIndex].url}
+                                            alt={aiCandidates[selectedPhotoIndex].label}
+                                            style={{
+                                                maxWidth: '100%',
+                                                maxHeight: '62vh',
+                                                objectFit: 'contain',
+                                                display: 'block',
+                                                borderRadius: '8px',
+                                                boxShadow: '0 8px 30px rgba(0,0,0,0.5)'
+                                            }}
                                         />
                                     </div>
-                                ) : (
-                                    <img
-                                        src={aiCandidates[selectedPhotoIndex].url}
-                                        alt={aiCandidates[selectedPhotoIndex].label}
-                                        style={{
-                                            maxWidth: '100%',
-                                            maxHeight: '62vh',
-                                            objectFit: 'contain',
-                                            display: 'block'
-                                        }}
-                                    />
                                 )}
 
                                 {/* 이전 사진 버튼 */}
