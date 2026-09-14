@@ -262,6 +262,40 @@ export default function ImportListingPage() {
                                 <div><strong style={{ color: isDark ? '#cbd5e1' : '#475569' }}>소재지:</strong> {importedListing.location}</div>
                             </div>
 
+                            {/* AI 매물 사진 자동 촬영 및 검증 결과 박스 */}
+                            {importedListing.aiPhotoVerification && (
+                                <div style={{
+                                    margin: '-12px 0 24px',
+                                    padding: '14px 18px',
+                                    borderRadius: '14px',
+                                    background: isDark ? 'rgba(14, 165, 233, 0.12)' : '#f0f9ff',
+                                    border: '1px solid rgba(14, 165, 233, 0.3)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '14px',
+                                    textAlign: 'left'
+                                }}>
+                                    <img 
+                                        src={importedListing.img} 
+                                        alt="AI 촬영 매물 사진" 
+                                        style={{ width: '84px', height: '62px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(14, 165, 233, 0.4)' }}
+                                    />
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                                            <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0284c7' }}>
+                                                {importedListing.aiPhotoVerification.sourceLabel || '📷 AI 매물 사진 자동 촬영 완료'}
+                                            </span>
+                                            <span style={{ fontSize: '0.72rem', padding: '2px 7px', borderRadius: '4px', background: '#10b981', color: '#fff', fontWeight: 800 }}>
+                                                AI 검증 {importedListing.aiPhotoVerification.score}점
+                                            </span>
+                                        </div>
+                                        <div style={{ fontSize: '0.78rem', color: isDark ? '#94a3b8' : '#64748b', wordBreak: 'keep-all' }}>
+                                            {importedListing.aiPhotoVerification.reason}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                                 <Link
                                     to={`/listings/${importedListing.id}`}

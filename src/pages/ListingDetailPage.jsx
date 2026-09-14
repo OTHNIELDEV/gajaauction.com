@@ -15,6 +15,7 @@ import KpiStatCards from '../components/im/KpiStatCards';
 import SensitivitySimulator from '../components/im/SensitivitySimulator';
 import FinancialChart from '../components/im/FinancialChart';
 import { unescapeMarkdown, extractMetricsFromIM, cleanExecutiveSummary } from '../utils/markdownUtils';
+import AiPropertyPhotoEngine from '../services/AiPropertyPhotoEngine';
 
 const parseKoreanCurrency = (str) => {
     if (!str) return 0;
@@ -34,8 +35,44 @@ const ListingDetailPage = () => {
     const [copiedNotice, setCopiedNotice] = useState(false);
     const [syncNotice, setSyncNotice] = useState(null);
     const [isCardModalOpen, setIsCardModalOpen] = useState(false);
+    const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(null); // Lightbox 중앙 팝업 인덱스
     const { openConsulting } = useOutletContext() || {};
     const { isDark } = useTheme();
+
+    // 카카오 로드뷰/스카이뷰/웹실사 AI 사진 후보군 도출
+    const aiCandidates = useMemo(() => {
+        if (!listing) return [];
+        if (listing.aiPhotoVerification?.candidates && listing.aiPhotoVerification.candidates.length > 0) {
+            return listing.aiPhotoVerification.candidates;
+        }
+        const evalResult = AiPropertyPhotoEngine.evaluateFast({
+            listingId: listing.id,
+            title: listing.title,
+            address: listing.location,
+            category: listing.category
+        });
+        return evalResult.candidates || [];
+    }, [listing]);
+
+    // 대표 사진 변경 핸들러
+    const handleSetAsMainPhoto = (candidate) => {
+        if (!listing) return;
+        const updated = {
+            ...listing,
+            img: candidate.url,
+            aiPhotoVerification: {
+                ...(listing.aiPhotoVerification || {}),
+                selectedSource: candidate.source,
+                sourceLabel: candidate.label,
+                score: candidate.score,
+                reason: candidate.reason,
+                candidates: aiCandidates
+            }
+        };
+        DataManager.saveListing(updated);
+        setListing(updated);
+        alert(`[대표 사진 변경 완료]\n'${candidate.label}' 사진이 본 매물의 공식 대표 사진으로 설정되었습니다.`);
+    };
 
     // ExitWise IM 마크다운 본문으로부터 최신 지표, 제원, KPI, 시뮬레이션 데이터 역추출 (자동 정합)
     const imMetrics = useMemo(() => {
@@ -699,6 +736,191 @@ const ListingDetailPage = () => {
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {/* AI 사진 자동 촬영 & 공인 실사 다중 갤러리 스트립 (사용자 요청 반영) */}
+                                            {aiCandidates.length > 0 && (
+                                                <div style={{
+                                                    margin: '0 0 28px',
+                                                    padding: '22px 24px',
+                                                    borderRadius: '16px',
+                                                    background: isDark ? 'rgba(15, 23, 42, 0.75)' : '#ffffff',
+                                                    border: `1px solid ${cardBorder}`,
+                                                    boxShadow: isDark ? '0 8px 30px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.04)'
+                                                }}>
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        marginBottom: '16px',
+                                                        flexWrap: 'wrap',
+                                                        gap: '10px'
+                                                    }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                            <span style={{
+                                                                width: '28px',
+                                                                height: '28px',
+                                                                borderRadius: '8px',
+                                                                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                                                color: '#000',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                fontSize: '0.8rem',
+                                                                fontWeight: 900,
+                                                                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+                                                            }}>
+                                                                AI
+                                                            </span>
+                                                            <div>
+                                                                <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-white)' }}>
+                                                                    현장 실사 & AI 다각도 촬영 사진첩
+                                                                </h4>
+                                                                <span style={{ fontSize: '0.76rem', color: 'var(--text-gray)' }}>
+                                                                    카카오 360° 로드뷰 · 항공 스카이뷰 · 인터넷 공인 실사
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div style={{
+                                                            fontSize: '0.78rem',
+                                                            color: '#0ea5e9',
+                                                            fontWeight: 700,
+                                                            background: isDark ? 'rgba(14, 165, 233, 0.12)' : '#f0f9ff',
+                                                            padding: '5px 12px',
+                                                            borderRadius: '20px',
+                                                            border: '1px solid rgba(14, 165, 233, 0.3)',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '5px'
+                                                        }}>
+                                                            <i className="fas fa-search-plus"></i> 사진을 클릭하면 중앙에 크게 확대됩니다
+                                                        </div>
+                                                    </div>
+
+                                                    {/* 사진 갤러리 카드 그리드 */}
+                                                    <div style={{
+                                                        display: 'grid',
+                                                        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                                                        gap: '14px'
+                                                    }}>
+                                                        {aiCandidates.map((photo, idx) => {
+                                                            const isCurrentMain = listing.img === photo.url;
+                                                            return (
+                                                                <div
+                                                                    key={idx}
+                                                                    onClick={() => setSelectedPhotoIndex(idx)}
+                                                                    style={{
+                                                                        position: 'relative',
+                                                                        borderRadius: '12px',
+                                                                        overflow: 'hidden',
+                                                                        cursor: 'pointer',
+                                                                        border: isCurrentMain ? '2px solid #10b981' : `1px solid ${subCardBorder}`,
+                                                                        background: subCardBg,
+                                                                        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                                        height: '180px',
+                                                                        boxShadow: isCurrentMain ? '0 0 16px rgba(16, 185, 129, 0.25)' : 'none'
+                                                                    }}
+                                                                    onMouseEnter={(e) => {
+                                                                        e.currentTarget.style.transform = 'translateY(-4px)';
+                                                                        e.currentTarget.style.boxShadow = '0 12px 28px rgba(0,0,0,0.35)';
+                                                                    }}
+                                                                    onMouseLeave={(e) => {
+                                                                        e.currentTarget.style.transform = 'translateY(0)';
+                                                                        e.currentTarget.style.boxShadow = isCurrentMain ? '0 0 16px rgba(16, 185, 129, 0.25)' : 'none';
+                                                                    }}
+                                                                    title="클릭하여 중앙에 크게 확대 보기"
+                                                                >
+                                                                    <img
+                                                                        src={photo.url}
+                                                                        alt={photo.label}
+                                                                        style={{
+                                                                            width: '100%',
+                                                                            height: '100%',
+                                                                            objectFit: 'cover',
+                                                                            transition: 'transform 0.4s ease'
+                                                                        }}
+                                                                    />
+                                                                    <div style={{
+                                                                        position: 'absolute',
+                                                                        top: 0,
+                                                                        left: 0,
+                                                                        width: '100%',
+                                                                        height: '100%',
+                                                                        background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.6) 100%)'
+                                                                    }} />
+
+                                                                    {/* 상단 뱃지 */}
+                                                                    <div style={{
+                                                                        position: 'absolute',
+                                                                        top: '10px',
+                                                                        left: '10px',
+                                                                        right: '10px',
+                                                                        display: 'flex',
+                                                                        justifyContent: 'space-between',
+                                                                        alignItems: 'center'
+                                                                    }}>
+                                                                        <span style={{
+                                                                            padding: '3px 9px',
+                                                                            borderRadius: '6px',
+                                                                            background: 'rgba(0,0,0,0.75)',
+                                                                            backdropFilter: 'blur(6px)',
+                                                                            color: 'white',
+                                                                            fontSize: '0.72rem',
+                                                                            fontWeight: 800,
+                                                                            border: '1px solid rgba(255,255,255,0.15)'
+                                                                        }}>
+                                                                            {photo.label}
+                                                                        </span>
+                                                                        <span style={{
+                                                                            padding: '2px 7px',
+                                                                            borderRadius: '4px',
+                                                                            background: '#f59e0b',
+                                                                            color: '#000',
+                                                                            fontSize: '0.7rem',
+                                                                            fontWeight: 900
+                                                                        }}>
+                                                                            AI {photo.score}점
+                                                                        </span>
+                                                                    </div>
+
+                                                                    {/* 하단 정보 */}
+                                                                    <div style={{
+                                                                        position: 'absolute',
+                                                                        bottom: '10px',
+                                                                        left: '10px',
+                                                                        right: '10px'
+                                                                    }}>
+                                                                        <div style={{
+                                                                            fontSize: '0.78rem',
+                                                                            color: '#ffffff',
+                                                                            fontWeight: 700,
+                                                                            overflow: 'hidden',
+                                                                            textOverflow: 'ellipsis',
+                                                                            whiteSpace: 'nowrap',
+                                                                            marginBottom: '3px'
+                                                                        }}>
+                                                                            {photo.reason}
+                                                                        </div>
+                                                                        <div style={{
+                                                                            display: 'flex',
+                                                                            justifyContent: 'space-between',
+                                                                            alignItems: 'center'
+                                                                        }}>
+                                                                            <span style={{ fontSize: '0.7rem', color: '#93c5fd', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                                <i className="fas fa-expand"></i> 클릭 확대
+                                                                            </span>
+                                                                            {isCurrentMain && (
+                                                                                <span style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 800, background: 'rgba(16, 185, 129, 0.2)', padding: '1px 6px', borderRadius: '4px' }}>
+                                                                                    ★ 현재 대표 사진
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             {/* ExitWise IM 본문 동적 마크다운 렌더링 (원문 전문 표시) */}
                                             {listing.exitwiseData?.markdownContent ? (
@@ -2197,6 +2419,275 @@ const ListingDetailPage = () => {
                                 >
                                     <i className="fas fa-envelope" style={{ marginRight: '6px' }}></i> 이메일
                                 </a>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+
+                {/* AI 사진 중앙 대형 라이트박스 팝업 모달 (사용자 요청 구현) */}
+                {selectedPhotoIndex !== null && aiCandidates[selectedPhotoIndex] && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            background: 'rgba(5, 10, 20, 0.92)',
+                            backdropFilter: 'blur(12px)',
+                            zIndex: 10000,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '24px'
+                        }}
+                        onClick={() => setSelectedPhotoIndex(null)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.92, y: 15 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.92, y: 15 }}
+                            transition={{ type: "spring", duration: 0.35 }}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                background: isDark ? '#0b1329' : '#ffffff',
+                                border: '1px solid rgba(255, 255, 255, 0.15)',
+                                borderRadius: '20px',
+                                maxWidth: '1020px',
+                                width: '100%',
+                                maxHeight: '92vh',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                boxShadow: '0 30px 60px -12px rgba(0,0,0,0.85)'
+                            }}
+                        >
+                            {/* 모달 상단 툴바 */}
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '16px 22px',
+                                borderBottom: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e2e8f0',
+                                background: isDark ? 'rgba(255,255,255,0.02)' : '#f8fafc'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                    <span style={{
+                                        padding: '4px 10px',
+                                        borderRadius: '8px',
+                                        background: 'linear-gradient(135deg, #0ea5e9, #3b82f6)',
+                                        color: '#ffffff',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 800
+                                    }}>
+                                        {aiCandidates[selectedPhotoIndex].label}
+                                    </span>
+                                    <span style={{
+                                        padding: '3px 8px',
+                                        borderRadius: '6px',
+                                        background: 'rgba(245, 158, 11, 0.15)',
+                                        color: '#d97706',
+                                        fontSize: '0.78rem',
+                                        fontWeight: 800
+                                    }}>
+                                        AI 검증점수 {aiCandidates[selectedPhotoIndex].score}점
+                                    </span>
+                                    <span style={{ fontSize: '0.86rem', fontWeight: 700, color: 'var(--text-white)' }}>
+                                        {listing.title}
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedPhotoIndex(null)}
+                                    style={{
+                                        background: isDark ? 'rgba(255,255,255,0.1)' : '#f1f5f9',
+                                        border: 'none',
+                                        color: 'var(--text-white)',
+                                        fontSize: '1.2rem',
+                                        cursor: 'pointer',
+                                        width: '36px',
+                                        height: '36px',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        transition: 'background 0.2s'
+                                    }}
+                                    title="닫기 (ESC)"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            {/* 모달 이미지 메인 영역 (중앙 정렬 대형 디스플레이) */}
+                            <div style={{
+                                position: 'relative',
+                                background: '#020617',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                minHeight: '380px',
+                                maxHeight: '62vh',
+                                overflow: 'hidden'
+                            }}>
+                                <img
+                                    src={aiCandidates[selectedPhotoIndex].url}
+                                    alt={aiCandidates[selectedPhotoIndex].label}
+                                    style={{
+                                        maxWidth: '100%',
+                                        maxHeight: '62vh',
+                                        objectFit: 'contain',
+                                        display: 'block'
+                                    }}
+                                />
+
+                                {/* 이전 사진 버튼 */}
+                                {aiCandidates.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedPhotoIndex((selectedPhotoIndex - 1 + aiCandidates.length) % aiCandidates.length)}
+                                        style={{
+                                            position: 'absolute',
+                                            left: '16px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            background: 'rgba(15, 23, 42, 0.75)',
+                                            border: '1px solid rgba(255,255,255,0.2)',
+                                            color: '#ffffff',
+                                            width: '44px',
+                                            height: '44px',
+                                            borderRadius: '50%',
+                                            fontSize: '1.2rem',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            backdropFilter: 'blur(4px)',
+                                            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                                            transition: 'transform 0.2s'
+                                        }}
+                                        title="이전 사진"
+                                    >
+                                        ❮
+                                    </button>
+                                )}
+
+                                {/* 다음 사진 버튼 */}
+                                {aiCandidates.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedPhotoIndex((selectedPhotoIndex + 1) % aiCandidates.length)}
+                                        style={{
+                                            position: 'absolute',
+                                            right: '16px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            background: 'rgba(15, 23, 42, 0.75)',
+                                            border: '1px solid rgba(255,255,255,0.2)',
+                                            color: '#ffffff',
+                                            width: '44px',
+                                            height: '44px',
+                                            borderRadius: '50%',
+                                            fontSize: '1.2rem',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            backdropFilter: 'blur(4px)',
+                                            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                                            transition: 'transform 0.2s'
+                                        }}
+                                        title="다음 사진"
+                                    >
+                                        ❯
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* 모달 하단 캡션 및 컨트롤 바 */}
+                            <div style={{
+                                padding: '16px 22px',
+                                borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e2e8f0',
+                                background: isDark ? 'rgba(255,255,255,0.02)' : '#ffffff',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                flexWrap: 'wrap',
+                                gap: '14px'
+                            }}>
+                                <div style={{ flex: '1 1 320px' }}>
+                                    <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-white)', marginBottom: '4px' }}>
+                                        {aiCandidates[selectedPhotoIndex].reason}
+                                    </div>
+                                    <div style={{ fontSize: '0.78rem', color: 'var(--text-gray)' }}>
+                                        총 {aiCandidates.length}장 중 {selectedPhotoIndex + 1}번째 사진 | 소재지: {listing.location}
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                    {aiCandidates[selectedPhotoIndex].directLink && (
+                                        <a
+                                            href={aiCandidates[selectedPhotoIndex].directLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{
+                                                padding: '9px 16px',
+                                                borderRadius: '8px',
+                                                background: '#fee500',
+                                                color: '#191919',
+                                                fontWeight: 800,
+                                                fontSize: '0.84rem',
+                                                textDecoration: 'none',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '6px',
+                                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                                            }}
+                                        >
+                                            <i className="fas fa-external-link-alt"></i> 카카오맵 현장 보기 ↗
+                                        </a>
+                                    )}
+
+                                    {listing.img === aiCandidates[selectedPhotoIndex].url ? (
+                                        <span style={{
+                                            padding: '9px 16px',
+                                            borderRadius: '8px',
+                                            background: 'rgba(16, 185, 129, 0.15)',
+                                            color: '#10b981',
+                                            fontWeight: 800,
+                                            fontSize: '0.84rem',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '6px'
+                                        }}>
+                                            ✓ 현재 공식 대표 사진
+                                        </span>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSetAsMainPhoto(aiCandidates[selectedPhotoIndex])}
+                                            style={{
+                                                padding: '9px 16px',
+                                                borderRadius: '8px',
+                                                background: 'linear-gradient(135deg, #10b981, #059669)',
+                                                color: '#ffffff',
+                                                border: 'none',
+                                                fontWeight: 800,
+                                                fontSize: '0.84rem',
+                                                cursor: 'pointer',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '6px',
+                                                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)'
+                                            }}
+                                        >
+                                            ★ 이 사진을 대표 사진으로 설정
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </motion.div>
                     </motion.div>

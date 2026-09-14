@@ -100,9 +100,35 @@ const ListingCard = ({ item }) => {
                     )}
 
                     {/* Bottom Location overlay */}
-                    <div style={{ position: 'absolute', bottom: '10px', left: '12px', color: 'white', fontSize: '0.85rem', zIndex: 2, display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <i className="fas fa-map-marker-alt" style={{ color: 'var(--accent-gold)' }}></i>
-                        <span>{item.location}</span>
+                    <div style={{ position: 'absolute', bottom: '10px', left: '12px', color: 'white', fontSize: '0.85rem', zIndex: 2, display: 'flex', alignItems: 'center', gap: '5px', maxWidth: '62%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <i className="fas fa-map-marker-alt" style={{ color: 'var(--accent-gold)', flexShrink: 0 }}></i>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.location}</span>
+                    </div>
+
+                    {/* Bottom Right: AI Photo Verified Badge */}
+                    <div style={{
+                        position: 'absolute',
+                        bottom: '10px',
+                        right: '12px',
+                        background: item.aiPhotoVerification?.selectedSource === 'web_search'
+                            ? 'rgba(14, 165, 233, 0.9)'
+                            : item.aiPhotoVerification?.selectedSource === 'kakao_skyview'
+                            ? 'rgba(168, 85, 247, 0.9)'
+                            : 'rgba(16, 185, 129, 0.9)',
+                        backdropFilter: 'blur(6px)',
+                        color: 'white',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        zIndex: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.35)'
+                    }}>
+                        <span>{item.aiPhotoVerification?.selectedSource === 'web_search' ? '🌐 웹 실사' : item.aiPhotoVerification?.selectedSource === 'kakao_skyview' ? '🛰️ 스카이뷰' : '📷 로드뷰'}</span>
+                        <span style={{ opacity: 0.9, fontSize: '0.68rem', fontWeight: 800 }}>{item.aiPhotoVerification?.score || 95}점</span>
                     </div>
                 </div>
 

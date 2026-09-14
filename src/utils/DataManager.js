@@ -1,6 +1,7 @@
 import { mockListings } from '../data/mockListings';
 import { partners } from '../data/partners';
 import AiAssetImageMatcher from './AiAssetImageMatcher';
+import AiPropertyPhotoEngine from '../services/AiPropertyPhotoEngine';
 import { sanitizeMarkdownContent, unescapeMarkdown, extractMetricsFromIM, cleanExecutiveSummary, parseWonFromKorean } from './markdownUtils';
 
 const STORAGE_KEYS = {
@@ -115,6 +116,29 @@ function syncExitwiseIMData(list) {
                     }
                 };
             }
+        }
+
+        // 8. AI 사진 검증 메타데이터 누락 자가치유 (로드뷰/스카이뷰/웹실사 후보군 생성)
+        if (!item.aiPhotoVerification) {
+            const photoEval = AiPropertyPhotoEngine.evaluateFast({
+                listingId: item.id,
+                title: item.title,
+                address: item.location,
+                category: item.category
+            });
+            changed = true;
+            return {
+                ...item,
+                img: item.img || photoEval.bestPhoto,
+                aiPhotoVerification: {
+                    selectedSource: photoEval.selectedSource,
+                    sourceLabel: photoEval.sourceLabel,
+                    score: photoEval.score,
+                    reason: photoEval.reason,
+                    candidates: photoEval.candidates,
+                    verifiedAt: photoEval.verifiedAt
+                }
+            };
         }
 
         return item;
@@ -429,13 +453,26 @@ const DataManager = {
         const listings = DataManager.getListings();
         const index = listings.findIndex(item => String(item.id) === String(listing.id));
 
-        if (!listing.img) {
-            const matched = AiAssetImageMatcher.match({
+        if (!listing.img || !listing.aiPhotoVerification) {
+            const photoEval = AiPropertyPhotoEngine.evaluateFast({
+                listingId: listing.id,
                 title: listing.title,
                 category: listing.category,
-                location: listing.location
+                address: listing.location
             });
-            listing.img = matched.img;
+            if (!listing.img) {
+                listing.img = photoEval.bestPhoto;
+            }
+            if (!listing.aiPhotoVerification) {
+                listing.aiPhotoVerification = {
+                    selectedSource: photoEval.selectedSource,
+                    sourceLabel: photoEval.sourceLabel,
+                    score: photoEval.score,
+                    reason: photoEval.reason,
+                    candidates: photoEval.candidates,
+                    verifiedAt: photoEval.verifiedAt
+                };
+            }
         }
 
         if (index >= 0) {
@@ -524,13 +561,23 @@ const DataManager = {
             location: cleanLocation
         });
 
+        // AI 로드뷰/스카이뷰/웹실사 즉시 동기 평가
+        const aiPhotoEval = AiPropertyPhotoEngine.evaluateFast({
+            listingId: deterministicId,
+            title: titleForMatch,
+            address: cleanLocation,
+            category: imData.category
+        });
+
         const isHotel = lowerTitle.includes('호텔') || imData.category === '호텔' || aiMatched.category === '호텔';
         const finalCategory = isHotel ? '호텔' : (aiMatched.category || imData.category || '오피스빌딩');
         const finalLocation = cleanLocation || aiMatched.location || (isHotel ? '부산 해운대구 우동' : '서울 영등포구 여의대로 24');
         const finalTitle = imData.title || imData.imTitle || `${aiMatched.cleanTitle} 자산 매각`;
-        const finalImg = (deterministicId === 'exitwise-fourseasons-hotel' || lowerTitle.includes('포시즌스'))
-            ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80'
-            : aiMatched.img;
+        const finalImg = aiPhotoEval.bestPhoto || (
+            (deterministicId === 'exitwise-fourseasons-hotel' || lowerTitle.includes('포시즌스'))
+                ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80'
+                : aiMatched.img
+        );
 
         const finalSalePrice = imData.salePrice || imData.targetPrice || (deterministicId === 'exitwise-fourseasons-hotel' ? '8,100억' : (isHotel ? '1,850억' : '2,850억'));
         const finalRoi = imData.roi || (deterministicId === 'exitwise-fourseasons-hotel' ? '2.15%' : (isHotel ? '5.8%' : '5.4%'));
@@ -595,6 +642,14 @@ const DataManager = {
             id: deterministicId,
             type: imData.type || (finalCategory === 'NPL' ? 'npl' : 'general'),
             img: finalImg,
+            aiPhotoVerification: {
+                selectedSource: aiPhotoEval.selectedSource,
+                sourceLabel: aiPhotoEval.sourceLabel,
+                score: aiPhotoEval.score,
+                reason: aiPhotoEval.reason,
+                candidates: aiPhotoEval.candidates,
+                verifiedAt: aiPhotoEval.verifiedAt
+            },
             location: finalLocation,
             title: finalTitle,
             category: finalCategory,
@@ -794,6 +849,46 @@ const DataManager = {
         }
         return healed;
     },
+
+    // 단일 매물 AI 사진 자동 촬영 및 검증 (카카오 로드뷰/스카이뷰/웹실사)
+    captureListingPhoto: async (id) => {
+        const listings = DataManager.getListings();
+        const index = listings.findIndex(item => String(item.id) === String(id));
+        if (index < 0) return null;
+
+        const updatedItem = await AiPropertyPhotoEngine.applyAiPhotoToListing(listings[index]);
+        listings[index] = updatedItem;
+        localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
+
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings } }));
+        }
+        return updatedItem;
+    },
+
+    // 전 매물 대상 카카오 로드뷰/스카이뷰/웹실사 AI 사진 일괄 자동 촬영 및 등재
+    autoCaptureAllListingsPhotos: async () => {
+        const listings = DataManager.getListings();
+        const updatedListings = [];
+
+        for (const item of listings) {
+            try {
+                const updated = await AiPropertyPhotoEngine.applyAiPhotoToListing(item);
+                updatedListings.push(updated);
+            } catch (err) {
+                console.warn('[DataManager] Error capturing photo for listing:', item.id, err);
+                updatedListings.push(item);
+            }
+        }
+
+        localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(updatedListings));
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings: updatedListings } }));
+            window.dispatchEvent(new CustomEvent('ai_photos_batch_completed', { detail: { count: updatedListings.length } }));
+        }
+        return updatedListings;
+    },
+
 
     // --- Partners ---
     getPartners: () => {
