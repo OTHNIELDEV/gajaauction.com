@@ -118,13 +118,18 @@ function syncExitwiseIMData(list) {
             }
         }
 
-        // 8. AI 사진 검증 메타데이터 누락 및 구버전/더미 이미지 자가치유
+        // 8. 관리자가 직접 수동 등록/수정한 썸네일(isManualPhoto)은 AI 자가치유가 절대 덮어쓰지 않고 100% 영구 보존
+        if (item.isManualPhoto || item.aiPhotoVerification?.isManual) {
+            return item;
+        }
+
+        // 9. AI 사진 검증 메타데이터 누락 및 구버전/더미 이미지 자가치유
         // - 브이월드 국가 정밀 항공사진 또는 공인 실사로 전 매물 100% 자가치유 갱신
         const hasVWorldCandidate = item.aiPhotoVerification?.candidates?.some(c => c.url?.includes('api.vworld.kr'));
         const hasLegacyPlaceholder = !item.img || 
             item.img.includes('gangnam.png') || 
             item.img.includes('pangyo.png') || 
-            item.img.includes('busan.png') ||
+            item.img.includes('busan.png') || 
             item.img.includes('placeholder');
         const hasRandomUnsplash = item.img?.includes('unsplash.com') && 
             !item.img?.includes('photo-1542314831-068cd1dbfeeb') && // 포시즌스호텔 공인 실사 제외
@@ -476,32 +481,43 @@ const DataManager = {
         const listings = DataManager.getListings();
         const index = listings.findIndex(item => String(item.id) === String(listing.id));
 
-        if (!listing.img || !listing.aiPhotoVerification) {
+        // 관리자가 썸네일을 직접 지정/수정한 경우 플래그 및 메타데이터 자동 세팅 (자가치유 덮어쓰기 방지)
+        if (listing.img) {
+            listing.isManualPhoto = true;
+            listing.aiPhotoVerification = {
+                ...(listing.aiPhotoVerification || {}),
+                selectedSource: 'manual_admin',
+                sourceLabel: '👤 관리자 지정 대표 사진',
+                score: 100,
+                reason: '관리자가 직접 등록 및 수정한 공식 대표 사진 (영구 보존)',
+                isManual: true,
+                verifiedAt: new Date().toISOString()
+            };
+        } else if (!listing.img || !listing.aiPhotoVerification) {
             const photoEval = AiPropertyPhotoEngine.evaluateFast({
                 listingId: listing.id,
                 title: listing.title,
                 category: listing.category,
                 address: listing.location
             });
-            if (!listing.img) {
-                listing.img = photoEval.bestPhoto;
-            }
-            if (!listing.aiPhotoVerification) {
-                listing.aiPhotoVerification = {
-                    selectedSource: photoEval.selectedSource,
-                    sourceLabel: photoEval.sourceLabel,
-                    score: photoEval.score,
-                    reason: photoEval.reason,
-                    candidates: photoEval.candidates,
-                    verifiedAt: photoEval.verifiedAt
-                };
-            }
+            listing.img = photoEval.bestPhoto;
+            listing.aiPhotoVerification = {
+                selectedSource: photoEval.selectedSource,
+                sourceLabel: photoEval.sourceLabel,
+                score: photoEval.score,
+                reason: photoEval.reason,
+                candidates: photoEval.candidates,
+                verifiedAt: photoEval.verifiedAt
+            };
         }
 
         if (index >= 0) {
-            listings[index] = { ...listings[index], ...listing };
+            const updated = { ...listings[index], ...listing, updatedAt: new Date().toISOString() };
+            // 최근 수정한 매물을 최상단으로 재배치하여 랜딩페이지(Home) Featured 매물에도 즉시 노출
+            listings.splice(index, 1);
+            listings.unshift(updated);
         } else {
-            listings.unshift(listing);
+            listings.unshift({ ...listing, createdAt: new Date().toISOString() });
         }
         localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
         if (typeof window !== 'undefined') {

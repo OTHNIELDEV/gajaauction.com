@@ -305,6 +305,11 @@ export const AiAssetImageMatcher = {
         const healed = listings.map(item => {
             if (!item) return item;
 
+            // 관리자가 직접 지정/수정한 대표 사진(isManualPhoto)은 AI 자가치유가 절대 덮어쓰지 않고 100% 영구 보존
+            if (item.isManualPhoto || item.aiPhotoVerification?.isManual) {
+                return item;
+            }
+
             const isExitwise = item.isExitwiseLinked || String(item.id).startsWith('exitwise');
             const title = item.title || '';
             const img = item.img || '';

@@ -107,6 +107,10 @@ const FeaturedListings = () => {
                                         alt={item.title} 
                                         className="featured-img" 
                                         loading="lazy" 
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = '/assets/listings/korea_financial_tower.jpg';
+                                        }}
                                     />
                                     <div className="featured-media-overlay" />
                                     <div className="featured-media-badges">
