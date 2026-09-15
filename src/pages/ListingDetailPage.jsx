@@ -289,6 +289,40 @@ const ListingDetailPage = () => {
 
                 <div className="container listing-detail-hero-container" style={{ position: 'relative', zIndex: 2 }}>
                     <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ maxWidth: '900px' }}>
+                        {/* 상단 브레드크럼 & 목록으로 돌아가기 버튼 */}
+                        <div style={{ marginBottom: '16px' }}>
+                            <Link
+                                to="/listings"
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    padding: '8px 16px',
+                                    borderRadius: '24px',
+                                    background: isDark ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.9)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: isDark ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid rgba(0, 0, 0, 0.12)',
+                                    color: isDark ? '#e2e8f0' : '#1e293b',
+                                    fontSize: '0.86rem',
+                                    fontWeight: '600',
+                                    textDecoration: 'none',
+                                    transition: 'all 0.2s ease',
+                                    boxShadow: '0 2px 10px rgba(0,0,0,0.15)'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'translateX(-3px)';
+                                    e.currentTarget.style.borderColor = 'var(--accent-gold)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'translateX(0)';
+                                    e.currentTarget.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.18)' : '1px solid rgba(0, 0, 0, 0.12)';
+                                }}
+                            >
+                                <i className="fas fa-arrow-left" style={{ color: 'var(--accent-gold)', fontSize: '0.82rem' }}></i>
+                                <span>전체 매물 목록으로</span>
+                            </Link>
+                        </div>
+
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
                             {/* Type Badge */}
                             {isGeneral && (
@@ -1888,8 +1922,104 @@ const ListingDetailPage = () => {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* 사이드바 하단 매물 목록 퀵 링크 */}
+                            <div style={{ marginTop: '14px', textAlign: 'center' }}>
+                                <Link
+                                    to="/listings"
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        color: 'var(--text-gray)',
+                                        fontSize: '0.84rem',
+                                        fontWeight: '600',
+                                        textDecoration: 'none',
+                                        transition: 'color 0.2s',
+                                        padding: '4px 8px'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-gray)'}
+                                >
+                                    <i className="fas fa-th-large" style={{ fontSize: '0.8rem', color: 'var(--accent-gold)' }}></i>
+                                    <span>다른 매물 더보기</span>
+                                    <i className="fas fa-chevron-right" style={{ fontSize: '0.72rem' }}></i>
+                                </Link>
+                            </div>
                         </div>
 
+                    </div>
+
+                    {/* 하단 탐색 완료 액션 배너: 목록으로 돌아가기 & 맨 위로 */}
+                    <div style={{
+                        marginTop: '60px',
+                        padding: '28px 32px',
+                        borderRadius: '16px',
+                        background: isDark ? 'rgba(255, 255, 255, 0.03)' : '#ffffff',
+                        border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid #e2e8f0',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '20px',
+                        boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 30px rgba(0,0,0,0.05)'
+                    }}>
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                                <span style={{ color: 'var(--accent-gold)', fontSize: '1rem' }}>✦</span>
+                                <h4 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text-white)', fontWeight: '800' }}>
+                                    더 많은 프리미엄 자산을 찾고 계신가요?
+                                </h4>
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-gray)' }}>
+                                가자에셋의 오피스빌딩, 호텔, 공장·물류, NPL 및 법원경매 매물을 비교 분석해 보세요.
+                            </p>
+                        </div>
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <Link
+                                to="/listings"
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    padding: '12px 24px',
+                                    borderRadius: '10px',
+                                    background: 'linear-gradient(135deg, var(--accent-gold), #b8860b)',
+                                    color: '#000000',
+                                    fontWeight: '800',
+                                    fontSize: '0.92rem',
+                                    textDecoration: 'none',
+                                    boxShadow: '0 4px 14px rgba(212, 175, 55, 0.35)',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                            >
+                                <i className="fas fa-th-list"></i>
+                                <span>전체 매물 목록 보기</span>
+                            </Link>
+                            <button
+                                type="button"
+                                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '12px 18px',
+                                    borderRadius: '10px',
+                                    background: isDark ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9',
+                                    border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid #cbd5e1',
+                                    color: 'var(--text-white)',
+                                    fontWeight: '600',
+                                    fontSize: '0.92rem',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <i className="fas fa-arrow-up"></i>
+                                <span>맨 위로</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
