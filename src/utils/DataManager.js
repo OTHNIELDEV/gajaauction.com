@@ -474,8 +474,53 @@ const DataManager = {
         return healed;
     },
     getListingById: (id) => {
+        if (!id) return null;
+        const targetId = String(id).trim();
         const listings = DataManager.getListings();
-        return listings.find(item => String(item.id) === String(id));
+
+        // 1단계: 완전 일치 (Exact match)
+        const exact = listings.find(item => String(item.id) === targetId);
+        if (exact) return exact;
+
+        // 2단계: 대소문자 무시 완전 일치
+        const lowerTarget = targetId.toLowerCase();
+        const caseInsensitive = listings.find(item => String(item.id).toLowerCase() === lowerTarget);
+        if (caseInsensitive) return caseInsensitive;
+
+        // 3단계: ExitWise ID 스마트 매칭 (8자리 단축, 16자리, UUID 전체, 접두사 상호 호환)
+        const cleanTarget = lowerTarget.replace(/^exitwise-/, '').replace(/[^a-z0-9]/g, '');
+
+        const smartMatch = listings.find(item => {
+            const itemIdStr = String(item.id || '').toLowerCase();
+            const cleanItemId = itemIdStr.replace(/^exitwise-/, '').replace(/[^a-z0-9]/g, '');
+            const itemDocId = String(item.exitwiseData?.imDocumentId || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const itemDocNum = String(item.exitwiseData?.imDocNumber || '').toLowerCase();
+
+            // 3-A. 아이템 ID 접두사/포함 일치 (예: exitwise-8654b247 vs exitwise-8654b247abcd)
+            if (cleanTarget.length >= 6 && cleanItemId.length >= 6) {
+                if (cleanItemId.startsWith(cleanTarget) || cleanTarget.startsWith(cleanItemId)) {
+                    return true;
+                }
+            }
+
+            // 3-B. exitwiseData.imDocumentId(UUID) 매칭
+            if (cleanTarget.length >= 6 && itemDocId.length >= 6) {
+                if (itemDocId.startsWith(cleanTarget) || cleanTarget.startsWith(itemDocId)) {
+                    return true;
+                }
+            }
+
+            // 3-C. 문서번호 매칭 (예: IM-2026-EW-8654)
+            if (cleanTarget.length >= 4 && itemDocNum && itemDocNum.includes(cleanTarget)) {
+                return true;
+            }
+
+            return false;
+        });
+
+        if (smartMatch) return smartMatch;
+
+        return null;
     },
     saveListing: (listing) => {
         const listings = DataManager.getListings();
@@ -528,10 +573,20 @@ const DataManager = {
     updateListingFromExitwise: (docId, freshData) => {
         if (!docId || !freshData) return null;
         const listings = DataManager.getListings();
-        const index = listings.findIndex(item => 
-            String(item.id) === String(docId) || 
-            String(item.exitwiseData?.imDocumentId) === String(docId)
-        );
+        const cleanDocId = String(docId).toLowerCase().replace(/^exitwise-/, '').replace(/[^a-z0-9]/g, '');
+
+        const index = listings.findIndex(item => {
+            const itemIdStr = String(item.id || '').toLowerCase();
+            const cleanItemId = itemIdStr.replace(/^exitwise-/, '').replace(/[^a-z0-9]/g, '');
+            const itemDocId = String(item.exitwiseData?.imDocumentId || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (String(item.id) === String(docId)) return true;
+            if (String(item.exitwiseData?.imDocumentId) === String(docId)) return true;
+            if (cleanDocId.length >= 6) {
+                if (cleanItemId.startsWith(cleanDocId) || cleanDocId.startsWith(cleanItemId)) return true;
+                if (itemDocId.startsWith(cleanDocId) || cleanDocId.startsWith(itemDocId)) return true;
+            }
+            return false;
+        });
 
         if (index >= 0) {
             const current = listings[index];
@@ -560,8 +615,14 @@ const DataManager = {
             }
             console.log(`[DataManager] Successfully live-synced listing ${current.id} (${docId})`);
             return updatedListing;
+        } else {
+            // 매물이 아직 로컬에 없으면 즉시 자동 임포트 생성!
+            return DataManager.importFromExitwise({
+                id: String(docId).startsWith('exitwise-') ? docId : `exitwise-${String(docId).slice(0, 8)}`,
+                imDocumentId: docId,
+                ...freshData
+            });
         }
-        return null;
     },
     importFromExitwise: (imData) => {
         // AI 시맨틱 분석으로 제목과 본문에 100% 어울리는 사진 및 제원 도출
@@ -585,10 +646,14 @@ const DataManager = {
             deterministicId = 'exitwise-haeundae';
         } else if (lowerTitle.includes('제니스') || lowerTitle.includes('마린시티')) {
             deterministicId = 'exitwise-zenith-npl';
+        } else if (imData.id && String(imData.id).trim().length > 0) {
+            // 전달받은 ID가 이미 있으면 그대로 최우선 채택 (불일치 원천 차단)
+            deterministicId = String(imData.id).trim();
         } else if (imData.imDocumentId) {
-            deterministicId = imData.imDocumentId.startsWith('exitwise-') 
-                ? imData.imDocumentId 
-                : `exitwise-${imData.imDocumentId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 16)}`;
+            const rawDocId = String(imData.imDocumentId).trim();
+            deterministicId = rawDocId.startsWith('exitwise-') 
+                ? rawDocId 
+                : `exitwise-${rawDocId.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8)}`;
         } else if (!deterministicId) {
             deterministicId = `exitwise-${Date.now()}`;
         }

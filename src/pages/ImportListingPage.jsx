@@ -67,7 +67,8 @@ export default function ImportListingPage() {
             htmlContent: data.htmlContent || ''
         });
 
-        lastProcessedIdRef.current = finalId;
+        const targetId = saved?.id || finalId;
+        lastProcessedIdRef.current = targetId;
         setImportedListing(saved);
         setStatus('success');
 
@@ -75,7 +76,7 @@ export default function ImportListingPage() {
         if (autoRedirect && !redirectScheduledRef.current) {
             redirectScheduledRef.current = true;
             setTimeout(() => {
-                navigate(`/listings/${finalId}`);
+                navigate(`/listings/${targetId}?registered=true`);
             }, 1800);
         }
     };

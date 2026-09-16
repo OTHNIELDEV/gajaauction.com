@@ -102,17 +102,18 @@ class ExitWiseSyncManagerClass {
      */
     async syncWithExitwise(imDocumentId) {
         if (!imDocumentId) return null;
+        const cleanId = String(imDocumentId).replace(/^exitwise-/, '').trim();
 
         // 동일 문서에 대해 10초 이내 중복 fetch 방지 (스로틀링)
-        const lastSync = this.syncCache.get(imDocumentId);
+        const lastSync = this.syncCache.get(cleanId);
         const now = Date.now();
         if (lastSync && now - lastSync < 10000) {
             return null;
         }
-        this.syncCache.set(imDocumentId, now);
+        this.syncCache.set(cleanId, now);
 
         try {
-            const endpoint = `${EXITWISE_API_BASE}/api/gajaasset/sync/${imDocumentId}`;
+            const endpoint = `${EXITWISE_API_BASE}/api/gajaasset/sync/${cleanId}`;
             const res = await fetch(endpoint, {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' },
@@ -148,6 +149,54 @@ class ExitWiseSyncManagerClass {
         } catch (error) {
             // 네트워크 오류 시 로컬 캐시 유지 및 무음 폴백
             console.debug('[ExitWiseSyncManager] Background sync skipped:', error?.message);
+        }
+        return null;
+    }
+
+    /**
+     * 로컬에 매물이 없을 때 원격 ExitWise API에서 문서를 가져와 매물로 즉시 등록 (Remote Auto-Recovery)
+     */
+    async fetchAndImport(rawId) {
+        if (!rawId) return null;
+        const cleanId = String(rawId).replace(/^exitwise-/, '').trim();
+
+        try {
+            const endpoint = `${EXITWISE_API_BASE}/api/gajaasset/sync/${cleanId}`;
+            const res = await fetch(endpoint, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                cache: 'no-store'
+            });
+
+            if (!res.ok) return null;
+
+            const json = await res.json();
+            if (json.success && json.data) {
+                const freshDoc = json.data;
+                const imported = DataManager.importFromExitwise({
+                    id: String(rawId).startsWith('exitwise-') ? rawId : `exitwise-${rawId.slice(0, 8)}`,
+                    imDocumentId: freshDoc.id || cleanId,
+                    title: freshDoc.title,
+                    markdownContent: freshDoc.markdownContent,
+                    htmlContent: freshDoc.htmlContent,
+                    mediaAssets: freshDoc.mediaAssets,
+                    propertyType: freshDoc.propertyType,
+                    source: 'exitwise.io',
+                    registeredAt: new Date().toISOString()
+                });
+
+                if (imported) {
+                    this.notifySubscribers({
+                        type: 'IM_DOCUMENT_UPDATED',
+                        documentId: imported.id,
+                        listing: imported,
+                        timestamp: Date.now()
+                    });
+                }
+                return imported;
+            }
+        } catch (err) {
+            console.warn('[ExitWiseSyncManager] fetchAndImport failed:', err?.message);
         }
         return null;
     }

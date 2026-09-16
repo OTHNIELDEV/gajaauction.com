@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link, useOutletContext } from 'react-router-dom';
+import { useParams, Link, useOutletContext, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { YieldCalculator } from '../components/calculator/YieldCalculator';
 import { WealthSimulator } from '../components/calculator/WealthSimulator';
@@ -28,7 +28,10 @@ const parseKoreanCurrency = (str) => {
 
 const ListingDetailPage = () => {
     const { id } = useParams();
+    const [searchParams] = useSearchParams();
     const [listing, setListing] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [registrationSuccessNotice, setRegistrationSuccessNotice] = useState(false);
     const [activeTab, setActiveTab] = useState('overview');
     const [locationViewMode, setLocationViewMode] = useState('map'); // 'map' | 'roadview'
     const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
@@ -86,27 +89,55 @@ const ListingDetailPage = () => {
     }, [listing]);
 
     useEffect(() => {
+        if (searchParams.get('registered') === 'true') {
+            setRegistrationSuccessNotice(true);
+            setTimeout(() => setRegistrationSuccessNotice(false), 5000);
+        }
+    }, [searchParams]);
+
+    useEffect(() => {
         window.scrollTo(0, 0);
         DataManager.init();
+        let isMounted = true;
         const found = DataManager.getListingById(id);
         if (found) {
             setListing(found);
+            setIsLoading(false);
             // ExitWise 연동 매물인 경우 즉시 IM 전문 탭을 기본 활성화
             if (found.isExitwiseLinked) {
                 setActiveTab('exitwise');
                 // Background SWR 최신 IM 동기화 시도
-                const imDocId = found.exitwiseData?.imDocumentId;
+                const imDocId = found.exitwiseData?.imDocumentId || found.id;
                 if (imDocId) {
                     ExitWiseSyncManager.syncWithExitwise(imDocId);
                 }
             }
+        } else if (id && (String(id).startsWith('exitwise-') || String(id).length >= 8)) {
+            // 로컬에 매물이 없으나 ExitWise 식별자인 경우 원격 Auto-Heal 조회 시도
+            setIsLoading(true);
+            ExitWiseSyncManager.fetchAndImport(id)
+                .then((remoteListing) => {
+                    if (!isMounted) return;
+                    if (remoteListing) {
+                        setListing(remoteListing);
+                        if (remoteListing.isExitwiseLinked) {
+                            setActiveTab('exitwise');
+                        }
+                    }
+                    setIsLoading(false);
+                })
+                .catch(() => {
+                    if (isMounted) setIsLoading(false);
+                });
+        } else {
+            setIsLoading(false);
         }
 
         // ExitWise 실시간 동기화 이벤트 구독 (BroadcastChannel & storage)
         const unsubscribe = ExitWiseSyncManager.subscribe((event) => {
             if (event.type === 'IM_DOCUMENT_UPDATED' || event.type === 'LIVE_REVALIDATION_SUCCESS') {
                 const updated = DataManager.getListingById(id);
-                if (updated) {
+                if (updated && isMounted) {
                     setListing({ ...updated });
                     setSyncNotice('ExitWise 최신 IM 업데이트가 실시간 반영되었습니다.');
                     setTimeout(() => setSyncNotice(null), 4000);
@@ -118,7 +149,7 @@ const ListingDetailPage = () => {
         const handleLocalRevalidated = (e) => {
             if (e.detail?.id === id || !id || e.type === 'exitwise_all_im_revalidated') {
                 const updated = DataManager.getListingById(id);
-                if (updated) {
+                if (updated && isMounted) {
                     setListing({ ...updated });
                 }
             }
@@ -127,6 +158,7 @@ const ListingDetailPage = () => {
         window.addEventListener('exitwise_all_im_revalidated', handleLocalRevalidated);
 
         return () => {
+            isMounted = false;
             unsubscribe();
             window.removeEventListener('exitwise_im_revalidated', handleLocalRevalidated);
             window.removeEventListener('exitwise_all_im_revalidated', handleLocalRevalidated);
@@ -179,11 +211,49 @@ const ListingDetailPage = () => {
         }
     };
 
+    if (isLoading) {
+        return (
+            <div style={{ padding: '220px 20px', textAlign: 'center', color: 'var(--text-white)' }}>
+                <i className="fas fa-circle-notch fa-spin" style={{ fontSize: '2.8rem', color: 'var(--accent-gold)', marginBottom: '22px' }}></i>
+                <h2 style={{ fontSize: '1.45rem', fontWeight: 800, marginBottom: '10px' }}>매물 정보를 불러오는 중입니다...</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem' }}>ExitWise AI 투자분석 IM 및 자산 제원을 안전하게 동기화하고 있습니다.</p>
+            </div>
+        );
+    }
+
     if (!listing) {
         return (
             <div style={{ padding: '200px 20px', textAlign: 'center', color: 'var(--text-white)' }}>
-                <h2>매물을 찾을 수 없습니다.</h2>
-                <Link to="/listings" className="btn-primary" style={{ marginTop: '20px', display: 'inline-block' }}>목록으로 돌아가기</Link>
+                <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    color: '#ef4444',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 20px',
+                    fontSize: '28px'
+                }}>
+                    <i className="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '12px' }}>매물을 찾을 수 없습니다.</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', maxWidth: '460px', margin: '0 auto 24px', lineHeight: 1.6 }}>
+                    요청하신 매물({id}) 정보가 삭제되었거나 일시적으로 동기화가 지연되고 있습니다. 전체 매물 목록에서 다른 추천 자산을 확인해 보세요.
+                </p>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <Link to="/listings" className="btn-primary" style={{ display: 'inline-block' }}>전체 매물 목록 보기</Link>
+                    <Link to="/" style={{
+                        display: 'inline-block',
+                        padding: '12px 20px',
+                        borderRadius: '8px',
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        color: 'var(--text-white)',
+                        fontWeight: 600,
+                        textDecoration: 'none'
+                    }}>홈으로 이동</Link>
+                </div>
             </div>
         );
     }
@@ -408,6 +478,37 @@ const ListingDetailPage = () => {
 
                         {/* Left: Main Tabs & Info */}
                         <div className="listing-detail-main">
+                            {/* ExitWise New Registration Success Banner */}
+                            {registrationSuccessNotice && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    style={{
+                                        background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.95), rgba(180, 83, 9, 0.95))',
+                                        color: '#ffffff',
+                                        padding: '14px 20px',
+                                        borderRadius: '12px',
+                                        marginBottom: '20px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px',
+                                        fontWeight: '700',
+                                        fontSize: '0.94rem',
+                                        boxShadow: '0 4px 18px rgba(217, 119, 6, 0.35)',
+                                        border: '1px solid rgba(254, 243, 199, 0.4)'
+                                    }}
+                                >
+                                    <i className="fas fa-check-circle" style={{ fontSize: '1.3rem', color: '#fde68a' }}></i>
+                                    <div>
+                                        <div style={{ fontWeight: 800 }}>ExitWise AI 매물 등록 완료!</div>
+                                        <div style={{ fontSize: '0.82rem', fontWeight: 500, opacity: 0.95, marginTop: '2px' }}>
+                                            가자에셋 플랫폼에 정상 게시되었으며 투자설명서(IM) 전문과 제원이 안전하게 연동되었습니다.
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+
                             {/* Live Sync Notice Banner */}
                             {syncNotice && (
                                 <motion.div
