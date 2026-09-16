@@ -374,23 +374,15 @@ const MapSearchPage = () => {
         });
         leafletMapRef.current = map;
 
-        // API 키가 전혀 필요 없고 워터마크 없는 100% 오픈 글로벌 타일 (OSM & Esri)
-        const tileUrl = isDark
-            ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
-            : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        // 전 세계에서 가장 선명한 Google Maps 글로벌 고해상도 타일 (API 키 워터마크 없음)
+        const tileUrl = 'https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
 
-        const tileOptions: any = {
-            attribution: isDark
-                ? '&copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
-                : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            maxZoom: 19
-        };
-
-        if (!isDark) {
-            tileOptions.subdomains = ['a', 'b', 'c'];
-        }
-
-        L.tileLayer(tileUrl, tileOptions).addTo(map);
+        L.tileLayer(tileUrl, {
+            subdomains: ['0', '1', '2', '3'],
+            attribution: '&copy; Google Maps',
+            maxZoom: 20,
+            className: isDark ? 'google-dark-tiles' : ''
+        }).addTo(map);
 
         L.control.scale({ imperial: false, position: 'bottomright' }).addTo(map);
 
@@ -696,6 +688,9 @@ const MapSearchPage = () => {
                     background: transparent !important;
                     border: none !important;
                 }
+                .google-dark-tiles {
+                    filter: invert(90%) hue-rotate(180deg) brightness(88%) contrast(90%) !important;
+                }
                 .custom-property-pin:hover, .custom-hub-pin:hover {
                     transform: translate(-50%, -105%) scale(1.08) !important;
                     z-index: 9999 !important;
@@ -839,7 +834,7 @@ const MapSearchPage = () => {
                             }}
                         >
                             <span>🌐</span>
-                            <span>글로벌 세계 지도</span>
+                            <span>글로벌 구글 지도</span>
                         </button>
                         <button
                             onClick={() => setMapEngine('kakao')}
