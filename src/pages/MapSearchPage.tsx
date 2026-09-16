@@ -374,16 +374,23 @@ const MapSearchPage = () => {
         });
         leafletMapRef.current = map;
 
-        // 고품질 글로벌 지도 타일 (CartoDB Voyager / DarkMatter - 레티나 & 글로벌 지명 완벽 지원)
+        // API 키가 전혀 필요 없고 워터마크 없는 100% 오픈 글로벌 타일 (OSM & Esri)
         const tileUrl = isDark
-            ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-            : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+            ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+            : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-        L.tileLayer(tileUrl, {
-            attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
-            subdomains: 'abcd',
+        const tileOptions: any = {
+            attribution: isDark
+                ? '&copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
+                : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 19
-        }).addTo(map);
+        };
+
+        if (!isDark) {
+            tileOptions.subdomains = ['a', 'b', 'c'];
+        }
+
+        L.tileLayer(tileUrl, tileOptions).addTo(map);
 
         L.control.scale({ imperial: false, position: 'bottomright' }).addTo(map);
 
