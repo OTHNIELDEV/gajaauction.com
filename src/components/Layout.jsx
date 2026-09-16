@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import ConsultingWizard from './wizard/ConsultingWizard';
@@ -9,6 +9,8 @@ import ChatWidget from './ChatWidget';
 
 const Layout = () => {
     const [isConsultingOpen, setIsConsultingOpen] = useState(false);
+    const location = useLocation();
+    const isMapPage = location.pathname === '/map';
 
     // Helper to determine if we should show the layout
     // (In case we later have pages without navbar/footer, e.g. landing pages or admin login)
@@ -20,15 +22,15 @@ const Layout = () => {
     };
 
     return (
-        <div className="app-layout">
+        <div className={`app-layout ${isMapPage ? 'map-layout-active' : ''}`} style={isMapPage ? { height: '100vh', overflow: 'hidden' } : {}}>
 
             <Navbar onConsultingClick={openConsulting} />
 
-            <main style={{ minHeight: 'calc(100vh - 350px)' }}>
+            <main style={isMapPage ? { height: '100vh', minHeight: 0, overflow: 'hidden' } : { minHeight: 'calc(100vh - 350px)' }}>
                 <Outlet context={{ openConsulting }} />
             </main>
 
-            <Footer />
+            {!isMapPage && <Footer />}
 
 
             <ConsultingWizard
