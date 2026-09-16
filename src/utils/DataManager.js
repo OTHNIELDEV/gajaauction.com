@@ -3,13 +3,50 @@ import { partners } from '../data/partners';
 import AiAssetImageMatcher from './AiAssetImageMatcher';
 import AiPropertyPhotoEngine from '../services/AiPropertyPhotoEngine';
 import { sanitizeMarkdownContent, unescapeMarkdown, extractMetricsFromIM, cleanExecutiveSummary, parseWonFromKorean } from './markdownUtils';
+import { signalExitwiseRemoved } from './ExitWiseListingSignal';
 
 const STORAGE_KEYS = {
     LISTINGS: 'gaja_listings',
     PARTNERS: 'gaja_partners',
     INQUIRIES: 'gaja_inquiries',
-    VIPS: 'gaja_vips'
+    VIPS: 'gaja_vips',
+    REMOVED_SEED_LISTINGS: 'gaja_removed_seed_listing_ids'
 };
+
+// 관리자가 지운 ExitWise 기본(시드) 매물 ID.
+// 시드 매물은 목록에 없으면 getListings()/init() 이 자동 보충하므로, 이 기록이 없으면 삭제해도
+// 곧바로 되살아난다(→ ExitWise 에 보낸 「삭제」 신호와 실제 목록이 어긋난다).
+// ExitWise 에서 같은 매물을 다시 올리면(importFromExitwise) 기록을 지워 보충을 되살린다.
+function readRemovedSeedIds() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEYS.REMOVED_SEED_LISTINGS) || '[]');
+        return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
+    } catch (err) {
+        console.warn('[DataManager] 삭제된 시드 매물 기록을 읽지 못해 비웁니다:', err?.message);
+        return new Set();
+    }
+}
+
+function writeRemovedSeedIds(ids) {
+    localStorage.setItem(STORAGE_KEYS.REMOVED_SEED_LISTINGS, JSON.stringify([...ids]));
+}
+
+function findMissingExitwiseSeeds(existingIds) {
+    const removedSeedIds = readRemovedSeedIds();
+    return mockListings.filter(m => m.isExitwiseLinked
+        && !existingIds.has(String(m.id))
+        && !removedSeedIds.has(String(m.id)));
+}
+
+function setSeedListingRemoved(id, isRemoved) {
+    const key = String(id);
+    if (!mockListings.some(m => String(m.id) === key)) return;
+    const removedSeedIds = readRemovedSeedIds();
+    if (isRemoved === removedSeedIds.has(key)) return;
+    if (isRemoved) removedSeedIds.add(key);
+    else removedSeedIds.delete(key);
+    writeRemovedSeedIds(removedSeedIds);
+}
 
 // ExitWise 전 매물의 IM 전문 및 제원 최신 동기화 헬퍼 (서문, 지도, 도표, 가격, 임대료, 보증금 자가치유)
 function syncExitwiseIMData(list) {
@@ -321,7 +358,7 @@ const DataManager = {
 
                             // 1. mockListings에 새로 추가된 필수 ExitWise 기본 매물이 누락되어 있다면 자동 동기화
                             const existingIds = new Set(currentList.map(i => String(i.id)));
-                            const missingExitwise = mockListings.filter(m => m.isExitwiseLinked && !existingIds.has(String(m.id)));
+                            const missingExitwise = findMissingExitwiseSeeds(existingIds);
                             if (missingExitwise.length > 0) {
                                 currentList = [...missingExitwise, ...currentList];
                                 listModified = true;
@@ -382,7 +419,7 @@ const DataManager = {
 
         // 1. mockListings의 ExitWise 연동 매물이 누락되어 있다면 자동 보충
         const existingIds = new Set(raw.map(i => String(i.id)));
-        const missingExitwise = mockListings.filter(m => m.isExitwiseLinked && !existingIds.has(String(m.id)));
+        const missingExitwise = findMissingExitwiseSeeds(existingIds);
         if (missingExitwise.length > 0) {
             raw = [...missingExitwise, ...raw];
             hasChangedAny = true;
@@ -658,6 +695,9 @@ const DataManager = {
             deterministicId = `exitwise-${Date.now()}`;
         }
 
+        // ExitWise 에서 다시 올린 시드 매물은 삭제 기록을 지워 정상 보충 대상으로 되돌린다.
+        setSeedListingRemoved(deterministicId, false);
+
         const aiMatched = AiAssetImageMatcher.match({
             title: titleForMatch,
             content: imData.markdownContent || '',
@@ -835,11 +875,17 @@ const DataManager = {
         }
     },
     deleteListing: (id) => {
-        const listings = DataManager.getListings().filter(item => String(item.id) !== String(id));
+        const current = DataManager.getListings();
+        const removedListing = current.find(item => String(item.id) === String(id));
+        // 시드 매물은 기록을 먼저 남겨야 아래 getListings() 류 호출에서 되살아나지 않는다.
+        setSeedListingRemoved(id, true);
+        const listings = current.filter(item => String(item.id) !== String(id));
         localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(listings));
         if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('gaja_listings_updated', { detail: { listings } }));
         }
+        // ExitWise 연동 매물이면 삭제 사실을 알려 ExitWise 의 「가자에셋 매물 올리기」 버튼을 다시 켠다.
+        signalExitwiseRemoved(removedListing);
         return listings;
     },
 
@@ -1052,6 +1098,7 @@ const DataManager = {
         localStorage.removeItem(STORAGE_KEYS.PARTNERS);
         localStorage.removeItem(STORAGE_KEYS.INQUIRIES);
         localStorage.removeItem(STORAGE_KEYS.VIPS);
+        localStorage.removeItem(STORAGE_KEYS.REMOVED_SEED_LISTINGS);
         DataManager.init();
     },
     exportData: () => {

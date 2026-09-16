@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DataManager from '../utils/DataManager';
 import { useTheme } from '../context/ThemeContext';
 import { sanitizeMarkdownContent } from '../utils/markdownUtils';
+import { signalExitwiseListed } from '../utils/ExitWiseListingSignal';
 
 export default function ImportListingPage() {
     const location = useLocation();
@@ -17,6 +18,8 @@ export default function ImportListingPage() {
 
     const redirectScheduledRef = React.useRef(false);
     const lastProcessedIdRef = React.useRef(null);
+    // URL 페이로드 + postMessage 재전송으로 processImport 가 여러 번 불린다 — ExitWise 신호는 문서당 1회만.
+    const signaledDocIdRef = React.useRef(null);
 
     const processImport = (data, autoRedirect) => {
         if (!data) return;
@@ -69,6 +72,12 @@ export default function ImportListingPage() {
 
         const targetId = saved?.id || finalId;
         lastProcessedIdRef.current = targetId;
+
+        // ExitWise IM 화면의 「가자에셋 매물 올리기」 버튼 세 곳을 「등록 완료」로 확정한다.
+        if (data.imDocumentId && signaledDocIdRef.current !== data.imDocumentId) {
+            signaledDocIdRef.current = data.imDocumentId;
+            signalExitwiseListed({ imDocumentId: data.imDocumentId, listingId: targetId });
+        }
         setImportedListing(saved);
         setStatus('success');
 
