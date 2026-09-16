@@ -123,6 +123,8 @@ const ListingDetailPage = () => {
                         if (remoteListing.isExitwiseLinked) {
                             setActiveTab('exitwise');
                         }
+                        setSyncNotice('ExitWise에서 매물 정보를 성공적으로 가져왔습니다.');
+                        setTimeout(() => setSyncNotice(null), 4000);
                     }
                     setIsLoading(false);
                 })
